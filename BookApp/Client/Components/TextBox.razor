@@ -1,0 +1,355 @@
+﻿@using BookApp.Shared
+@using BookApp.Shared.Data
+@using EpubSharp
+@using System.Web
+@using System.Xml
+@using static System.Net.Mime.MediaTypeNames
+@using Microsoft.AspNetCore.Html
+@using Newtonsoft.Json
+@using BookApp.Client.Components
+
+
+@inject IJSRuntime jsRuntime
+
+<style>
+    .highlight {
+    position: absolute;
+    background-color: rgba(1, 1, 255, 0.8);
+    z-index:9999;
+    transition: zoom 0.2s;
+}
+
+    .small-window-2 {
+            position:absolute;
+              margin-top: 5%;
+              margin-bottom: 5%;
+              margin-right: 5%;
+              margin-left: 5%;
+    }
+
+        .highlight-window-2 {
+            position:absolute;
+
+      background-color: rgba(255, 1, 0, 0.8);
+      z-index:9999
+    }
+
+        .note-container {
+          position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+
+</style>
+
+@*
+<button class="btn btn-primary" @onclick="AddNote">Add Note</button>
+
+<ul id="contextMenu" @ref="contextMenuRef" style="display: none; position: absolute; background-color: #f9f9f9; border: 1px solid #ccc; padding: 5px; list-style-type: none;">
+    <li @onclick="DeleteHighlight">Delete</li>
+    <li @onclick="ReApplyHighlight">Reapply Highlight</li>
+    <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
+</ul>
+
+<button @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
+
+
+<div class="row">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="DecreaseCount">a-</button>
+    </div>
+    <div class="col">
+        <p role="status">Current count: @currentCount</p>
+    </div>
+    <div class="col">
+        <button class="btn btn-primary" @onclick="IncrementCount">-a</button>
+    </div>
+</div>
+
+<div id="highlightContainer"></div>
+
+<div id="noteContainer" class="note-container"></div>
+
+<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
+
+<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
+        @((MarkupString)html[currentCount].TextContent)
+</div>*@
+
+
+<p>
+    <label>
+        <InputFile OnChange="@LoadFiles" />
+    </label>
+</p>
+
+@if (isLoading)
+{
+    <p>Uploading...</p>
+}
+else
+{
+
+    
+<button class="btn btn-primary" @onclick="AddNote">Add Note</button>
+
+<ul id="contextMenu" @ref="contextMenuRef" style="display: none; position: absolute; background-color: #f9f9f9; border: 1px solid #ccc; padding: 5px; list-style-type: none;">
+    <li @onclick="DeleteHighlight">Delete</li>
+    <li @onclick="ReApplyHighlight">Reapply Highlight</li>
+    <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
+</ul>
+
+<button @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
+
+
+<div class="row">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="DecreaseCount">a-</button>
+    </div>
+    <div class="col">
+        <p role="status">Current count: @currentCount</p>
+    </div>
+    <div class="col">
+        <button class="btn btn-primary" @onclick="IncrementCount">-a</button>
+    </div>
+</div>
+
+<div id="highlightContainer"></div>
+
+<div id="noteContainer" class="note-container"></div>
+
+<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
+
+<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
+        @((MarkupString)html[currentCount].TextContent)
+</div>
+
+    @*<ul>
+        @foreach(IBrowserFile file in loadedFiles)
+        {
+        <li>
+            <ul>
+                <li>Name: @file.Name</li>
+                <li>Last modified: @file.LastModified.ToString()</li>
+                <li>Size (bytes): @file.Size</li>
+                <li>Content type: @file.ContentType</li>
+                <li>Book Title: @book.Title</li>
+            </ul>
+        </li>
+        }
+    </ul>*@
+}
+
+
+@code{
+
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 32;
+    private int maxAllowedFiles = 3;
+    private bool isLoading = true;
+    private byte[] fileByteArray;
+    private EpubBook book;
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        loadedFiles.Clear();
+        loadedFiles.Add(e.File);
+
+        Stream stream = e.File.OpenReadStream(maxAllowedSize : 51200000);
+        byte[] btArray = await ReadFully(stream);
+        book = EpubReader.Read(btArray);
+
+        html = book.Resources.Html.ToList();
+
+        isLoading = false;
+    }
+
+    public static async Task<byte[]> ReadFully(Stream input)
+    {
+        byte[] buffer = new byte[32 * 1024];
+        using (MemoryStream ms = new MemoryStream())
+        {
+            int read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await ms.WriteAsync(buffer, 0, read);
+            }
+            return ms.ToArray();
+        }
+    }
+
+    private DotNetObjectReference<TextBox> dotNetRef;
+    private ElementReference textContainerRef;
+    private ElementReference contextMenuRef;
+    private ElementReference overlayElementRef;
+    private ElementReference highlightContainerRef;
+    TextLocation textLocation;
+    TextPosition textPosition;
+
+    public string currentHighlightId;
+    public string text;
+    List<EpubTextFile> html;
+    ICollection<EpubTextFile> css;
+    ICollection<EpubByteFile> images;
+    ICollection<EpubByteFile> fonts;
+    public string selectedText = "none";
+    TextLocation currentHighlightTextLocation;
+    bool editFlag = false;
+
+    Highlight selection;
+
+    private int currentCount = 1;
+
+    public List<string> overlays = new();
+
+    async Task AttachNoteToHighlight()
+    {
+        Highlight highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.ElementId == currentHighlightId);
+        if(highlight is not null)
+        {
+            Note newNote = new Note(highlight);
+            highlight.Notes.Add(newNote);
+        }
+    }
+
+    async Task AddNote()
+    {
+        await jsRuntime.InvokeVoidAsync("addNote");
+        //await notesService.CreateNote();
+    }
+
+    async Task ReApplyHighlight(MouseEventArgs e)
+    {
+        editFlag = true;
+        await GetSelectedText(e);
+
+        //await CreatePermanentHighlight();
+        //await DeleteHighlight();
+    }
+
+    async Task DeleteHighlight()
+    {
+        var highlightToRemove = HighlightStorage.selectionRanges.FirstOrDefault(s => s.ElementId == currentHighlightId);
+        HighlightStorage.selectionRanges.Remove(highlightToRemove);
+        await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
+    }
+
+    async Task GetSelectedText(MouseEventArgs e)
+    {
+        var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
+        string items = selectionRange.ToString();
+
+        if (items != "-1")
+        {
+            if (editFlag)
+            {
+                editFlag = false;
+                var newSelection = new Highlight(items, currentCount);
+                var editedSelection = HighlightStorage.selectionRanges.FirstOrDefault(s => s.ElementId == currentHighlightId);
+                editedSelection.Update(newSelection);
+                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
+                //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
+            }
+
+            else selection = new Highlight(items, currentCount);
+        }
+        //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
+    }
+
+    private async Task CreatePermanentHighlight()
+    {
+        if (selection is not null && selection?.PageNumber == currentCount)
+        {
+            var elementId = selection.ElementId;
+            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, dotNetRef, elementId);
+            HighlightStorage.selectionRanges.Add(selection);
+        }
+    }
+
+    
+
+
+    [JSInvokableAttribute("GetClickedNodeIndex")]
+    public async void GetClickedNodeIndex(int clickedNodeIndex)
+    {
+        Console.WriteLine();
+    }
+
+    [JSInvokableAttribute("onPernamentHighlightClick")]
+    public async void onPernamentHighlightClick(string idToString)
+    {
+        currentHighlightId = idToString;
+        await jsRuntime.InvokeVoidAsync("showContextMenu", "contextMenu");
+        
+        //var highlightToRemove = HighlightStorage.selectionRanges.FirstOrDefault(s => s.ElementId == idToString);
+        //HighlightStorage.selectionRanges.Remove(highlightToRemove);
+        //await jsRuntime.InvokeVoidAsync("deleteElementById", idToString);
+    }
+
+    private async void IncrementCount()
+    {
+        currentCount++;
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+    }
+
+    private async void DecreaseCount()
+    {
+        currentCount--;
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //await jsRuntime.InvokeVoidAsync("attachHandlers");
+        //if(firstRender)
+        //{
+        //    foreach(SelectionRange selection in HighlightStorage.selectionRanges)
+        //    {
+        //        if(selection.PageNumber == currentCount)
+        //        await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, objRef, selection.ElementId);
+        //    }
+        //}
+
+        foreach(Highlight selection in HighlightStorage.selectionRanges)
+            {
+                if(selection.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", selection.ElementId))
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, dotNetRef, selection.ElementId);
+            }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dotNetRef = DotNetObjectReference.Create(this);
+        //// Read an epub file
+        //EpubBook book = EpubReader.Read(@"C:\new.epub");
+        //// Read metadata
+        //string title = book.Title;
+        ////string[] authors = book.Authors;
+        ////Image cover = book.CoverImage;
+
+        //// Get table of contents
+        //ICollection<EpubChapter> chapters = book.TableOfContents;
+
+        //// Get contained files
+        //html = book.Resources.Html.ToList();
+        //css = book.Resources.Css;
+        //images = book.Resources.Images;
+        //fonts = book.Resources.Fonts;
+
+        //// Convert to plain text
+        //text = book.ToPlainText();
+        ////// Access internal EPUB format specific data structures.
+        ////EpubFormat format = book.Format;
+        ////OcfDocument ocf = format.Ocf;
+        ////OpfDocument opf = format.Opf;
+        ////NcxDocument ncx = format.Ncx;
+        ////NavDocument nav = format.Nav;
+
+        //// Create an EPUB
+        ////EpubWriter.Write(book, "new.epub");
+
+        ////return Task.CompletedTask;
+    }
+}

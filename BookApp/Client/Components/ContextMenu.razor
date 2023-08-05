@@ -1,0 +1,28 @@
+﻿
+<div @onclick="OnClick" style="position: absolute; display: none; background-color: white; border: 1px solid #ccc;">
+    <!-- Add your buttons here -->
+    <button @onclick="Button1Clicked">Button 1</button>
+    <button @onclick="Button2Clicked">Button 2</button>
+    <!-- Add more buttons as needed -->
+</div>
+
+@code {
+    public bool IsVisible { get; set; } = false;
+
+    private void OnClick()
+    {
+        IsVisible = false;
+    }
+
+    private void Button1Clicked()
+    {
+        // Handle button 1 click
+    }
+
+    private void Button2Clicked()
+    {
+        // Handle button 2 click
+    }
+
+    // Add more button click handlers as needed
+}
