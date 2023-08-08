@@ -601,22 +601,6 @@
             }
         }
 
-        //displays context menu upon clicking the highlight
-        function showContextMenu(elementId) {
-            var contextMenu = document.getElementById(elementId);
-            contextMenu.style.display = "block";
-
-            const rect = contextMenu.getBoundingClientRect();
-            contextMenu.style.left = contextMenu.style.left + 'px';
-            contextMenu.style.top = contextMenu.style.top + 'px';
-            document.addEventListener('click', (event) => {
-                const clickedOutside = !contextMenu.contains(event.target);
-                if (clickedOutside) {
-                    contextMenu.style.display = "none";
-                }
-            });
-        }
-
         //check if pernament highlight already rendered
         function doesHighlightExist(elementId) {
             if (document.getElementById(elementId + '_s') !== null || document.getElementById(elementId + "_f") !== null) {
@@ -625,8 +609,22 @@
             else return false;
         }
 
-    </script>
+        function showContextMenu() {
+            var contextMenu = document.getElementById("contextMenu");
+            contextMenu.style.display = "block";
+            const rect = contextMenu.getBoundingClientRect();
+            contextMenu.style.left = rect.left + 'px';
+            contextMenu.style.top = rect.top + 'px';
+            document.addEventListener('click', (event) => {
+                const clickedOutside = !contextMenu.contains(event.target);
+                let highlightClicked = event.target.id.startsWith("pernamentHighlight_");
+                if (clickedOutside && !highlightClicked) {
+                    contextMenu.style.display = "none";
+                }
+            });
+        }
 
+    </script>
 
     <script>
         //Script to determine which text node was clicked
@@ -646,14 +644,23 @@
                 }
             }
 
-            console.log(firstNode);
+            console.log("Fisrt Node: " + firstNode);
             lastSelectedNode = event.target;
             lastSelectedNodeIndex = firstNode;
         }
 
         // Attach event listener to the parent div
-        const parentDiv = document.getElementById('textContainer');
-        parentDiv.addEventListener('click', getTextNodeNumber);
+        let parentDiv;
+        //= document.getElementById('textContainer');
+        //parentDiv.addEventListener('click', getTextNodeNumber);
+
+        function setupEvent(elementId) {
+            console.log("Element Id: " + elementId);
+            parentDiv = document.getElementById(elementId);
+            console.log(parentDiv);
+            parentDiv.addEventListener('click', getTextNodeNumber);
+        }
+
 
         function getNodeIndex(node) {
             let index = 0;
@@ -668,6 +675,7 @@
         }
 
         function addNote() {
+            console.log("Adding Note...");
             var note = document.createElement("div");
             note.className = "highlight";
             note.id = "newNote";

@@ -1,9 +1,27 @@
 ﻿@page "/"
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared.Data
+@using EpubSharp
+@inject IBookAnalysisClientService _bookAnalysisClientService
 
 <PageTitle>Index</PageTitle>
 
-<BookApp.Client.Components.TextBox></BookApp.Client.Components.TextBox>
+@if (bookAnalysis is not null)
+{
+    <BookApp.Client.Components.TextBox bookAnalysis = "bookAnalysis" book = "book"/>
+}
+else
+{
+
+}
 
 @code{
+    private BookAnalysis bookAnalysis;
+    private EpubBook book;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookAnalysis = await _bookAnalysisClientService.GetBookAnalysis(Guid.NewGuid());
+    }
 
 }

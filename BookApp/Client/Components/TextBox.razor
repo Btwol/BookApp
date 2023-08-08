@@ -40,7 +40,13 @@
       top: 0;
     }
 
-
+    @if (css != null)
+    {
+        @foreach (EpubTextFile txt in css)
+        {
+            @(new HtmlString(txt.TextContent))
+        }
+    }
 </style>
 
 @*
@@ -121,26 +127,17 @@ else
 
 <div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
 
-<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
-        @((MarkupString)html[currentCount].TextContent)
-</div>
 
-    @*<ul>
-        @foreach(IBrowserFile file in loadedFiles)
-        {
-        <li>
-            <ul>
-                <li>Name: @file.Name</li>
-                <li>Last modified: @file.LastModified.ToString()</li>
-                <li>Size (bytes): @file.Size</li>
-                <li>Content type: @file.ContentType</li>
-                <li>Book Title: @book.Title</li>
-            </ul>
-        </li>
-        }
-    </ul>*@
+
+
 }
 
+<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
+    @if(html is not null)
+    {
+        @((MarkupString)html[currentCount].TextContent)
+    }
+</div>
 
 @code{
 
@@ -149,19 +146,28 @@ else
     private int maxAllowedFiles = 3;
     private bool isLoading = true;
     private byte[] fileByteArray;
-    private EpubBook book;
+
+    [Parameter]
+    public EpubBook book { get; set; }
+
+    [Parameter]
+    public BookAnalysis bookAnalysis { get; set; }
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
-        isLoading = true;
-        loadedFiles.Clear();
-        loadedFiles.Add(e.File);
+        if (book is null)
+        {
+            isLoading = true;
+            loadedFiles.Clear();
+            loadedFiles.Add(e.File);
 
-        Stream stream = e.File.OpenReadStream(maxAllowedSize : 51200000);
-        byte[] btArray = await ReadFully(stream);
-        book = EpubReader.Read(btArray);
+            Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
+            byte[] btArray = await ReadFully(stream);
+            book = EpubReader.Read(btArray);
+        }
 
         html = book.Resources.Html.ToList();
+        css = book.Resources.Css;
 
         isLoading = false;
     }
@@ -185,8 +191,6 @@ else
     private ElementReference contextMenuRef;
     private ElementReference overlayElementRef;
     private ElementReference highlightContainerRef;
-    TextLocation textLocation;
-    TextPosition textPosition;
 
     public string currentHighlightId;
     public string text;
@@ -195,7 +199,6 @@ else
     ICollection<EpubByteFile> images;
     ICollection<EpubByteFile> fonts;
     public string selectedText = "none";
-    TextLocation currentHighlightTextLocation;
     bool editFlag = false;
 
     Highlight selection;
@@ -268,9 +271,6 @@ else
         }
     }
 
-    
-
-
     [JSInvokableAttribute("GetClickedNodeIndex")]
     public async void GetClickedNodeIndex(int clickedNodeIndex)
     {
@@ -280,12 +280,8 @@ else
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlightId = idToString;
-        await jsRuntime.InvokeVoidAsync("showContextMenu", "contextMenu");
-        
-        //var highlightToRemove = HighlightStorage.selectionRanges.FirstOrDefault(s => s.ElementId == idToString);
-        //HighlightStorage.selectionRanges.Remove(highlightToRemove);
-        //await jsRuntime.InvokeVoidAsync("deleteElementById", idToString);
+        currentHighlightId = idToString;    
+        await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
 
     private async void IncrementCount()
@@ -302,6 +298,19 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if(firstRender)
+        {
+            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer");
+
+            if (book is not null)
+            {   
+                html = book.Resources.Html.ToList();
+                css = book.Resources.Css;
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+
         //await jsRuntime.InvokeVoidAsync("attachHandlers");
         //if(firstRender)
         //{
@@ -313,15 +322,16 @@ else
         //}
 
         foreach(Highlight selection in HighlightStorage.selectionRanges)
-            {
-                if(selection.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", selection.ElementId))
+        {
+            if(selection.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", selection.ElementId))
                 await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, dotNetRef, selection.ElementId);
-            }
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
         dotNetRef = DotNetObjectReference.Create(this);
+
         //// Read an epub file
         //EpubBook book = EpubReader.Read(@"C:\new.epub");
         //// Read metadata
