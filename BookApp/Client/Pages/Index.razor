@@ -2,26 +2,117 @@
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared.Data
 @using EpubSharp
+@using System.Security.Cryptography
 @inject IBookAnalysisClientService _bookAnalysisClientService
 
 <PageTitle>Index</PageTitle>
 
-@if (bookAnalysis is not null)
+@if (isLoading)
 {
-    <BookApp.Client.Components.TextBox bookAnalysis = "bookAnalysis" book = "book"/>
+    <p>
+        <label>
+            <InputFile OnChange="@LoadFiles" />
+        </label>
+    </p>
+    <p>Select book...</p>
 }
-else
+else if (bookAnalysis is null)
 {
+    <button @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
 
+    if (showCreateAnalysisForm)
+    {
+        <form @onsubmit="CreateAnalysis">
+            <div class="form-group">
+                <label for="AnalysisTitle">Analysis Title</label>
+                <input id="AnalysisTitle" class="form-control" @bind="newAnalysis.AnalysisTitle" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    }
+
+    @foreach(BookAnalysis bookAnalysis in foundBookAnalyses)
+    {
+        <br />
+        <p>@bookAnalysis.AnalysisTitle</p>
+        <p>@bookAnalysis.BookHash</p>
+        <p>@bookAnalysis.BookTitle</p>
+        <p>Authors:</p>
+        @foreach(string author in bookAnalysis.Authors)
+        {
+            <p>@author</p>
+        }
+        <button @onclick="() => LoadAnalysis(bookAnalysis)">Select</button>
+    }
+}
+else if (bookAnalysis is not null)
+{
+    <BookApp.Client.Components.TextBox bookAnalysis="bookAnalysis" book="book" />
 }
 
 @code{
+    private bool isLoading = true;
     private BookAnalysis bookAnalysis;
     private EpubBook book;
+    private byte[] loadedBookByteArray;
+    private string loadedBookHash;
+    private List<BookAnalysis> foundBookAnalyses = new();
 
-    protected override async Task OnInitializedAsync()
+    private bool showCreateAnalysisForm = false;
+    private BookAnalysis newAnalysis = new();
+
+    private async void CreateAnalysis()
     {
-        bookAnalysis = await _bookAnalysisClientService.GetBookAnalysis(Guid.NewGuid());
+        showCreateAnalysisForm = false;
+
+        newAnalysis.BookHash = loadedBookHash;
+        newAnalysis.Authors = book.Authors.ToList();
+        newAnalysis.BookTitle = book.Title;
+        await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
+
+        foundBookAnalyses = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
     }
 
+    private void LoadAnalysis(BookAnalysis selectedBookAnalysis)
+    {
+        bookAnalysis = selectedBookAnalysis;
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        if (book is null)
+        {
+            isLoading = true;
+
+            Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
+            loadedBookByteArray = await ReadFully(stream);
+            book = EpubReader.Read(loadedBookByteArray);
+
+            await ReadBookHash();
+            foundBookAnalyses = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
+        }
+        isLoading = false;
+    }
+
+    private async Task<byte[]> ReadFully(Stream input)
+    {
+        byte[] buffer = new byte[32 * 1024];
+        using (MemoryStream ms = new MemoryStream())
+        {
+            int read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await ms.WriteAsync(buffer, 0, read);
+            }
+            return ms.ToArray();
+        }
+    }
+
+    private async Task ReadBookHash()
+    {
+        SHA256 sha256 = SHA256.Create();
+        byte[] hashValue = sha256.ComputeHash(loadedBookByteArray);
+        string hashString = BitConverter.ToString(hashValue).Replace("-", "");
+        loadedBookHash = hashString;
+    }
 }

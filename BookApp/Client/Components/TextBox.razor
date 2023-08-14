@@ -1,4 +1,5 @@
-﻿@using BookApp.Shared
+﻿@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared
 @using BookApp.Shared.Data
 @using EpubSharp
 @using System.Web
@@ -8,7 +9,7 @@
 @using Newtonsoft.Json
 @using BookApp.Client.Components
 
-
+@inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IJSRuntime jsRuntime
 
 <style>
@@ -83,13 +84,6 @@
         @((MarkupString)html[currentCount].TextContent)
 </div>*@
 
-
-<p>
-    <label>
-        <InputFile OnChange="@LoadFiles" />
-    </label>
-</p>
-
 @if (isLoading)
 {
     <p>Uploading...</p>
@@ -111,13 +105,13 @@ else
 
 <div class="row">
     <div class="col">
-        <button class="btn btn-primary" @onclick="DecreaseCount">a-</button>
+        <button class="btn btn-primary" @onclick="() => ChangePage(-1)">a-</button>
     </div>
     <div class="col">
         <p role="status">Current count: @currentCount</p>
     </div>
     <div class="col">
-        <button class="btn btn-primary" @onclick="IncrementCount">-a</button>
+        <button class="btn btn-primary" @onclick="() => ChangePage(1)">-a</button>
     </div>
 </div>
 
@@ -153,38 +147,7 @@ else
     [Parameter]
     public BookAnalysis bookAnalysis { get; set; }
 
-    private async Task LoadFiles(InputFileChangeEventArgs e)
-    {
-        if (book is null)
-        {
-            isLoading = true;
-            loadedFiles.Clear();
-            loadedFiles.Add(e.File);
 
-            Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
-            byte[] btArray = await ReadFully(stream);
-            book = EpubReader.Read(btArray);
-        }
-
-        html = book.Resources.Html.ToList();
-        css = book.Resources.Css;
-
-        isLoading = false;
-    }
-
-    public static async Task<byte[]> ReadFully(Stream input)
-    {
-        byte[] buffer = new byte[32 * 1024];
-        using (MemoryStream ms = new MemoryStream())
-        {
-            int read;
-            while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
-            {
-                await ms.WriteAsync(buffer, 0, read);
-            }
-            return ms.ToArray();
-        }
-    }
 
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
@@ -201,7 +164,7 @@ else
     public string selectedText = "none";
     bool editFlag = false;
 
-    Highlight selection;
+    Highlight highlight;
 
     private int currentCount = 1;
 
@@ -234,8 +197,9 @@ else
 
     async Task DeleteHighlight()
     {
-        var highlightToRemove = HighlightStorage.selectionRanges.FirstOrDefault(s => s.ElementId == currentHighlightId);
-        HighlightStorage.selectionRanges.Remove(highlightToRemove);
+        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
+        bookAnalysis.Highlights.Remove(highlightToRemove);
+        _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
         await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
     }
 
@@ -250,24 +214,28 @@ else
             {
                 editFlag = false;
                 var newSelection = new Highlight(items, currentCount);
-                var editedSelection = HighlightStorage.selectionRanges.FirstOrDefault(s => s.ElementId == currentHighlightId);
+                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
                 editedSelection.Update(newSelection);
+                _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
                 await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
                 //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
             }
 
-            else selection = new Highlight(items, currentCount);
+            else highlight = new Highlight(items, currentCount);
         }
         //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
     }
 
     private async Task CreatePermanentHighlight()
     {
-        if (selection is not null && selection?.PageNumber == currentCount)
+        if (highlight is not null && highlight?.PageNumber == currentCount)
         {
-            var elementId = selection.ElementId;
-            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, dotNetRef, elementId);
-            HighlightStorage.selectionRanges.Add(selection);
+            var elementId = highlight.ElementId;
+            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
+
+            bookAnalysis.Highlights.Add(highlight);
+            await _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
+            //HighlightStorage.selectionRanges.Add(highlight);
         }
     }
 
@@ -284,17 +252,12 @@ else
         await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
 
-    private async void IncrementCount()
+    private async void ChangePage(int page)
     {
-        currentCount++;
+        currentCount += page;
         await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
     }
 
-    private async void DecreaseCount()
-    {
-        currentCount--;
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -306,60 +269,25 @@ else
             {   
                 html = book.Resources.Html.ToList();
                 css = book.Resources.Css;
+                //images = book.Resources.Images;
+                //fonts = book.Resources.Fonts;
+                ////Image cover = book.CoverImage;
+                //ICollection<EpubChapter> chapters = book.TableOfContents;
+
                 isLoading = false;
                 StateHasChanged();
             }
         }
 
-        //await jsRuntime.InvokeVoidAsync("attachHandlers");
-        //if(firstRender)
-        //{
-        //    foreach(SelectionRange selection in HighlightStorage.selectionRanges)
-        //    {
-        //        if(selection.PageNumber == currentCount)
-        //        await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, objRef, selection.ElementId);
-        //    }
-        //}
-
-        foreach(Highlight selection in HighlightStorage.selectionRanges)
+        foreach(Highlight highlight in bookAnalysis.Highlights)
         {
-            if(selection.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", selection.ElementId))
-                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", selection.FirstNodeIndex, selection.FirstNodeCharIndex, selection.LastNodeIndex, selection.LastNodeCharIndex, dotNetRef, selection.ElementId);
+            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.ElementId))
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.ElementId);
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
         dotNetRef = DotNetObjectReference.Create(this);
-
-        //// Read an epub file
-        //EpubBook book = EpubReader.Read(@"C:\new.epub");
-        //// Read metadata
-        //string title = book.Title;
-        ////string[] authors = book.Authors;
-        ////Image cover = book.CoverImage;
-
-        //// Get table of contents
-        //ICollection<EpubChapter> chapters = book.TableOfContents;
-
-        //// Get contained files
-        //html = book.Resources.Html.ToList();
-        //css = book.Resources.Css;
-        //images = book.Resources.Images;
-        //fonts = book.Resources.Fonts;
-
-        //// Convert to plain text
-        //text = book.ToPlainText();
-        ////// Access internal EPUB format specific data structures.
-        ////EpubFormat format = book.Format;
-        ////OcfDocument ocf = format.Ocf;
-        ////OpfDocument opf = format.Opf;
-        ////NcxDocument ncx = format.Ncx;
-        ////NavDocument nav = format.Nav;
-
-        //// Create an EPUB
-        ////EpubWriter.Write(book, "new.epub");
-
-        ////return Task.CompletedTask;
     }
 }

@@ -6,6 +6,7 @@ namespace BookApp.Client.Services.Interfaces
     {
         public Task<BookAnalysis> GetBookAnalysis(Guid analysisId);
         public Task<BookAnalysis> CreateBookAnalysis(BookAnalysis newBookAnalysis);
-        public Task<BookAnalysis> UpdateBookAnalysis(Guid analysisId, BookAnalysis updatedBookAnalysis);
+        public Task<BookAnalysis> UpdateBookAnalysis(BookAnalysis updatedBookAnalysis);
+        public Task<List<BookAnalysis>> GetAnalysisByHash(string bookHash);
     }
 }
