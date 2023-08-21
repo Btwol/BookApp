@@ -145,7 +145,7 @@ else
     public EpubBook book { get; set; }
 
     [Parameter]
-    public BookAnalysis bookAnalysis { get; set; }
+    public BookAnalysisModel bookAnalysis { get; set; }
 
 
 
@@ -164,7 +164,7 @@ else
     public string selectedText = "none";
     bool editFlag = false;
 
-    Highlight highlight;
+    HighlightModel highlight;
 
     private int currentCount = 1;
 
@@ -172,10 +172,10 @@ else
 
     async Task AttachNoteToHighlight()
     {
-        Highlight highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.ElementId == currentHighlightId);
+        HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.ElementId == currentHighlightId);
         if(highlight is not null)
         {
-            Note newNote = new Note(highlight);
+            NoteModel newNote = new NoteModel(highlight);
             highlight.Notes.Add(newNote);
         }
     }
@@ -213,7 +213,7 @@ else
             if (editFlag)
             {
                 editFlag = false;
-                var newSelection = new Highlight(items, currentCount);
+                var newSelection = new HighlightModel(items, currentCount);
                 var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
                 editedSelection.Update(newSelection);
                 _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
@@ -221,7 +221,7 @@ else
                 //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
             }
 
-            else highlight = new Highlight(items, currentCount);
+            else highlight = new HighlightModel(items, currentCount);
         }
         //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
     }
@@ -279,7 +279,7 @@ else
             }
         }
 
-        foreach(Highlight highlight in bookAnalysis.Highlights)
+        foreach(HighlightModel highlight in bookAnalysis.Highlights)
         {
             if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.ElementId))
                 await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.ElementId);

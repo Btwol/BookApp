@@ -31,7 +31,7 @@ else if (bookAnalysis is null)
         </form>
     }
 
-    @foreach(BookAnalysis bookAnalysis in foundBookAnalyses)
+    @foreach(BookAnalysisModel bookAnalysis in foundBookAnalyses)
     {
         <br />
         <p>@bookAnalysis.AnalysisTitle</p>
@@ -52,14 +52,14 @@ else if (bookAnalysis is not null)
 
 @code{
     private bool isLoading = true;
-    private BookAnalysis bookAnalysis;
+    private BookAnalysisModel bookAnalysis;
     private EpubBook book;
     private byte[] loadedBookByteArray;
     private string loadedBookHash;
-    private List<BookAnalysis> foundBookAnalyses = new();
+    private List<BookAnalysisModel> foundBookAnalyses = new();
 
     private bool showCreateAnalysisForm = false;
-    private BookAnalysis newAnalysis = new();
+    private BookAnalysisModel newAnalysis = new();
 
     private async void CreateAnalysis()
     {
@@ -73,7 +73,7 @@ else if (bookAnalysis is not null)
         foundBookAnalyses = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
     }
 
-    private void LoadAnalysis(BookAnalysis selectedBookAnalysis)
+    private void LoadAnalysis(BookAnalysisModel selectedBookAnalysis)
     {
         bookAnalysis = selectedBookAnalysis;
     }

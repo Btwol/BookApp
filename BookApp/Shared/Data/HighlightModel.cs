@@ -1,25 +1,21 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookApp.Shared.Data
 {
-    public class Highlight
+    public class HighlightModel
     {
-        public int PageNumber { get; }
+        public int Id { get; set; }
+        public int PageNumber { get; set;  }
         public int NodeCount { get; set; }
         public int FirstNodeIndex { get; set; }
         public int FirstNodeCharIndex { get; set; }
         public int LastNodeIndex { get; set; }
         public int LastNodeCharIndex { get; set; }
         public Dictionary<int, int> Nodes { get; set; } = new();
-        public int[,] RawArray { get; set; }
+        //public int[,] RawArray { get; set; }
         public string RawPositionString { get; set; }
-        private Guid _ElementId;
-        public List<Note> Notes { get; set; } = new();
+        private int _ElementId;
+        public List<NoteModel> Notes { get; set; } = new();
         public string ElementId
         {
             get
@@ -28,11 +24,10 @@ namespace BookApp.Shared.Data
             }
         }
 
-        public Highlight(string positionString, int pageNumber)
+        public HighlightModel(string positionString, int pageNumber)
         {
-            _ElementId = Guid.NewGuid();
             RawPositionString = positionString;
-            RawArray = JsonConvert.DeserializeObject<int[,]>(positionString);
+            int[,] RawArray = JsonConvert.DeserializeObject<int[,]>(positionString);
             for (int i = RawArray[0, 0]; i < RawArray.Length / 2; i++)
             {
                 Nodes.Add(RawArray[i, 0], RawArray[i, 1]);
@@ -45,9 +40,10 @@ namespace BookApp.Shared.Data
             PageNumber = pageNumber;
         }
 
-        public void Update(Highlight newSelectionRange)
+        public void Update(HighlightModel newSelectionRange)
         {
             RawPositionString = newSelectionRange.RawPositionString;
+            int[,] RawArray = JsonConvert.DeserializeObject<int[,]>(RawPositionString);
             RawArray = JsonConvert.DeserializeObject<int[,]>(newSelectionRange.RawPositionString);
             Nodes.Clear();
             for (int i = RawArray[0, 0]; i < RawArray.Length / 2; i++)

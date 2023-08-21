@@ -2,6 +2,6 @@
 {
     public static class HighlightStorage
     {
-        public static List<Highlight> selectionRanges { get; set; } = new();
+        public static List<HighlightModel> selectionRanges { get; set; } = new();
     }
 }

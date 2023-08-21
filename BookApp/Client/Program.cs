@@ -13,6 +13,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
 builder.Services.AddScoped(typeof(IBookAnalysisClientService), typeof(BookAnalysisClientService));
+//builder.Services.AddScoped(typeof(IHighlightClientService), typeof(HighlightClientService));
 
 var app = builder.Build();
 
