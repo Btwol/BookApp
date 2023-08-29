@@ -243,6 +243,7 @@
 
         // Helper function to get text nodes within an element
         function getTextNodes(element) {
+            console.log(element);
             var textNodes = [];
             var walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
 
@@ -453,7 +454,10 @@
             //SINGLE NODE
             if (nodeCount == 1) {
                 var element = document.getElementById(elementId);
+                console.log("THE ELEMENT: ");
+                console.log(element);
                 var textNode = getTextNodes(element)[firstNodeIndex];
+                console.log("AFTER READ");
                 var text = textNode.textContent;
 
                 startOffset = firstNodeCharIndex;

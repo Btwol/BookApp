@@ -9,6 +9,11 @@ using BookApp.Server.Services.Interfaces.MapperServices;
 using BookApp.Server.Services.MapperServices;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using BookApp.Shared.Data;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using BookApp.Server.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,11 +30,34 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
 builder.Services.AddScoped(typeof(IBookAnalysisServerService), typeof(BookAnalysisServerService));
-builder.Services.AddScoped(typeof(IBookAnalysisMapper), typeof(BookAnalysisMapper));
+builder.Services.AddScoped(typeof(IBookAnalysisMapper), typeof(BookAnalysisMapperService));
 builder.Services.AddScoped(typeof(IBookAnalysisRepository), typeof(BookAnalysisRepository));
 
+builder.Services.AddScoped(typeof(IHighlightServerService), typeof(HighlightServerService));
+builder.Services.AddScoped(typeof(IHighlightMapperService), typeof(HighlightMapperService));
+builder.Services.AddScoped(typeof(IHighlightRepository), typeof(HighlightRepository));
+
+builder.Services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 
 var app = builder.Build();
+
+app.UseExceptionHandler(c => c.Run(async context =>
+{
+    var exception = context.Features.Get<IExceptionHandlerPathFeature>().Error;
+
+    if (exception is SecurityTokenValidationException)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+    }
+    else
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+    }
+
+    await context.Response.WriteAsJsonAsync(ServiceResponse.Error(exception.Message, (HttpStatusCode)context.Response.StatusCode));
+}));
+app.UseMiddleware<ServiceResponseMiddleware>();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -38,7 +66,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Error");
+    //app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }

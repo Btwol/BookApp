@@ -14,9 +14,6 @@ namespace BookApp.Server.Models
         public int PageNumber { get; set;  }
 
         [Required]
-        public int NodeCount { get; set; }
-
-        [Required]
         public int FirstNodeIndex { get; set; }
 
         [Required]
@@ -28,8 +25,6 @@ namespace BookApp.Server.Models
         [Required]
         public int LastNodeCharIndex { get; set; }
 
-        [Required]
-        public int ElementId { get; set; }
 
         public int BookAnalysisId { get; set; }
         public virtual BookAnalysis BookAnalysis { get; set; }

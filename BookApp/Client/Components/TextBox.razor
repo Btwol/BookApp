@@ -10,6 +10,7 @@
 @using BookApp.Client.Components
 
 @inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 
 <style>
@@ -172,11 +173,11 @@ else
 
     async Task AttachNoteToHighlight()
     {
-        HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.ElementId == currentHighlightId);
+        HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.GetElementId() == currentHighlightId);
         if(highlight is not null)
         {
             NoteModel newNote = new NoteModel(highlight);
-            highlight.Notes.Add(newNote);
+            //highlight.Notes.Add(newNote);
         }
     }
 
@@ -197,7 +198,7 @@ else
 
     async Task DeleteHighlight()
     {
-        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
+        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlightId);
         bookAnalysis.Highlights.Remove(highlightToRemove);
         _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
         await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
@@ -210,18 +211,19 @@ else
 
         if (items != "-1")
         {
-            if (editFlag)
-            {
-                editFlag = false;
-                var newSelection = new HighlightModel(items, currentCount);
-                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
-                editedSelection.Update(newSelection);
-                _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
-                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
-                //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
-            }
+            //if (editFlag)
+            //{
+            //    editFlag = false;
+            //    var newSelection = new HighlightModel(items, currentCount);
+            //    var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
+            //    editedSelection.Update(newSelection);
+            //    _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
+            //    await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
+            //    //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
+            //}
 
-            else highlight = new HighlightModel(items, currentCount);
+            //else 
+            highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
         }
         //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
     }
@@ -230,10 +232,11 @@ else
     {
         if (highlight is not null && highlight?.PageNumber == currentCount)
         {
-            var elementId = highlight.ElementId;
+            var elementId = highlight.GetElementId();
             await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
             bookAnalysis.Highlights.Add(highlight);
+            await _highlightClientService.AddHighlight(highlight);
             await _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
             //HighlightStorage.selectionRanges.Add(highlight);
         }
@@ -269,7 +272,7 @@ else
             {   
                 html = book.Resources.Html.ToList();
                 css = book.Resources.Css;
-                //images = book.Resources.Images;
+                images = book.Resources.Images;
                 //fonts = book.Resources.Fonts;
                 ////Image cover = book.CoverImage;
                 //ICollection<EpubChapter> chapters = book.TableOfContents;
@@ -281,8 +284,8 @@ else
 
         foreach(HighlightModel highlight in bookAnalysis.Highlights)
         {
-            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.ElementId))
-                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.ElementId);
+            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
         }
     }
 

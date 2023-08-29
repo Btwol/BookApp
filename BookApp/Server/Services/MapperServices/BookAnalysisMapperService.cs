@@ -5,11 +5,11 @@ using BookApp.Shared.Data;
 
 namespace BookApp.Server.Services.MapperServices
 {
-    public class BookAnalysisMapper : IBookAnalysisMapper
+    public class BookAnalysisMapperService : IBookAnalysisMapper
     {
         private readonly IMapper _mapper;
 
-        public BookAnalysisMapper(IMapper mapper)
+        public BookAnalysisMapperService(IMapper mapper)
         {
             _mapper = mapper;
         }

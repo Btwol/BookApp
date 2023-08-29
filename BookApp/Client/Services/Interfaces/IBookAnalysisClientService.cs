@@ -8,6 +8,7 @@ namespace BookApp.Client.Services.Interfaces
         public Task<ServiceResponse> GetBookAnalysis(int analysisId);
         public Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newBookAnalysis);
         public Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis);
-        public Task<List<BookAnalysisModel>> GetAnalysisByHash(string bookHash);
+        public Task<HttpResponseMessage> GetAnalysisByHash(string bookHash);
+        public Task Crash();
     }
 }

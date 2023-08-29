@@ -1,6 +1,7 @@
 using BookApp.Client;
 using BookApp.Client.Services;
 using BookApp.Client.Services.Interfaces;
+using BookApp.Client.Stuff;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -13,7 +14,12 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
 builder.Services.AddScoped(typeof(IBookAnalysisClientService), typeof(BookAnalysisClientService));
-//builder.Services.AddScoped(typeof(IHighlightClientService), typeof(HighlightClientService));
+builder.Services.AddScoped(typeof(IHighlightClientService), typeof(HighlightClientService));
+
+//var unhandledExceptionSender = new UnhandledExceptionSender();
+//var unhandledExceptionProvider = new UnhandledExceptionProvider(unhandledExceptionSender);
+//builder.Logging.AddProvider(unhandledExceptionProvider);
+//builder.Services.AddSingleton<IUnhandledExceptionSender>(unhandledExceptionSender);
 
 var app = builder.Build();
 

@@ -19,15 +19,14 @@ namespace BookApp.Server.Services.MapperServices
             highlightToUpdate.LastNodeCharIndex = updatedHighlightModel.LastNodeCharIndex;
             highlightToUpdate.FirstNodeCharIndex = updatedHighlightModel.FirstNodeCharIndex;
             highlightToUpdate.PageNumber = updatedHighlightModel.PageNumber;
-            highlightToUpdate.ElementId = int.Parse(updatedHighlightModel.ElementId);
             highlightToUpdate.FirstNodeIndex = updatedHighlightModel.FirstNodeIndex;
             highlightToUpdate.LastNodeIndex = updatedHighlightModel.LastNodeIndex;
-            highlightToUpdate.NodeCount = updatedHighlightModel.NodeCount;
         }
 
         public Highlight MapToHighlight(HighlightModel highlightModel)
         {
             return _mapper.Map<Highlight>(highlightModel);
+
         }
 
         public HighlightModel MapToHighlightModel(Highlight highlight)

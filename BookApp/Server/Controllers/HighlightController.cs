@@ -18,13 +18,13 @@ namespace BookApp.Server.Controllers
         [HttpPut("UpdateHighlight")]
         public async Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
-            return await _highlightService.UpdateHighlight(updatedHighlight);
+            return null;// await _highlightService.UpdateHighlight(updatedHighlight);
         }
 
-        [HttpGet("RetrieveHighlights")]
-        public async Task<ServiceResponse> RetrieveHighlights(int bookAnalysisId)
+        [HttpPost("AddHighlight")]
+        public async Task<ServiceResponse> AddHighlight([FromBody] HighlightModel newHighlight)
         {
-            return await _highlightService.RetrieveHighlights(bookAnalysisId);
+            return await _highlightService.AddHighlight(newHighlight);
         }
     }
 }

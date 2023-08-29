@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using BookApp.Client.Other
+@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
@@ -10,10 +11,22 @@
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
 
-        <ErrorBoundary>
-            <article class="content px-4">
-                @Body
-            </article>
-        </ErrorBoundary>
+        <article class="content px-4">
+            <ErrorBoundary @ref="@errorBoundary" Context="Exception">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <div class="alert bg-danger text-white alert-dismissible">
+                        MainLayout Error Boundary: @Exception.GetType(): @Exception.Message
+                        <button class="btn-close" @onclick="@errorBoundary.Recover"></button>
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
+        </article>
     </main>
 </div>
+
+@code{
+    private ErrorBoundary errorBoundary;
+}

@@ -13,7 +13,7 @@ namespace BookApp.Shared.Data
 
         public NoteModel(HighlightModel highlight)
         {
-            ParentId = int.Parse(highlight.ElementId);
+            ParentId = highlight.Id;
             ParentHighlight = highlight;
             PageNumber = highlight.PageNumber;
         }

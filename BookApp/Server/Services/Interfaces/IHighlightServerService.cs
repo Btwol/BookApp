@@ -3,7 +3,8 @@ using BookApp.Shared.Interfaces.Services;
 
 namespace BookApp.Server.Services.Interfaces
 {
-    public interface IHighlightServerService : IHighlightService
+    public interface IHighlightServerService
     {
+        public Task<ServiceResponse> AddHighlight(HighlightModel newHighlight);
     }
 }

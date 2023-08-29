@@ -28,24 +28,29 @@ namespace BookApp.Client.Services
             }
         }
 
-        public async Task<List<BookAnalysisModel>> GetAnalysisByHash(string bookHash)
+        public async Task<HttpResponseMessage> GetAnalysisByHash(string bookHash)
         {
             //return await Http.GetFromJsonAsync<List<BookAnalysisModel>>($"GetAnalysisByHash/{bookHash}");
 
             var response = await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
+            //return response;
+            //return await response.Content.ReadFromJsonAsync<ServiceResponse>();
+
+            return response;
+
             if (response.IsSuccessStatusCode)
             {
-                
+                Console.WriteLine("a");
                 Console.WriteLine(await response.Content.ReadAsStringAsync());
-                Console.WriteLine("11111111111111111");
-                Console.WriteLine();
-                Console.WriteLine("222222222222222222");
                 var content = await response.Content.ReadFromJsonAsync<ServiceResponse<List<BookAnalysisModel>>>();
-                return content.Content;
+                return response;
             }
             else
             {
-                throw new Exception("Nope");
+                Console.WriteLine(response.Content);
+                Console.WriteLine(await response.Content.ReadAsStringAsync());
+                var content = await response.Content.ReadFromJsonAsync<ServiceResponse>();
+                throw new Exception(content.Message);
             }
         }
 
@@ -68,6 +73,11 @@ namespace BookApp.Client.Services
         {
             //var a = await Http.PutAsJsonAsync<BookAnalysisModel>("UpdateBookAnalysis", updatedBookAnalysis);
             return null;
+        }
+
+        public async Task Crash()
+        {
+            throw new Exception("Crash!");
         }
     }
 }

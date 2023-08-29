@@ -6,15 +6,30 @@ using BookApp.Shared.Data;
 
 namespace BookApp.Server.Services
 {
-    public class HighlightService : IHighlightServerService
+    public class HighlightServerService : IHighlightServerService
     {
         private readonly IHighlightRepository _highlightRepository;
         private readonly IHighlightMapperService _highlightMapperService;
 
-        public HighlightService(IHighlightRepository highlightRepository, IHighlightMapperService highlightMapperService)
+        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapperService highlightMapperService)
         {
             _highlightRepository = highlightRepository;
             _highlightMapperService = highlightMapperService;
+        }
+
+        public async Task<ServiceResponse> AddHighlight(HighlightModel newHighlight)
+        {
+            try
+            {
+                var mappedHighlight = _highlightMapperService.MapToHighlight(newHighlight);
+                await _highlightRepository.Create(mappedHighlight);
+
+                return ServiceResponse.Success("Highlight created.");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<Exception>.Error(ex, "Create highlight failed. " + ex.Message);
+            }
         }
 
         public async Task<ServiceResponse> RetrieveHighlights(int bookAnalysisId)

@@ -25,16 +25,6 @@ namespace BookApp.Server.Services
             var newAnalysis = _bookAnalysisMapper.MapToBookAnalysis(newAnalysisModel);
             try
             {
-
-
-
-
-                throw new InvalidCastException();
-
-
-
-
-
                 await _bookAnalysisRepository.Create(newAnalysis);
                 return ServiceResponse.Success("Analysis created.");
             }
@@ -48,6 +38,14 @@ namespace BookApp.Server.Services
         {
             try
             {
+                if (bookHash == "22836997B8F82310BA982D76BF1A6CED395FB1226E7BCC26DBF2FE72395E02C1") 
+                throw new Exception("Test exception thrown: GetAnalysisByHash server service");
+
+
+
+
+
+
                 var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
                 List<BookAnalysisModel> mappedAnalyses = new();
                 foreach (var analysis in foundAnalyses)
@@ -59,7 +57,7 @@ namespace BookApp.Server.Services
             }
             catch (Exception ex)
             {
-                return ServiceResponse<Exception>.Error(ex, "Create new analysis failed.");
+                return ServiceResponse.Error($"Get analyses failed. ({ex.Message})");
             }
         }
 
