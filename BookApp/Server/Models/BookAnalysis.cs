@@ -1,8 +1,4 @@
-﻿using BookApp.Server.Models.Interfaces;
-using BookApp.Shared.Data;
-using System.ComponentModel.DataAnnotations;
-
-namespace BookApp.Server.Models
+﻿namespace BookApp.Server.Models
 {
     public class BookAnalysis : IDbModel
     {

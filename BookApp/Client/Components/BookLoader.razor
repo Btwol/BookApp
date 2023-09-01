@@ -34,9 +34,9 @@
 
     @if (bookLoaded)
     {
-        <button @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
+        <button class="button-action" @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
 
-        <button @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
+        <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
 
         if (showCreateAnalysisForm)
         {
@@ -45,23 +45,30 @@
                     <label for="AnalysisTitle">Analysis Title</label>
                     <input id="AnalysisTitle" class="form-control" @bind="newAnalysis.AnalysisTitle" />
                 </div>
-                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="submit" class="button-action">Create</button>
             </form>
         }
 
         @foreach (BookAnalysisModel bookAnalysis in foundBookAnalyses)
         {
-            <br />
-            <p>@bookAnalysis.AnalysisTitle</p>
-            <p>@bookAnalysis.BookHash</p>
-            <p>@bookAnalysis.BookTitle</p>
-            <p>Authors:</p>
-            @foreach (string author in bookAnalysis.Authors)
-            {
-                <p>@author</p>
-            }
-
-            <button @onclick="() => LoadAnalysis(bookAnalysis)">Select</button>
+            <div class="book-analysis-listing">
+                <b>Analysis Title: </b>
+                <p>@bookAnalysis.AnalysisTitle</p> 
+                <hr />
+                <b>Book Hash: </b>
+                <p>@bookAnalysis.BookHash</p>
+                <hr />
+                <b>Book Title: </b>
+                <p>@bookAnalysis.BookTitle</p>
+                <hr />
+                <b>Authors:</b>
+                @foreach (string author in bookAnalysis.Authors)
+                {
+                    <p>@author</p>
+                }
+                <hr />
+                <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
+            </div>
         }
 
     }

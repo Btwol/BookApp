@@ -1,8 +1,4 @@
-﻿using BookApp.Server.Services.Interfaces;
-using BookApp.Shared.Data;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]

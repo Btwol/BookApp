@@ -1,6 +1,4 @@
-﻿using BookApp.Server.Services.Interfaces;
-
-namespace BookApp.Server.Middlewares
+﻿namespace BookApp.Server.Middlewares
 {
     public class ServiceResponseMiddleware
     {

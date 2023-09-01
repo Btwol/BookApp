@@ -1,10 +1,4 @@
-﻿using BookApp.Server.Models;
-using BookApp.Server.Repositories.Interfaces;
-using BookApp.Server.Services.Interfaces;
-using BookApp.Server.Services.Interfaces.MapperServices;
-using BookApp.Shared.Data;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class HighlightServerService : IHighlightServerService
     {

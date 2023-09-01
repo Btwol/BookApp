@@ -1,7 +1,4 @@
-﻿using BookApp.Shared.Data;
-using static System.Net.WebRequestMethods;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class HelperService
     {

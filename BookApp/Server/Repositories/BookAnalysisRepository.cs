@@ -1,11 +1,4 @@
-﻿using BookApp.Server.Database;
-using BookApp.Server.Models;
-using BookApp.Server.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Linq.Expressions;
-
-namespace BookApp.Server.Repositories
+﻿namespace BookApp.Server.Repositories
 {
     public class BookAnalysisRepository : BaseRepository<BookAnalysis>, IBookAnalysisRepository
     {

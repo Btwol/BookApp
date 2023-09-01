@@ -1,21 +1,7 @@
-using BookApp.Client.Services;
-using BookApp.Client.Services.Interfaces;
-using BookApp.Server.Database;
-using BookApp.Server.Repositories.Interfaces;
-using BookApp.Server.Repositories;
-using BookApp.Server.Services;
-using BookApp.Server.Services.Interfaces;
-using BookApp.Server.Services.Interfaces.MapperServices;
-using BookApp.Server.Services.MapperServices;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.EntityFrameworkCore;
-using BookApp.Shared.Data;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.IdentityModel.Tokens;
-using System.Net;
-using BookApp.Server.Middlewares;
-
 var builder = WebApplication.CreateBuilder(args);
+
+ILogger logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+logger.LogInformation("App started.");
 
 // Add services to the container.
 
@@ -41,23 +27,8 @@ builder.Services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGe
 
 var app = builder.Build();
 
-app.UseExceptionHandler(c => c.Run(async context =>
-{
-    var exception = context.Features.Get<IExceptionHandlerPathFeature>().Error;
-
-    if (exception is SecurityTokenValidationException)
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-    }
-    else
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-    }
-
-    await context.Response.WriteAsJsonAsync(ServiceResponse.Error(exception.Message, (HttpStatusCode)context.Response.StatusCode));
-}));
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<ServiceResponseMiddleware>();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

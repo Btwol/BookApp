@@ -1,9 +1,4 @@
-﻿using BookApp.Server.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-
-namespace BookApp.Server.Database
+﻿namespace BookApp.Server.Database
 {
     public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {

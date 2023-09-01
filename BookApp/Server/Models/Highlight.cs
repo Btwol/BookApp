@@ -1,9 +1,4 @@
-﻿using BookApp.Server.Models.Interfaces;
-using BookApp.Shared.Data;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace BookApp.Server.Models
+﻿namespace BookApp.Server.Models
 {
     public class Highlight : IDbModel
     {

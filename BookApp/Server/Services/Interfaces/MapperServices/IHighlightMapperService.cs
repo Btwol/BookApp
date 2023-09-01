@@ -1,7 +1,4 @@
-﻿using BookApp.Server.Models;
-using BookApp.Shared.Data;
-
-namespace BookApp.Server.Services.Interfaces.MapperServices
+﻿namespace BookApp.Server.Services.Interfaces.MapperServices
 {
     public interface IHighlightMapperService
     {

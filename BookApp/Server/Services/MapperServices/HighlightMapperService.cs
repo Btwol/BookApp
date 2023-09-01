@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using BookApp.Server.Models;
-using BookApp.Server.Services.Interfaces.MapperServices;
-using BookApp.Shared.Data;
-
-namespace BookApp.Server.Services.MapperServices
+﻿namespace BookApp.Server.Services.MapperServices
 {
     public class HighlightMapperService : IHighlightMapperService
     {
