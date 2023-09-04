@@ -1,0 +1,41 @@
+﻿<style>
+    /* wwwroot/css/styles.css */
+    .fixed-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: darkblue;
+        color: #fff;
+        padding: 10px 0;
+        text-align: center;
+        z-index: 100; /* Ensure it's above other content */
+    }
+
+        /* Adjust the styling as needed */
+        .fixed-navbar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+            .fixed-navbar ul li {
+                display: inline;
+                margin: 0 20px;
+            }
+
+                .fixed-navbar ul li a {
+                    text-decoration: none;
+                    color: #fff;
+                }
+
+</style>
+
+<div class="fixed-navbar">
+    <ul>
+        <li><a href="/">Home</a></li>
+    </ul>
+</div>
+
+@code {
+
+}

@@ -6,7 +6,8 @@
 
         public DbSet<BookAnalysis> BookAnalyses { get; set; }
         public DbSet<Highlight> Highlights { get; set; }
-
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<HighlightTag> HighlightTags { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
