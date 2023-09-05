@@ -10,6 +10,7 @@
 @using BookApp.Client.Components
 
 @inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 
 <style>
@@ -22,10 +23,13 @@
 
     .small-window-2 {
             position:absolute;
-              margin-top: 5%;
-              margin-bottom: 5%;
-              margin-right: 5%;
-              margin-left: 5%;
+              /*margin-top: 5%;
+              margin-bottom: 5%;*/
+             /* margin-right: 5%;
+              margin-left: 5%;*/
+              background-color:ghostwhite;
+              width: 50%;
+              margin: 0 auto;
     }
 
         .highlight-window-2 {
@@ -48,6 +52,7 @@
             @(new HtmlString(txt.TextContent))
         }
     }
+
 </style>
 
 @*
@@ -91,39 +96,17 @@
 else
 {
 
-    
-<button class="btn btn-primary" @onclick="AddNote">Add Note</button>
-
 <ul id="contextMenu" @ref="contextMenuRef" style="display: none; position: absolute; background-color: #f9f9f9; border: 1px solid #ccc; padding: 5px; list-style-type: none;">
     <li @onclick="DeleteHighlight">Delete</li>
     <li @onclick="ReApplyHighlight">Reapply Highlight</li>
     <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
 </ul>
 
-<button @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
-
-
-<div class="row">
-    <div class="col">
-        <button class="btn btn-primary" @onclick="() => ChangePage(-1)">a-</button>
-    </div>
-    <div class="col">
-        <p role="status">Current count: @currentCount</p>
-    </div>
-    <div class="col">
-        <button class="btn btn-primary" @onclick="() => ChangePage(1)">-a</button>
-    </div>
-</div>
-
 <div id="highlightContainer"></div>
 
 <div id="noteContainer" class="note-container"></div>
 
 <div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
-
-
-
-
 }
 
 <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
@@ -131,6 +114,24 @@ else
     {
         @((MarkupString)html[currentCount].TextContent)
     }
+</div>
+
+<div class="text-box-bar">
+    <!-- Your navigation bar content goes here -->
+<button class="button-action" @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
+<button class="button-action" @onclick="AddNote">Add Note</button>
+
+<div class="row">
+    <div class="col">
+        <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+    </div>
+    <div class="col">
+        <p role="status">Current count: @currentCount</p>
+    </div>
+    <div class="col">
+        <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
+    </div>
+</div>
 </div>
 
 @code{
@@ -145,7 +146,7 @@ else
     public EpubBook book { get; set; }
 
     [Parameter]
-    public BookAnalysis bookAnalysis { get; set; }
+    public BookAnalysisModel bookAnalysis { get; set; }
 
 
 
@@ -164,7 +165,7 @@ else
     public string selectedText = "none";
     bool editFlag = false;
 
-    Highlight highlight;
+    HighlightModel highlight;
 
     private int currentCount = 1;
 
@@ -172,11 +173,11 @@ else
 
     async Task AttachNoteToHighlight()
     {
-        Highlight highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.ElementId == currentHighlightId);
+        HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.GetElementId() == currentHighlightId);
         if(highlight is not null)
         {
-            Note newNote = new Note(highlight);
-            highlight.Notes.Add(newNote);
+            NoteModel newNote = new NoteModel(highlight);
+            //highlight.Notes.Add(newNote);
         }
     }
 
@@ -197,7 +198,7 @@ else
 
     async Task DeleteHighlight()
     {
-        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
+        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlightId);
         bookAnalysis.Highlights.Remove(highlightToRemove);
         _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
         await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
@@ -210,18 +211,19 @@ else
 
         if (items != "-1")
         {
-            if (editFlag)
-            {
-                editFlag = false;
-                var newSelection = new Highlight(items, currentCount);
-                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
-                editedSelection.Update(newSelection);
-                _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
-                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
-                //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
-            }
+            //if (editFlag)
+            //{
+            //    editFlag = false;
+            //    var newSelection = new HighlightModel(items, currentCount);
+            //    var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
+            //    editedSelection.Update(newSelection);
+            //    _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
+            //    await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
+            //    //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
+            //}
 
-            else highlight = new Highlight(items, currentCount);
+            //else 
+            highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
         }
         //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
     }
@@ -230,10 +232,11 @@ else
     {
         if (highlight is not null && highlight?.PageNumber == currentCount)
         {
-            var elementId = highlight.ElementId;
+            var elementId = highlight.GetElementId();
             await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
             bookAnalysis.Highlights.Add(highlight);
+            await _highlightClientService.AddHighlight(highlight);
             await _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
             //HighlightStorage.selectionRanges.Add(highlight);
         }
@@ -269,7 +272,7 @@ else
             {   
                 html = book.Resources.Html.ToList();
                 css = book.Resources.Css;
-                //images = book.Resources.Images;
+                images = book.Resources.Images;
                 //fonts = book.Resources.Fonts;
                 ////Image cover = book.CoverImage;
                 //ICollection<EpubChapter> chapters = book.TableOfContents;
@@ -279,10 +282,10 @@ else
             }
         }
 
-        foreach(Highlight highlight in bookAnalysis.Highlights)
+        foreach(HighlightModel highlight in bookAnalysis.Highlights)
         {
-            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.ElementId))
-                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.ElementId);
+            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
         }
     }
 

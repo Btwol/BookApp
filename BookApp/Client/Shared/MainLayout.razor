@@ -1,9 +1,14 @@
-﻿@inherits LayoutComponentBase
+﻿@using BookApp.Client.Other
+@inherits LayoutComponentBase
+
+<link rel="stylesheet" type="text/css" href="css/styles.css?version=0.1" />
 
 <div class="page">
-    <div class="sidebar">
+    @*<div class="sidebar">
         <NavMenu />
-    </div>
+    </div>*@
+
+    <NavBar></NavBar>
 
     <main>
         <div class="top-row px-4">
@@ -11,7 +16,21 @@
         </div>
 
         <article class="content px-4">
-            @Body
+            <ErrorBoundary @ref="@errorBoundary" Context="Exception">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <div class="alert bg-danger text-white alert-dismissible">
+                        MainLayout Error Boundary: @Exception.GetType(): @Exception.Message
+                        <button class="btn-close" @onclick="@errorBoundary.Recover"></button>
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
         </article>
     </main>
 </div>
+
+@code{
+    private ErrorBoundary errorBoundary;
+}

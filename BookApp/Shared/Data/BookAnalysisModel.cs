@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 
 namespace BookApp.Shared.Data
 {
-    public class BookAnalysis
+    public class BookAnalysisModel
     {
-        public Guid AnalysisId { get; set; }
+        public int Id { get; set; }
         public string AnalysisTitle { get; set; }
         public string BookHash { get; set; }
         public string BookTitle { get; set; }
-        public List<string> Authors { get; set; }
-        public List<Highlight> Highlights { get; set; } = new();
-        public List<Note> Notes { get; set; } = new();
+        public List<string> Authors { get; set; } = new();
+        public List<HighlightModel> Highlights { get; set; } = new();
+        public List<NoteModel> Notes { get; set; } = new();
 
         //author (user)
         //book title/author
-        public BookAnalysis()
-        {
-            AnalysisId = new Guid();
-        }
     }
 }

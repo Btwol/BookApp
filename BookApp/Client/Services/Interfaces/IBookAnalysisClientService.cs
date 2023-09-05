@@ -1,12 +1,14 @@
 ﻿using BookApp.Shared.Data;
+using BookApp.Shared.Interfaces.Services;
 
 namespace BookApp.Client.Services.Interfaces
 {
     public interface IBookAnalysisClientService
     {
-        public Task<BookAnalysis> GetBookAnalysis(Guid analysisId);
-        public Task<BookAnalysis> CreateBookAnalysis(BookAnalysis newBookAnalysis);
-        public Task<BookAnalysis> UpdateBookAnalysis(BookAnalysis updatedBookAnalysis);
-        public Task<List<BookAnalysis>> GetAnalysisByHash(string bookHash);
+        public Task<ServiceResponse> GetBookAnalysis(int analysisId);
+        public Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newBookAnalysis);
+        public Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis);
+        public Task<HttpResponseMessage> GetAnalysisByHash(string bookHash);
+        public Task Crash();
     }
 }

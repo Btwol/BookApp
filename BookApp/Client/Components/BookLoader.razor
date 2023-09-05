@@ -1,0 +1,203 @@
+﻿@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared.Data
+@using EpubSharp
+@using System.Security.Cryptography
+@inject IBookAnalysisClientService _bookAnalysisClientService
+
+@if (bookAnalysis is null)
+{
+    @if (showErrorBox)
+    {
+        <div class="border p-4 text-danger">
+            @errorContent
+            <button @onclick="() => showErrorBox = false">X</button>
+        </div>
+    }
+
+    @if (showLoadingAnalysis)
+    {
+        <p>Loading analysis...</p>
+    }
+
+    @if (loadingFile)
+    {
+        <p>Loading file...</p>
+    }
+
+    <p>Select book...</p>
+    <p>
+        <label>
+            <InputFile OnChange="@LoadFiles" />
+        </label>
+    </p>
+
+
+    @if (bookLoaded)
+    {
+        <button class="button-action" @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
+
+        <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
+
+        if (showCreateAnalysisForm)
+        {
+            <form @onsubmit="CreateAnalysis">
+                <div class="form-group">
+                    <label for="AnalysisTitle">Analysis Title</label>
+                    <input id="AnalysisTitle" class="form-control" @bind="newAnalysis.AnalysisTitle" />
+                </div>
+                <button type="submit" class="button-action">Create</button>
+            </form>
+        }
+
+        @foreach (BookAnalysisModel bookAnalysis in foundBookAnalyses)
+        {
+            <div class="book-analysis-listing">
+                <b>Analysis Title: </b>
+                <p>@bookAnalysis.AnalysisTitle</p> 
+                <hr />
+                <b>Book Hash: </b>
+                <p>@bookAnalysis.BookHash</p>
+                <hr />
+                <b>Book Title: </b>
+                <p>@bookAnalysis.BookTitle</p>
+                <hr />
+                <b>Authors:</b>
+                @foreach (string author in bookAnalysis.Authors)
+                {
+                    <p>@author</p>
+                }
+                <hr />
+                <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
+            </div>
+        }
+
+    }
+
+}
+
+else
+{
+    <ErrorBoundary @ref="@errorBoundary" Context="Exception">
+        <ChildContent>
+            <BookApp.Client.Components.TextBox bookAnalysis="bookAnalysis" book="book" />
+        </ChildContent>
+        <ErrorContent>
+            <div class="alert bg-danger text-white alert-dismissible">
+                Text Box Error Boundary: @Exception.GetType(): @Exception.Message
+                <button class="btn-close" @onclick="@errorBoundary.Recover"></button>
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
+}
+
+
+
+@code {
+    private ErrorBoundary errorBoundary;
+
+    private bool loadingFile = false;
+    private bool bookLoaded = false;
+    private bool showLoadingAnalysis = false;
+    private bool showErrorBox = false;
+    private string errorContent = "";
+    private BookAnalysisModel bookAnalysis;
+    private EpubBook book;
+    private byte[] loadedBookByteArray;
+    private string loadedBookHash;
+    private List<BookAnalysisModel> foundBookAnalyses = new();
+
+    private bool showCreateAnalysisForm = false;
+    private BookAnalysisModel newAnalysis = new();
+
+    private async void CreateAnalysis()
+    {
+        showCreateAnalysisForm = false;
+
+        newAnalysis.BookHash = loadedBookHash;
+        newAnalysis.Authors = book.Authors.ToList();
+        newAnalysis.BookTitle = book.Title;
+
+        await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
+
+        var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
+        if(response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Succ");
+            Console.WriteLine(response);
+            //            foundBookAnalyses = (ServiceResponse<List<BookAnalysisModel>>)response.Con
+        }
+        else Console.WriteLine("Fail");
+    }
+
+    private void LoadAnalysis(BookAnalysisModel selectedBookAnalysis)
+    {
+        bookAnalysis = selectedBookAnalysis;
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            loadingFile = true;
+            Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
+            loadedBookByteArray = await ReadFully(stream);
+            book = EpubReader.Read(loadedBookByteArray);
+            await ReadBookHash();
+            bookLoaded = true;
+            loadingFile = false;
+        }
+        catch (Exception ex)
+        {
+            errorContent = "Failiure loading file. " + ex.Message;
+            showErrorBox = true;
+        }
+    }
+
+    private async Task LoadAnalysesFromServer(string loadedBookHash)
+    {
+        showLoadingAnalysis = true;
+        var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
+        if (response.IsSuccessStatusCode)
+        {
+            foundBookAnalyses = await ReadServiceResponseContent<List<BookAnalysisModel>>(response);
+            showLoadingAnalysis = false;
+        }
+        else
+        {
+            await TriggerServiceResponseError(response);
+        }
+    }
+
+    private async Task<T> ReadServiceResponseContent<T>(HttpResponseMessage response)
+    {
+        return (await response.Content.ReadFromJsonAsync<ServiceResponse<T>>()).Content;
+    }
+
+    private async Task TriggerServiceResponseError(HttpResponseMessage response)
+    {
+        var responseMessage = (await response.Content.ReadFromJsonAsync<ServiceResponse>()).Message;
+        throw new Exception(responseMessage);
+    }
+
+    private async Task<byte[]> ReadFully(Stream input)
+    {
+        byte[] buffer = new byte[32 * 1024];
+        using (MemoryStream ms = new MemoryStream())
+        {
+            int read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await ms.WriteAsync(buffer, 0, read);
+            }
+            return ms.ToArray();
+        }
+    }
+
+    private async Task ReadBookHash()
+    {
+        SHA256 sha256 = SHA256.Create();
+        byte[] hashValue = sha256.ComputeHash(loadedBookByteArray);
+        string hashString = BitConverter.ToString(hashValue).Replace("-", "");
+        loadedBookHash = hashString;
+    }
+}
