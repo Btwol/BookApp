@@ -7,7 +7,6 @@
         public DbSet<BookAnalysis> BookAnalyses { get; set; }
         public DbSet<Highlight> Highlights { get; set; }
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<HighlightTag> HighlightTags { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,6 +38,12 @@
                 .HasForeignKey(h => h.BookAnalysisId);
 
             modelBuilder.Entity<Highlight>().HasKey(b => b.Id);
+
+            modelBuilder.Entity<Highlight>()
+                .HasMany(h => h.Tags)
+                .WithMany(t => t.Highlights);
+
+            
 
             //modelBuilder.Entity<PantryUser>().HasKey(u => new { u.UserId, u.PantryId });
 

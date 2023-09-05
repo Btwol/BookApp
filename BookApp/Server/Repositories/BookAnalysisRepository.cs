@@ -11,6 +11,7 @@
             return await _context.Set<BookAnalysis>()
                 .Where(expresion)
                 .Include(b => b.Highlights)
+                .Include(b => b.Tags)
                 .ToListAsync();
         }
     }

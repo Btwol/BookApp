@@ -21,7 +21,6 @@
         public Highlight MapToHighlight(HighlightModel highlightModel)
         {
             return _mapper.Map<Highlight>(highlightModel);
-
         }
 
         public HighlightModel MapToHighlightModel(Highlight highlight)

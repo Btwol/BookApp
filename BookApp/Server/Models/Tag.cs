@@ -8,7 +8,10 @@
         [Required]
         public string Name { get; set; }
 
-        public TaggedType TaggedType { get; set; }
-        public int TaggedId { get; set; }
+        public int BookAnalysisId { get; set; }
+        public virtual BookAnalysis BookAnalysis { get; set; }
+
+        public virtual List<Highlight> Highlights { get; set; }
+        //notes {}
     }
 }

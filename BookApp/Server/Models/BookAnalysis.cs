@@ -17,7 +17,7 @@
         [MaxLength(500)]
         public string Authors { get; set; }
 
-
+        public virtual List<Tag> Tags { get; set; }
         public virtual List<Highlight> Highlights { get; set; }
         //public virtual List<Note> Notes { get; set; }
     }
