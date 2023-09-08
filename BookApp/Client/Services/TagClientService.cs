@@ -11,9 +11,9 @@ namespace BookApp.Client.Services
             Http = http;
         }
 
-        public Task<HttpResponseMessage> AddTag()
+        public async Task<HttpResponseMessage> AddTag(int tagId, int highlightId)
         {
-            throw new NotImplementedException();
+            return await Http.PostAsync($"Tag/AddTag/{highlightId}/{tagId}", null);
         }
 
         public Task<HttpResponseMessage> CreateNewTag()

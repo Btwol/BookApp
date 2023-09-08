@@ -18,5 +18,11 @@ namespace BookApp.Server.Controllers
         {
             return await _tagService.GetTags(bookAnalysisId);
         }
+
+        [HttpPost("AddTag/{highlightId}/{tagId}")]
+        public async Task<ServiceResponse> AddTag(int highlightId, int tagId)
+        {
+            return await _tagService.AddTag(highlightId, tagId);
+        }
     }
 }

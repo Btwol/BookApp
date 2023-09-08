@@ -63,10 +63,20 @@
 else
 {
 
-<ul id="contextMenu" @ref="contextMenuRef" style="display: none; position: absolute; background-color: #f9f9f9; border: 1px solid #ccc; padding: 5px; list-style-type: none;">
+<ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
     <li @onclick="DeleteHighlight">Delete</li>
     <li @onclick="ReApplyHighlight">Reapply Highlight</li>
     <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
+    <p>Current Tags: </p>
+    @*@foreach(var tag in bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == currentHighlightId)?.Tags)
+    {
+        <p>@tag.Name</p>
+    }*@
+    <p>Add Tag: </p>
+    @foreach(var tag in bookAnalysis.Tags)
+    {
+        <li @onclick="() => AddTag(tag.Id)">+ @tag.Name</li>
+    }
 </ul>
 
 <div id="highlightContainer"></div>
@@ -123,7 +133,9 @@ else
     private ElementReference overlayElementRef;
     private ElementReference highlightContainerRef;
 
-    public string currentHighlightId;
+    public string currentHighlightId = string.Empty;
+    private int currentHighlightIdInt;
+
     public string text;
     List<EpubTextFile> html;
     ICollection<EpubTextFile> css;
@@ -138,11 +150,23 @@ else
 
     public List<string> overlays = new();
 
+    async Task AddTag(int tagId)
+    {
+        Console.WriteLine("TagId: " + tagId);
+        Console.WriteLine("Current highlight id: " + currentHighlightId);
+        Console.WriteLine("Highlight id to int: " + HighlightModel.GetElementId(currentHighlightId));
+        var resposne = await _tagService.AddTag(tagId, HighlightModel.GetElementId(currentHighlightId));
+        if(resposne.IsSuccessStatusCode)
+        {
+            bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == currentHighlightId).Tags.Add(bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+        }
+    }
+
     async Task LoadTags()
     {
         var response = await _tagService.GetTags(bookAnalysis.Id);
-        var a = await response.Content.ReadFromJsonAsync<ServiceResponse<List<TagModel>>>();
-        Tags = a.Content;
+        var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse<List<TagModel>>>();
+        Tags = serviceResponse.Content;
     }
 
     async Task AttachNoteToHighlight()

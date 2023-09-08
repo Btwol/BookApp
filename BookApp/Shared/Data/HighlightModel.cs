@@ -4,7 +4,7 @@ namespace BookApp.Shared.Data
 {
     public class HighlightModel
     {
-        public readonly int Id;
+        public int Id { get; set; }
         public int BookAnalysisId { get; set; }
         public int PageNumber { get; set;  }
         public int NodeCount { 
@@ -18,6 +18,7 @@ namespace BookApp.Shared.Data
         public int LastNodeIndex { get; set; }
         public int LastNodeCharIndex { get; set; }
         public string RawPositionString { get; set; }
+        public List<TagModel> Tags { get; set; } = new();
 
         public HighlightModel()
         {
@@ -44,6 +45,12 @@ namespace BookApp.Shared.Data
         public string GetElementId()
         {
             return "pernamentHighlight_" + Id;
+        }
+
+        public static int GetElementId(string id)
+        {
+            string numberPart = id.Replace("pernamentHighlight_", "");
+            return int.Parse(numberPart);
         }
     }
 }
