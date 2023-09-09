@@ -63,23 +63,46 @@
 else
 {
 
-<ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-    <li @onclick="DeleteHighlight">Delete</li>
-    <li @onclick="ReApplyHighlight">Reapply Highlight</li>
-    <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
-    <p>Current Tags: </p>
-    @*@foreach(var tag in bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == currentHighlightId)?.Tags)
-    {
-        <p>@tag.Name</p>
-    }*@
-    <p>Add Tag: </p>
-    @foreach(var tag in bookAnalysis.Tags)
-    {
-        <li @onclick="() => AddTag(tag.Id)">+ @tag.Name</li>
-    }
-</ul>
+        <ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
+            @*        @if (currentHighlight is null)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {*@
+            @if (currentHighlight != null)
+            {
+                <p>Current Highlight Id: @currentHighlight.Id</p>
+            }
+            @if (currentHighlightId != null)
+            {
+                <p>currentHighlightId: @currentHighlightId</p>
+            }
 
-<div id="highlightContainer"></div>
+            <li @onclick="DeleteHighlight">Delete</li>
+            <li @onclick="ReApplyHighlight">Reapply Highlight</li>
+            <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
+
+            @if (currentHighlight != null)
+            {
+                <p>Current Tags: </p>
+                @foreach (var tag in currentHighlight.Tags)
+                {
+                    <p class="tag-item">@tag.Name</p>
+                }
+
+            }
+
+            <p>Add Tag: </p>
+            @foreach (var tag in bookAnalysis.Tags)
+            {
+                <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
+            }
+            @*
+        }*@
+        </ul>
+
+    <div id="highlightContainer"></div>
 
 <div id="noteContainer" class="note-container"></div>
 
@@ -118,6 +141,7 @@ else
     private int maxAllowedFiles = 3;
     private bool isLoading = true;
     private byte[] fileByteArray;
+    private bool loadingCurrentHighlight = true;
 
     [Parameter]
     public EpubBook book { get; set; }
@@ -134,7 +158,7 @@ else
     private ElementReference highlightContainerRef;
 
     public string currentHighlightId = string.Empty;
-    private int currentHighlightIdInt;
+    private HighlightModel? currentHighlight = null;
 
     public string text;
     List<EpubTextFile> html;
@@ -158,7 +182,11 @@ else
         var resposne = await _tagService.AddTag(tagId, HighlightModel.GetElementId(currentHighlightId));
         if(resposne.IsSuccessStatusCode)
         {
-            bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == currentHighlightId).Tags.Add(bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+            var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+            if(tagToAdd is not null)
+            {
+                currentHighlight.Tags.Add(tagToAdd);
+            }
         }
     }
 
@@ -249,8 +277,21 @@ else
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlightId = idToString;    
-        await jsRuntime.InvokeVoidAsync("showContextMenu");
+        currentHighlightId = idToString;
+        currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
+        jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
+        StateHasChanged();
+    }
+
+    [JSInvokableAttribute("onPernamentHighlightClickOff")]
+    public async void onPernamentHighlightClickOff()
+    {
+        currentHighlightId = string.Empty;
+        currentHighlight = null;
+        StateHasChanged();
+        //currentHighlightId = idToString;
+        //currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
+        //await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
 
     private async void ChangePage(int page)

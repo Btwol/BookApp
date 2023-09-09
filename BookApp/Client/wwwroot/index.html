@@ -21,6 +21,8 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
 
+    <script src="js/JavaScript.js"></script>
+
     <script>
 
         function getLocation(elementId, startOffset, endOffset, textNodeNumber) {
@@ -613,7 +615,7 @@
             else return false;
         }
 
-        function showContextMenu() {
+        function showContextMenu(dotNetHelper) {
             var contextMenu = document.getElementById("contextMenu");
             contextMenu.style.display = "block";
             const rect = contextMenu.getBoundingClientRect();
@@ -624,6 +626,7 @@
                 let highlightClicked = event.target.id.startsWith("pernamentHighlight_");
                 if (clickedOutside && !highlightClicked) {
                     contextMenu.style.display = "none";
+                    dotNetHelper.invokeMethodAsync("onPernamentHighlightClickOff");
                 }
             });
         }
