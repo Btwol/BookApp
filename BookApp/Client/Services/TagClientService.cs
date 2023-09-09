@@ -1,4 +1,6 @@
 ﻿using BookApp.Client.Services.Interfaces;
+using BookApp.Shared.Data;
+using System.Net.Http.Json;
 
 namespace BookApp.Client.Services
 {
@@ -16,9 +18,9 @@ namespace BookApp.Client.Services
             return await Http.PostAsync($"Tag/AddTag/{highlightId}/{tagId}", null);
         }
 
-        public Task<HttpResponseMessage> CreateNewTag()
+        public async Task<HttpResponseMessage> CreateNewTag(TagModel newTag, int bookAnalysisId)
         {
-            throw new NotImplementedException();
+            return await Http.PostAsJsonAsync<TagModel>($"Tag/CreateNewTag/{bookAnalysisId}", newTag);
         }
 
         public async Task<HttpResponseMessage> GetTags(int bookAnalysisId)

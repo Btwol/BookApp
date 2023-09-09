@@ -22,5 +22,12 @@
         {
             return await _highlightService.AddHighlight(newHighlight);
         }
+
+        [HttpDelete("DeleteHighlight/{highlightId}")]
+        public async Task<ServiceResponse> DeleteHighlight(int highlightId)
+        {
+            return await _highlightService.DeleteHighlight(highlightId);
+        }
+
     }
 }

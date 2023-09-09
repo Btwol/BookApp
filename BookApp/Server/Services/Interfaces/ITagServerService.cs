@@ -4,5 +4,6 @@
     {
         public Task<ServiceResponse> GetTags(int bookAnalysisId);
         public Task<ServiceResponse> AddTag(int highlightId, int tagId);
+        public Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId);
     }
 }

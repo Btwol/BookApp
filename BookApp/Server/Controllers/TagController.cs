@@ -24,5 +24,11 @@ namespace BookApp.Server.Controllers
         {
             return await _tagService.AddTag(highlightId, tagId);
         }
+
+        [HttpPost("CreateNewTag/{bookAnalysisId}")]
+        public async Task<ServiceResponse> CreateNewTag([FromBody]TagModel newTag, int bookAnalysisId)
+        {
+            return await _tagService.CreateNewTag(newTag, bookAnalysisId);
+        }
     }
 }

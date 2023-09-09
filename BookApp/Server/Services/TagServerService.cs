@@ -24,6 +24,17 @@
             return ServiceResponse.Success("Tag added to highlight.");
         }
 
+        public async Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId)
+        {
+            var mappedTag = _tagMapperService.MapToDbModel(newTag);
+            mappedTag.BookAnalysisId = bookAnalysisId;
+
+            var addedTag = await _tagRepository.Create(mappedTag);
+            var mappedAddedTag = _tagMapperService.MapToClientModel(addedTag);
+
+            return ServiceResponse<TagModel>.Success(mappedAddedTag, "Tag created.");
+        }
+
         public async Task<ServiceResponse> GetTags(int bookAnalysisId)
         {
             var tags = await _tagRepository.FindByConditions(t => t.BookAnalysisId == bookAnalysisId);

@@ -1,4 +1,5 @@
-﻿@using BookApp.Client.Services.Interfaces
+﻿@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
 @using BookApp.Shared
 @using BookApp.Shared.Data
 @using EpubSharp
@@ -62,14 +63,7 @@
 }
 else
 {
-
-        <ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-            @*        @if (currentHighlight is null)
-        {
-            <p>Loading...</p>
-        }
-        else
-        {*@
+<ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
             @if (currentHighlight != null)
             {
                 <p>Current Highlight Id: @currentHighlight.Id</p>
@@ -98,11 +92,18 @@ else
             {
                 <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
             }
-            @*
-        }*@
-        </ul>
 
-    <div id="highlightContainer"></div>
+
+<EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText @bind-Value="NewTag!.Name" />
+    <button type="submit">Submit</button>
+</EditForm>
+
+</ul>
+
+<div id="highlightContainer"></div>
 
 <div id="noteContainer" class="note-container"></div>
 
@@ -135,6 +136,7 @@ else
 </div>
 
 @code{
+    public TagModel? NewTag { get; set; } = new();
     private List<TagModel> Tags = new();
     private List<IBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 32;
@@ -173,6 +175,20 @@ else
     private int currentCount = 1;
 
     public List<string> overlays = new();
+
+    async Task CreateNewTag()
+    {
+        if(NewTag is not null)
+        {
+            var response = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
+            if(response.IsSuccessStatusCode)
+            {
+                var newTag = await HelperService.ReadServiceResponseContent<TagModel>(response);
+                bookAnalysis.Tags.Add(newTag);
+                NewTag = new();
+            }
+        }
+    }
 
     async Task AddTag(int tagId)
     {
@@ -225,9 +241,15 @@ else
     async Task DeleteHighlight()
     {
         var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlightId);
-        bookAnalysis.Highlights.Remove(highlightToRemove);
-        _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
-        await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
+        if (highlightToRemove is not null)
+        {
+            var response = await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
+            if (true)
+            {
+                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
+                bookAnalysis.Highlights.Remove(highlightToRemove);
+            }
+        }
     }
 
     async Task GetSelectedText(MouseEventArgs e)
@@ -261,10 +283,14 @@ else
             var elementId = highlight.GetElementId();
             await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
-            bookAnalysis.Highlights.Add(highlight);
-            await _highlightClientService.AddHighlight(highlight);
-            await _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
-            //HighlightStorage.selectionRanges.Add(highlight);
+            
+            var response = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
+            if(response.IsSuccessStatusCode)
+            {
+                var newHighlight = await HelperService.ReadServiceResponseContent<HighlightModel>(response);
+                bookAnalysis.Highlights.Add(newHighlight);
+            }
+            
         }
     }
 
