@@ -72,28 +72,28 @@ else
             {
                 <p>currentHighlightId: @currentHighlightId</p>
             }
-
+            <hr />
             <li @onclick="DeleteHighlight">Delete</li>
             <li @onclick="ReApplyHighlight">Reapply Highlight</li>
             <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
-
+            <hr />
             @if (currentHighlight != null)
             {
                 <p>Current Tags: </p>
                 @foreach (var tag in currentHighlight.Tags)
                 {
-                    <p class="tag-item">@tag.Name</p>
+                    <li class="tag-item" @onclick="() => RemoveTag(tag.Id)">@tag.Name</li>
                 }
-
             }
-
+            <hr />
             <p>Add Tag: </p>
-            @foreach (var tag in bookAnalysis.Tags)
+            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
+            @foreach (var tag in filteredTags)
             {
                 <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
             }
-
-
+<hr />
+<p>Create new tag:</p>
 <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -172,9 +172,20 @@ else
 
     HighlightModel highlight;
 
-    private int currentCount = 1;
+    private int currentCount = 2;
 
     public List<string> overlays = new();
+
+    private string tagSearchKeyword = "";
+    private List<TagModel> filteredTags = new();
+    private void FilterTags(ChangeEventArgs e)
+    {
+        tagSearchKeyword = e.Value.ToString();
+        Console.WriteLine("current: " + e.Value);
+        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
+            ? bookAnalysis.Tags
+            : bookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
 
     async Task CreateNewTag()
     {
@@ -190,11 +201,32 @@ else
         }
     }
 
+    async Task RemoveTag(int tagId)
+    {
+        if (!currentHighlight.Tags.Any(t => t.Id == tagId))
+        {
+            return;
+        }
+
+        var resposne = await _tagService.RemoveTag(tagId, HighlightModel.GetElementId(currentHighlightId));
+        if(resposne.IsSuccessStatusCode)
+        {
+            var tagToRemove = currentHighlight.Tags.FirstOrDefault(t => t.Id == tagId);
+            if(tagToRemove is not null)
+            {
+                currentHighlight.Tags.Remove(tagToRemove);
+                StateHasChanged();
+            }
+        }
+    }
+
     async Task AddTag(int tagId)
     {
-        Console.WriteLine("TagId: " + tagId);
-        Console.WriteLine("Current highlight id: " + currentHighlightId);
-        Console.WriteLine("Highlight id to int: " + HighlightModel.GetElementId(currentHighlightId));
+        if (currentHighlight.Tags.Any(t => t.Id == tagId))
+        {
+            return;
+        }
+
         var resposne = await _tagService.AddTag(tagId, HighlightModel.GetElementId(currentHighlightId));
         if(resposne.IsSuccessStatusCode)
         {
@@ -283,14 +315,14 @@ else
             var elementId = highlight.GetElementId();
             await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
-            
+
             var response = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
             if(response.IsSuccessStatusCode)
             {
                 var newHighlight = await HelperService.ReadServiceResponseContent<HighlightModel>(response);
                 bookAnalysis.Highlights.Add(newHighlight);
             }
-            
+
         }
     }
 
@@ -357,5 +389,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         dotNetRef = DotNetObjectReference.Create(this);
+        filteredTags = bookAnalysis.Tags;
     }
 }

@@ -25,6 +25,12 @@ namespace BookApp.Server.Controllers
             return await _tagService.AddTag(highlightId, tagId);
         }
 
+        [HttpDelete("RemoveTag/{highlightId}/{tagId}")]
+        public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
+        {
+            return await _tagService.RemoveTag(highlightId, tagId);
+        }
+
         [HttpPost("CreateNewTag/{bookAnalysisId}")]
         public async Task<ServiceResponse> CreateNewTag([FromBody]TagModel newTag, int bookAnalysisId)
         {

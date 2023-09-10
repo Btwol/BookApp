@@ -27,5 +27,10 @@ namespace BookApp.Client.Services
         {
             return await Http.GetAsync($"Tag/GetTags/{bookAnalysisId}");
         }
+
+        public async Task<HttpResponseMessage> RemoveTag(int tagId, int highlightId)
+        {
+            return await Http.DeleteAsync($"Tag/RemoveTag/{highlightId}/{tagId}");
+        }
     }
 }

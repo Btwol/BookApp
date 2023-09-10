@@ -24,6 +24,17 @@
             return ServiceResponse.Success("Tag added to highlight.");
         }
 
+        public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
+        {
+            var highlight = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == highlightId);
+            var tag = await _tagRepository.FindByConditionsFirstOrDefault(t => t.Id == tagId);
+
+            highlight.Tags.Remove(tag);
+            await _highlightRepository.Edit(highlight);
+
+            return ServiceResponse.Success("Tag removed from highlight.");
+        }
+
         public async Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId)
         {
             var mappedTag = _tagMapperService.MapToDbModel(newTag);
