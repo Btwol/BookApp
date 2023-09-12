@@ -25,3 +25,7 @@ global using System.Linq.Expressions;
 global using System.Net;
 global using BookApp.Server.Models.Enums;
 global using BookApp.Shared.Interfaces.Model;
+global using BookApp.Server.Models.Identity;
+global using System.Text;
+global using BookApp.Server.Services.Interfaces.Identity;
+global using BookApp.Server.Models.Auditables;

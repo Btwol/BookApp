@@ -1,0 +1,15 @@
+﻿@page "/"
+@using BookApp.Shared.Data
+@inject HttpClient Http
+
+<button class="btn btn-primary" @onclick=RegisterUser>Register User</button>
+
+@code {
+    Random random = new();
+    public async Task RegisterUser()
+    {
+        RegisterRequest registerRequest = new RegisterRequest { Email = "a@a1.pl", Password = "@Aa1234", UserName = "User" + random.Next() };
+        var response = await Http.PostAsJsonAsync<RegisterRequest>($"Account/Register", registerRequest);
+        Console.WriteLine(response);
+    }
+}
