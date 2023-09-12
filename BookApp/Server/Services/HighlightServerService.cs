@@ -16,14 +16,22 @@
             try
             {
                 var mappedHighlight = _highlightMapperService.MapToHighlight(newHighlight);
-                await _highlightRepository.Create(mappedHighlight);
-
-                return ServiceResponse.Success("Highlight created.");
+                var addedHighlight = await _highlightRepository.Create(mappedHighlight);
+                var mappedHighlightModel = _highlightMapperService.MapToHighlightModel(addedHighlight);
+                return ServiceResponse<HighlightModel>.Success(mappedHighlightModel, "Highlight created.");
             }
             catch (Exception ex)
             {
                 return ServiceResponse<Exception>.Error(ex, "Create highlight failed. " + ex.Message);
             }
+        }
+
+        public async Task<ServiceResponse> DeleteHighlight(int highlightId)
+        {
+            var highlightToDelete = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == highlightId);
+            await _highlightRepository.Delete(highlightToDelete);
+
+            return ServiceResponse.Success("Highlight deleted.");
         }
 
         public async Task<ServiceResponse> RetrieveHighlights(int bookAnalysisId)

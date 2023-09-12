@@ -23,6 +23,11 @@ builder.Services.AddScoped(typeof(IHighlightServerService), typeof(HighlightServ
 builder.Services.AddScoped(typeof(IHighlightMapperService), typeof(HighlightMapperService));
 builder.Services.AddScoped(typeof(IHighlightRepository), typeof(HighlightRepository));
 
+builder.Services.AddScoped(typeof(ITagServerService), typeof(TagServerService));
+builder.Services.AddScoped(typeof(ITagMapperService), typeof(TagMapperService));
+builder.Services.AddScoped(typeof(ITagRepository), typeof(TagRepository));
+
+
 builder.Services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 
 var app = builder.Build();

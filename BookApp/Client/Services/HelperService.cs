@@ -1,21 +1,20 @@
 ﻿using BookApp.Shared.Data;
+using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services
 {
     public class HelperService
     {
-        //public async static Task<ServiceResponse<T>> HandleResponse<T>(HttpResponseMessage response)
-        //{
-        //    var content = await response.Content.ReadFromJsonAsync<ServiceResponse>();
-        //    if (content.SuccessStatus)
-        //    {
-        //        return (ServiceResponse<T>)content;
-        //    }
-        //    else
-        //    {
-        //        throw new Exception(content.Message);
-        //    }
-        //}
+        public static async Task<T> ReadServiceResponseContent<T>(HttpResponseMessage response)
+        {
+            return (await response.Content.ReadFromJsonAsync<ServiceResponse<T>>()).Content;
+        }
+
+        public static async Task TriggerServiceResponseError(HttpResponseMessage response)
+        {
+            var responseMessage = (await response.Content.ReadFromJsonAsync<ServiceResponse>()).Message;
+            throw new Exception(responseMessage);
+        }
     }
 }

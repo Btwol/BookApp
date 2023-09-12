@@ -86,3 +86,22 @@
                 text-decoration: none;
                 color: #fff;
             }
+
+.context-Menu {
+    z-index: 999;
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 5px;
+    list-style-type: none;
+}
+
+.tag-item {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white; 
+    border-radius: 5px;
+    cursor: pointer; 
+}

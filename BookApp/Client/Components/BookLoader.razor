@@ -1,4 +1,5 @@
-﻿@using BookApp.Client.Services.Interfaces
+﻿@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
 @using BookApp.Shared.Data
 @using EpubSharp
 @using System.Security.Cryptography
@@ -159,24 +160,13 @@ else
         var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
         if (response.IsSuccessStatusCode)
         {
-            foundBookAnalyses = await ReadServiceResponseContent<List<BookAnalysisModel>>(response);
+            foundBookAnalyses = await HelperService.ReadServiceResponseContent<List<BookAnalysisModel>>(response);
             showLoadingAnalysis = false;
         }
         else
         {
-            await TriggerServiceResponseError(response);
+            await HelperService.TriggerServiceResponseError(response);
         }
-    }
-
-    private async Task<T> ReadServiceResponseContent<T>(HttpResponseMessage response)
-    {
-        return (await response.Content.ReadFromJsonAsync<ServiceResponse<T>>()).Content;
-    }
-
-    private async Task TriggerServiceResponseError(HttpResponseMessage response)
-    {
-        var responseMessage = (await response.Content.ReadFromJsonAsync<ServiceResponse>()).Message;
-        throw new Exception(responseMessage);
     }
 
     private async Task<byte[]> ReadFully(Stream input)

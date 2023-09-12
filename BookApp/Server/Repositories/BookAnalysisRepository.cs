@@ -10,7 +10,8 @@
         {
             return await _context.Set<BookAnalysis>()
                 .Where(expresion)
-                .Include(b => b.Highlights)
+                .Include(b => b.Highlights).ThenInclude(h => h.Tags)
+                .Include(b => b.Tags)
                 .ToListAsync();
         }
     }

@@ -13,6 +13,7 @@ namespace BookApp.Shared.Data
         public string BookHash { get; set; }
         public string BookTitle { get; set; }
         public List<string> Authors { get; set; } = new();
+        public List<TagModel> Tags { get; set; } = new();
         public List<HighlightModel> Highlights { get; set; } = new();
         public List<NoteModel> Notes { get; set; } = new();
 

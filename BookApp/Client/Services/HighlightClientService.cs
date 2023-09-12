@@ -16,12 +16,12 @@ namespace BookApp.Client.Services
 
         public async Task<HttpResponseMessage> AddHighlight(HighlightModel newHighlight)
         {
-            var response = await Http.PostAsJsonAsync($"Highlight/AddHighlight", newHighlight);
-            string contentString = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Response Content:");
-            Console.WriteLine(contentString);
-            //Console.WriteLine("ADD HIGHLIGHT RESPONSE CONTENT: " + response.IsSuccessStatusCode + "\n" + response.Headers);
-            return response;
+            return await Http.PostAsJsonAsync($"Highlight/AddHighlight", newHighlight);
+        }
+
+        public async Task<HttpResponseMessage> DeleteHighlight(int highlightId)
+        {
+            return await Http.DeleteAsync($"Highlight/DeleteHighlight/{highlightId}");
         }
 
         public Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
