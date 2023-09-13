@@ -1,4 +1,4 @@
-﻿namespace BookApp.Server.Models.Identity
+﻿namespace BookApp.Shared.Data
 {
     public class LoginRequest
     {

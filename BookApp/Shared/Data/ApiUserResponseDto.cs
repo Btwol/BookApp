@@ -1,4 +1,4 @@
-﻿namespace BookApp.Server.Models
+﻿namespace BookApp.Shared.Data
 {
     public class ApiUserResponseDto : IResponseDto
     {

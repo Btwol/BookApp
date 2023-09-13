@@ -4,7 +4,7 @@
 
 namespace BookApp.Server.Migrations
 {
-    public partial class users : Migration
+    public partial class Users : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,8 +13,8 @@ namespace BookApp.Server.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { 1, "58ab9d79-76c2-4698-a736-254de6c3b78e", "Admin", "ADMIN" },
-                    { 2, "a7cb880f-8dca-428e-b148-380fe308504c", "User", "USER" }
+                    { 1, "5ebacdd9-5bc7-46da-8b9a-d0db38b413f2", "Admin", "ADMIN" },
+                    { 2, "5d671e8f-71a1-4f00-bc78-7935459b1f1a", "User", "USER" }
                 });
 
             migrationBuilder.InsertData(
@@ -22,8 +22,8 @@ namespace BookApp.Server.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1000, 0, "2178d74f-dc94-41b9-a2ed-a372a2dc1c59", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderAdmin" },
-                    { 2000, 0, "2facfce8-e8d1-49cc-b9f3-a0224d1dfc42", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderUser" }
+                    { 1, 0, "5038f306-9eca-4fda-a53f-a79ac1c4ec79", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderAdmin" },
+                    { 2, 0, "3dc254fa-b5d5-4841-ab4c-156048b6a9e4", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderUser" }
                 });
 
             migrationBuilder.InsertData(
@@ -50,22 +50,22 @@ namespace BookApp.Server.Migrations
                 keyValues: new object[] { 2, 2 });
 
             migrationBuilder.DeleteData(
-                table: "AspNetUsers",
-                keyColumn: "Id",
-                keyValue: 1000);
-
-            migrationBuilder.DeleteData(
-                table: "AspNetUsers",
-                keyColumn: "Id",
-                keyValue: 2000);
-
-            migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: 1);
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: 2);
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUsers",
+                keyColumn: "Id",
+                keyValue: 1);
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: 2);
         }

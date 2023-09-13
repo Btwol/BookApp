@@ -31,8 +31,8 @@ namespace BookApp.Server.Database
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<AppUser>().HasData(
-                new AppUser { Id = 1000, UserName = "PlaceholderAdmin" },
-                new AppUser { Id = 2000, UserName = "PlaceholderUser" }
+                new AppUser { Id = 1, UserName = "PlaceholderAdmin" },
+                new AppUser { Id = 2, UserName = "PlaceholderUser" }
             );
 
             modelBuilder.Entity<AppRole>().HasData(

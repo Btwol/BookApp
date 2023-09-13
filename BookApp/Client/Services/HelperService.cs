@@ -6,9 +6,14 @@ namespace BookApp.Client.Services
 {
     public class HelperService
     {
-        public static async Task<T> ReadServiceResponseContent<T>(HttpResponseMessage response)
+        public static async Task<T> ReadServiceResponseContent<T>(HttpResponseMessage response) where T : class
         {
             return (await response.Content.ReadFromJsonAsync<ServiceResponse<T>>()).Content;
+        }
+
+        public static async Task<ServiceResponse> ReadServiceResponseContent(HttpResponseMessage response)
+        {
+            return (await response.Content.ReadFromJsonAsync<ServiceResponse>());
         }
 
         public static async Task TriggerServiceResponseError(HttpResponseMessage response)

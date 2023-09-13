@@ -120,14 +120,14 @@ namespace BookApp.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "58ab9d79-76c2-4698-a736-254de6c3b78e",
+                            ConcurrencyStamp = "5ebacdd9-5bc7-46da-8b9a-d0db38b413f2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "a7cb880f-8dca-428e-b148-380fe308504c",
+                            ConcurrencyStamp = "5d671e8f-71a1-4f00-bc78-7935459b1f1a",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -203,9 +203,9 @@ namespace BookApp.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1000,
+                            Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2178d74f-dc94-41b9-a2ed-a372a2dc1c59",
+                            ConcurrencyStamp = "5038f306-9eca-4fda-a53f-a79ac1c4ec79",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -214,9 +214,9 @@ namespace BookApp.Server.Migrations
                         },
                         new
                         {
-                            Id = 2000,
+                            Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2facfce8-e8d1-49cc-b9f3-a0224d1dfc42",
+                            ConcurrencyStamp = "3dc254fa-b5d5-4841-ab4c-156048b6a9e4",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
