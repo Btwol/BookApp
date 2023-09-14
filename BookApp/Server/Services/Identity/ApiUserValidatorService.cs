@@ -1,4 +1,7 @@
-﻿namespace BookApp.Server.Services.Identity
+﻿using BookApp.Shared.Models.Identity;
+using BookApp.Shared.Models.Services;
+
+namespace BookApp.Server.Services.Identity
 {
     public class ApiUserValidatorService : IApiUserValidatorService
     {

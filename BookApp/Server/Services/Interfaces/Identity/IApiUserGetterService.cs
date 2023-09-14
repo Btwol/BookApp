@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services.Interfaces.Identity
+﻿using BookApp.Shared.Models.Services;
+
+namespace BookApp.Server.Services.Interfaces.Identity
 {
     public interface IApiUserGetterService
     {

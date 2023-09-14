@@ -1,4 +1,6 @@
 ﻿using BookApp.Shared.Interfaces.Services;
+using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
 
 namespace BookApp.Server.Controllers
 {

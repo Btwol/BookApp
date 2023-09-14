@@ -1,4 +1,6 @@
 ﻿using BookApp.Server.Services.Interfaces.Identity;
+using BookApp.Shared.Models.Identity;
+using BookApp.Shared.Models.Services;
 
 namespace BookApp.Server.Services.Identity
 {
@@ -22,7 +24,7 @@ namespace BookApp.Server.Services.Identity
                 return ServiceResponse.Error($"User with id:{userId} not found", HttpStatusCode.NotFound);
             }
 
-            return ServiceResponse<ApiUserResponseDto>.Success(await _apiUserMapperService.MapGetApiUserResponseDto(user), "User retrieved.");
+            return ServiceResponse<AppUserModel>.Success(await _apiUserMapperService.MapGetApiUserResponseDto(user), "User retrieved.");
         }
     }
 }

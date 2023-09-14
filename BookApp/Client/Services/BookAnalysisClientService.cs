@@ -1,5 +1,6 @@
 ﻿using BookApp.Client.Services.Interfaces;
-using BookApp.Shared.Data;
+using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
 using Newtonsoft.Json;
 using System.Net.Http.Json;
 

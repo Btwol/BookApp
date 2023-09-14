@@ -1,0 +1,67 @@
+﻿@inject NavigationManager Navigation
+@page "/login"
+@using BookApp.Client.Services
+@using BookApp.Shared.Models.Identity
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+
+<EditForm Model="@loginRequest" OnValidSubmit="@LoginUser" class="form">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <div class="form-group">
+        <label for="loginUserName">Username</label>
+        <InputText @bind-Value="loginRequest!.UserName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <InputText @bind-Value="loginRequest!.Password" class="form-control" />
+    </div>
+
+    @if(awaitingResponse)
+    {
+        <p>Logging in...</p>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Submit</button>
+    }
+</EditForm>
+
+@code {
+    public LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "User3", Password = "@Aa12345" };
+    bool loginSuccessful = true;
+    string loginRequestResponseMessage = "";
+    bool awaitingResponse = false;
+
+    public async Task LoginUser()
+    {
+        awaitingResponse = true;
+        var response = await Http.PostAsJsonAsync<LoginRequest>($"Account/Login", loginRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var user = await HelperService.ReadServiceResponse<LoginResponse>(response);
+            await SetUserInLocalStorage(user);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            loginSuccessful = false;
+            var responseMessage = await HelperService.ReadServiceResponse(response);
+            loginRequestResponseMessage = responseMessage.Message;
+        }
+
+        awaitingResponse = false;
+        StateHasChanged();
+    }
+
+    private async Task SetUserInLocalStorage(LoginResponse loginResponse)
+    {
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUserToken", loginResponse.Token);
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUsername", loginResponse.User.Username);
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUserEmail", loginResponse.User.Email);
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUserId", loginResponse.User.Id);
+    }
+}

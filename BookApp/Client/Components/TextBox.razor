@@ -1,7 +1,8 @@
 ﻿@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared
-@using BookApp.Shared.Data
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.Services
 @using EpubSharp
 @using System.Web
 @using System.Xml
@@ -194,7 +195,7 @@ else
             var response = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
             if(response.IsSuccessStatusCode)
             {
-                var newTag = await HelperService.ReadServiceResponseContent<TagModel>(response);
+                var newTag = await HelperService.ReadServiceResponse<TagModel>(response);
                 bookAnalysis.Tags.Add(newTag);
                 NewTag = new();
             }
@@ -247,7 +248,7 @@ else
 
     async Task AttachNoteToHighlight()
     {
-        HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.GetElementId() == currentHighlightId);
+        //HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.GetElementId() == currentHighlightId);
         if(highlight is not null)
         {
             NoteModel newNote = new NoteModel(highlight);
@@ -319,7 +320,7 @@ else
             var response = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
             if(response.IsSuccessStatusCode)
             {
-                var newHighlight = await HelperService.ReadServiceResponseContent<HighlightModel>(response);
+                var newHighlight = await HelperService.ReadServiceResponse<HighlightModel>(response);
                 bookAnalysis.Highlights.Add(newHighlight);
             }
 

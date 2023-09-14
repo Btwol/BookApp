@@ -1,7 +1,7 @@
 ﻿using BookApp.Shared.Interfaces.Model;
 using System.ComponentModel.DataAnnotations;
 
-namespace BookApp.Shared.Data
+namespace BookApp.Shared.Models.ClientModels
 {
     public class TagModel : IClientModel
     {

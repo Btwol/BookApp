@@ -1,4 +1,5 @@
 ﻿using BookApp.Server.Models.Identity;
+using BookApp.Shared.Models.Identity;
 
 namespace BookApp.Server.Services.Identity
 {
@@ -13,9 +14,9 @@ namespace BookApp.Server.Services.Identity
             _userManager = userManager;
         }
 
-        public async Task<ApiUserResponseDto> MapGetApiUserResponseDto(AppUser user)
+        public async Task<AppUserModel> MapGetApiUserResponseDto(AppUser user)
         {
-            var mappedUser = _mapper.Map<ApiUserResponseDto>(user);
+            var mappedUser = _mapper.Map<AppUserModel>(user);
             mappedUser.UserRoles = (await _userManager.GetRolesAsync(user)).ToList();
             return mappedUser;
         }
@@ -24,7 +25,7 @@ namespace BookApp.Server.Services.Identity
         {
             LoginResponse loginResponse = new LoginResponse();
             loginResponse.Token = token;
-            loginResponse.User = _mapper.Map<ApiUserResponseDto>(user);
+            loginResponse.User = _mapper.Map<AppUserModel>(user);
             return loginResponse;
         }
 

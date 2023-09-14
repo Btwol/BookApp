@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services.MapperServices.Mappings
+﻿using BookApp.Shared.Models.ClientModels;
+
+namespace BookApp.Server.Services.MapperServices.Mappings
 {
     public class TagMapperProfile : Profile
     {

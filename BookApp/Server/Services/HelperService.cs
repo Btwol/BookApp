@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services
+﻿using BookApp.Shared.Models.Services;
+
+namespace BookApp.Server.Services
 {
     public class HelperService
     {

@@ -1,6 +1,6 @@
 ﻿@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
-@using BookApp.Shared.Data
+@using BookApp.Shared.Models.ClientModels
 @using EpubSharp
 @using System.Security.Cryptography
 @inject IBookAnalysisClientService _bookAnalysisClientService
@@ -160,7 +160,7 @@ else
         var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
         if (response.IsSuccessStatusCode)
         {
-            foundBookAnalyses = await HelperService.ReadServiceResponseContent<List<BookAnalysisModel>>(response);
+            foundBookAnalyses = await HelperService.ReadServiceResponse<List<BookAnalysisModel>>(response);
             showLoadingAnalysis = false;
         }
         else

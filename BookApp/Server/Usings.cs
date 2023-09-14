@@ -9,7 +9,6 @@ global using BookApp.Server.Services;
 global using BookApp.Server.Services.Interfaces;
 global using BookApp.Server.Services.Interfaces.MapperServices;
 global using BookApp.Server.Services.MapperServices;
-global using BookApp.Shared.Data;
 global using BookApp.Shared.Interfaces.Services;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

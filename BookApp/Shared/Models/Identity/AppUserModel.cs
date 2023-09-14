@@ -1,6 +1,6 @@
-﻿namespace BookApp.Shared.Data
+﻿namespace BookApp.Shared.Models.Identity
 {
-    public class ApiUserResponseDto : IResponseDto
+    public class AppUserModel : IResponseDto
     {
         public int Id { get; set; }
         public string Username { get; set; }

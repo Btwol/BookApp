@@ -1,4 +1,5 @@
-﻿using BookApp.Shared.Data;
+﻿using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,5 @@
 ﻿using BookApp.Server.Models.Identity;
+using BookApp.Shared.Models.Identity;
 
 namespace BookApp.Server.Services.MapperServices.Mappings
 {
@@ -6,7 +7,7 @@ namespace BookApp.Server.Services.MapperServices.Mappings
     {
         public AppUserMapperProfile()
         {
-            CreateMap<AppUser, ApiUserResponseDto>();
+            CreateMap<AppUser, AppUserModel>();
             CreateMap<RegisterRequest, AppUser>();
         }
     }

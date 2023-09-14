@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookApp.Shared.Data
+namespace BookApp.Shared.Models.ClientModels
 {
     public class BookAnalysisModel
     {

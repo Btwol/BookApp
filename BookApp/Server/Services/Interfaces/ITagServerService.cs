@@ -1,4 +1,7 @@
-﻿namespace BookApp.Server.Services.Interfaces
+﻿using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
+
+namespace BookApp.Server.Services.Interfaces
 {
     public interface ITagServerService
     {

@@ -1,4 +1,4 @@
-﻿using BookApp.Shared.Data;
+﻿using BookApp.Shared.Models.ClientModels;
 
 namespace BookApp.Client.Services.Interfaces
 {

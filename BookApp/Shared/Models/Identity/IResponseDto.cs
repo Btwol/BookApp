@@ -1,4 +1,4 @@
-﻿namespace BookApp.Shared.Data
+﻿namespace BookApp.Shared.Models.Identity
 {
     public interface IResponseDto
     {

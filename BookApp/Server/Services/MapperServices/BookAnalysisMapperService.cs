@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services.MapperServices
+﻿using BookApp.Shared.Models.ClientModels;
+
+namespace BookApp.Server.Services.MapperServices
 {
     public class BookAnalysisMapperService : IBookAnalysisMapper
     {

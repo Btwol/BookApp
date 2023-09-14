@@ -1,5 +1,7 @@
 ﻿using BookApp.Server.Models.Identity;
 using BookApp.Server.Services.Interfaces.Identity;
+using BookApp.Shared.Models.Identity;
+using BookApp.Shared.Models.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 

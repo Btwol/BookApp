@@ -1,0 +1,16 @@
+﻿@page "/logout"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+
+@code {
+    protected async override Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUserToken");
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUsername");
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUserEmail");
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUserId");
+
+        Navigation.NavigateTo("/");
+    }
+}
