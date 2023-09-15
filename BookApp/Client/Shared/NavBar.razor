@@ -1,9 +1,10 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@using BookApp.Client.Pages.Identity
+@inject IJSRuntime JSRuntime
 
 <style>
     /* wwwroot/css/styles.css */
     .fixed-navbar {
-        position: fixed;
+        position: sticky;
         top: 0;
         left: 0;
         width: 100%;
@@ -32,12 +33,12 @@
 
 </style>
 
-<div class="fixed-navbar">
+<div id="navbar" class="fixed-navbar">
     <ul>
         <li><a href="/">Home</a></li>
         @if (userLoggedIn)
         {
-            <p>Hello @currentUsername</p>
+            <li>Hello @currentUsername</li>
             <li><a href="/logout">Logout</a></li>
         }
         else
@@ -60,7 +61,7 @@
     protected async override Task OnInitializedAsync()
     {
         userLoggedIn = await GetItemFromLocalStorage("currentUserToken") != null;
-        if(userLoggedIn)
+        if (userLoggedIn)
         {
             currentUsername = await GetItemFromLocalStorage("currentUsername");
         }

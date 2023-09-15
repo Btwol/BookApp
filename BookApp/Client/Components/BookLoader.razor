@@ -1,6 +1,7 @@
 ﻿@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.Services
 @using EpubSharp
 @using System.Security.Cryptography
 @inject IBookAnalysisClientService _bookAnalysisClientService
@@ -41,13 +42,29 @@
 
         if (showCreateAnalysisForm)
         {
-            <form @onsubmit="CreateAnalysis">
+            <EditForm Model="@newAnalysis" OnValidSubmit="@CreateAnalysis" class="form">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="validation-summary" />
+
                 <div class="form-group">
-                    <label for="AnalysisTitle">Analysis Title</label>
-                    <input id="AnalysisTitle" class="form-control" @bind="newAnalysis.AnalysisTitle" />
+                    <label for="AnalysisTitle">Book Analysis Title</label>
+                    <InputText @bind-Value="newAnalysis!.AnalysisTitle" class="form-control" />
                 </div>
-                <button type="submit" class="button-action">Create</button>
-            </form>
+                
+                @if (awaitingResponse)
+                {
+                    <p>Creating Analysis...</p>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                }
+
+                @if (!bookAnalysisCreationSuccessful)
+                {
+                    <div class="alert bg-danger text-white alert-dismissible">@bookAnalysisCreationResponseMessage</div>
+                }
+            </EditForm>
         }
 
         @foreach (BookAnalysisModel bookAnalysis in foundBookAnalyses)
@@ -71,9 +88,7 @@
                 <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
             </div>
         }
-
     }
-
 }
 
 else
@@ -95,7 +110,9 @@ else
 
 @code {
     private ErrorBoundary errorBoundary;
-
+    private bool awaitingResponse = false;
+    private string bookAnalysisCreationResponseMessage = "";
+    private bool bookAnalysisCreationSuccessful = true;
     private bool loadingFile = false;
     private bool bookLoaded = false;
     private bool showLoadingAnalysis = false;
@@ -108,26 +125,33 @@ else
     private List<BookAnalysisModel> foundBookAnalyses = new();
 
     private bool showCreateAnalysisForm = false;
-    private BookAnalysisModel newAnalysis = new();
+    private BookAnalysisModel newAnalysis { get; set; } = new();
 
-    private async void CreateAnalysis()
+    public async Task CreateAnalysis()
     {
-        showCreateAnalysisForm = false;
+        awaitingResponse = true;
 
         newAnalysis.BookHash = loadedBookHash;
         newAnalysis.Authors = book.Authors.ToList();
         newAnalysis.BookTitle = book.Title;
 
-        await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
+        var response = await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
 
-        var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
         if(response.IsSuccessStatusCode)
         {
-            Console.WriteLine("Succ");
-            Console.WriteLine(response);
-            //            foundBookAnalyses = (ServiceResponse<List<BookAnalysisModel>>)response.Con
+            bookAnalysisCreationSuccessful = true;
+            var newlyCreatedAnalysis = (await HelperService.ReadServiceResponse<BookAnalysisModel>(response));
+            foundBookAnalyses.Insert(0, newlyCreatedAnalysis);
+            showCreateAnalysisForm = false;
         }
-        else Console.WriteLine("Fail");
+        else
+        {
+            bookAnalysisCreationSuccessful = false;
+            var responseMessage = (await HelperService.ReadServiceResponse(response)).Message;
+            bookAnalysisCreationResponseMessage = (responseMessage);
+        }
+
+        awaitingResponse = false;
     }
 
     private void LoadAnalysis(BookAnalysisModel selectedBookAnalysis)

@@ -18,8 +18,10 @@ namespace BookApp.Server.Services
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newAnalysisModel)
         {
             var newAnalysis = _bookAnalysisMapper.MapToBookAnalysis(newAnalysisModel);
-            await _bookAnalysisRepository.Create(newAnalysis);
-            return ServiceResponse.Success("Analysis created.");
+            newAnalysis = await _bookAnalysisRepository.Create(newAnalysis);
+
+            newAnalysisModel = _bookAnalysisMapper.MapToBookAnalysisModel(newAnalysis);
+            return ServiceResponse<BookAnalysisModel>.Success(newAnalysisModel, "Analysis created.");
         }
 
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
