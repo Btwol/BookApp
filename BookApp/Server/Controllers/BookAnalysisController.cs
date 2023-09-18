@@ -9,12 +9,10 @@ namespace BookApp.Server.Controllers
     public class BookAnalysisController : ControllerBase
     {
         private readonly IBookAnalysisServerService _bookAnalysisService;
-        IAppUserService _userService;
 
-        public BookAnalysisController(IBookAnalysisServerService bookAnalysisService, IAppUserService userService)
+        public BookAnalysisController(IBookAnalysisServerService bookAnalysisService)
         {
             _bookAnalysisService = bookAnalysisService;
-            _userService = userService;
         }
 
         [HttpGet("GetBookAnalysis")]
@@ -31,8 +29,9 @@ namespace BookApp.Server.Controllers
             return resp;
         }
 
+        [JwtAuthorize("User")]
         [HttpPut("UpdateBookAnalysis")]
-        public async Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        public async Task<ServiceResponse> UpdateBookAnalysis([FromBody] BookAnalysisModel updatedBookAnalysis)
         {
             return await _bookAnalysisService.UpdateBookAnalysis(updatedBookAnalysis);
         }
@@ -41,9 +40,14 @@ namespace BookApp.Server.Controllers
         [HttpGet("GetAnalysisByHash/{bookHash}")]
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
         {
-            var id = _userService.GetCurrentUserId();
-            var response = await _bookAnalysisService.GetAnalysisByHash(bookHash);
-            return response;
+            return await _bookAnalysisService.GetAnalysisByHash(bookHash);
+        }
+
+        [JwtAuthorize("User")]
+        [HttpDelete("DeleteBookAnalysis/{bookAnalysisId}")]
+        public async Task<ServiceResponse> DeleteBookAnalysis(int bookAnalysisId)
+        {
+            return await _bookAnalysisService.DeleteBookAnalysis(bookAnalysisId);
         }
     }
 }

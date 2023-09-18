@@ -2,7 +2,7 @@
 
 namespace BookApp.Server.Models
 {
-    public class BookAnalysisUser
+    public class BookAnalysisUser : IDbModel
     {
         [Key]
         public int Id { get; set; }

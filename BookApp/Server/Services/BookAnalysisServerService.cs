@@ -1,6 +1,7 @@
 ﻿using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Services;
 using Microsoft.AspNetCore.Identity;
+using System.Reflection;
 
 namespace BookApp.Server.Services
 {
@@ -10,16 +11,19 @@ namespace BookApp.Server.Services
         private readonly IBookAnalysisRepository _bookAnalysisRepository;
         private readonly IAppUserService _userService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IBaseRepository<BookAnalysisUser> _bookAnalysisUserRepository;
 
         public BookAnalysisServerService(IBookAnalysisMapper bookAnalysisMapper,
             IBookAnalysisRepository bookAnalysisRepository,
             IAppUserService userService,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            IBaseRepository<BookAnalysisUser> bookAnalysisUserRepository)
         {
             _bookAnalysisMapper = bookAnalysisMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
             _userService = userService;
             _userManager = userManager;
+            _bookAnalysisUserRepository = bookAnalysisUserRepository;
         }
 
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newAnalysisModel)
@@ -30,16 +34,30 @@ namespace BookApp.Server.Services
             newAnalysis.Users.Add(creator);
 
             newAnalysis = await _bookAnalysisRepository.Create(newAnalysis);
-
             newAnalysisModel = _bookAnalysisMapper.MapToBookAnalysisModel(newAnalysis);
+
             return ServiceResponse<BookAnalysisModel>.Success(newAnalysisModel, "Analysis created.");
+        }
+
+        public async Task<ServiceResponse> DeleteBookAnalysis(int analysisId)
+        {
+            var analysisToDelete = await _bookAnalysisRepository.FindByConditionsFirstOrDefault(ba => ba.Id == analysisId);
+            if(analysisToDelete is null)
+            {
+                return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);   
+            }
+
+            if(!await CurrentUserIsMemberTypeOfAnalysis(analysisId, MemberType.Administrator))
+            {
+                return ServiceResponse.Error("Only the analysis administrator can delete it.", HttpStatusCode.Forbidden);
+            }
+
+            await _bookAnalysisRepository.Delete(analysisToDelete);
+            return ServiceResponse.Success("Analysis deleted.");
         }
 
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
         {
-            if (bookHash == "22836997B8F82310BA982D76BF1A6CED395FB1226E7BCC26DBF2FE72395E02C1")
-                throw new Exception("Test exception thrown: GetAnalysisByHash server service");
-
             var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
             List<BookAnalysisModel> mappedAnalyses = new();
             foreach (var analysis in foundAnalyses)
@@ -70,10 +88,24 @@ namespace BookApp.Server.Services
                 return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);
             }
 
+            if (!await CurrentUserIsMemberTypeOfAnalysis(analysistoUpdate.Id, MemberType.Administrator, MemberType.Moderator))
+            {
+                return ServiceResponse.Error("Only the analysis moderator or greater can modify it.", HttpStatusCode.Forbidden);
+            }
+
             _bookAnalysisMapper.MapEditBookAnalysis(analysistoUpdate, updatedBookAnalysisModel);
             await _bookAnalysisRepository.Edit(analysistoUpdate);
 
             return ServiceResponse.Success("Analysis updated.");
+        }
+
+        private async Task<bool> CurrentUserIsMemberTypeOfAnalysis(int analysisId, params MemberType[] memberType)
+        {
+            var memberTypes = memberType.ToList();
+            return await _bookAnalysisUserRepository.CheckIfExists(bau =>
+                bau.UsersId == _userService.GetCurrentUserId()
+                && bau.BookAnalysisId == analysisId
+                && memberTypes.Contains(bau.MemberType));
         }
     }
 }

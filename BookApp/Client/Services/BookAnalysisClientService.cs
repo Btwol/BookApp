@@ -1,13 +1,8 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Net.Http.Headers;
-using System.Net.Http;
-using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 using Microsoft.JSInterop;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace BookApp.Client.Services
 {
@@ -16,7 +11,7 @@ namespace BookApp.Client.Services
         private readonly HttpClient Http;
         private readonly IJSRuntime jsRuntime;
 
-        public BookAnalysisClientService(HttpClient http, IJSRuntime jsRuntime, IJSRuntime jSRuntime)
+        public BookAnalysisClientService(HttpClient http, IJSRuntime jSRuntime)
         {
             Http = http;
             this.jsRuntime = jSRuntime;
@@ -25,17 +20,25 @@ namespace BookApp.Client.Services
         public async Task<HttpResponseMessage> CreateBookAnalysis(BookAnalysisModel newBookAnalysis)
         {
             await AddTokenToRequest();
+            return await Http.PostAsJsonAsync<BookAnalysisModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
+        }
 
-            var response = await Http.PostAsJsonAsync<BookAnalysisModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
-            return response;
+        public async Task<HttpResponseMessage> DeleteBookAnalysis(int bookAnalysisId)
+        {
+            await AddTokenToRequest();
+            return await Http.DeleteAsync($"BookAnalysis/DeleteBookAnalysis/{bookAnalysisId}");
         }
 
         public async Task<HttpResponseMessage> GetAnalysisByHash(string bookHash)
         {
             await AddTokenToRequest();
+            return await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
+        }
 
-            var response = await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
-            return response;
+        public async Task<HttpResponseMessage> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        {
+            await AddTokenToRequest();
+            return await Http.PutAsJsonAsync<BookAnalysisModel>("BookAnalysis/UpdateBookAnalysis", updatedBookAnalysis);
         }
 
         private async Task AddTokenToRequest()

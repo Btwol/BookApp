@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Interfaces.Services;
-using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
+﻿using BookApp.Shared.Models.ClientModels;
 
 namespace BookApp.Client.Services.Interfaces
 {
@@ -8,7 +6,8 @@ namespace BookApp.Client.Services.Interfaces
     {
         //public Task<ServiceResponse> GetBookAnalysis(int analysisId);
         public Task<HttpResponseMessage> CreateBookAnalysis(BookAnalysisModel newBookAnalysis);
-        //public Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis);
+        public Task<HttpResponseMessage> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis);
+        public Task<HttpResponseMessage> DeleteBookAnalysis(int bookAnalysisId);
         public Task<HttpResponseMessage> GetAnalysisByHash(string bookHash);
     }
 }

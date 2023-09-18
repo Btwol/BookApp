@@ -86,6 +86,7 @@
                 }
                 <hr />
                 <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
+                <button class="button-action" @onclick="() => DeleteAnalysis(bookAnalysis)">Delete analysis</button>
             </div>
         }
     }
@@ -152,6 +153,12 @@ else
         }
 
         awaitingResponse = false;
+    }
+
+    private async void DeleteAnalysis(BookAnalysisModel analysisToDelete)
+    {
+        Console.WriteLine(analysisToDelete.Id);
+        await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
     }
 
     private void LoadAnalysis(BookAnalysisModel selectedBookAnalysis)
