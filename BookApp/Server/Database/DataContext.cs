@@ -5,9 +5,9 @@ namespace BookApp.Server.Database
 {
     public class DataContext : IdentityDbContext<AppUser, AppRole, int>
     {
-        private readonly IApiUserService _apiUserService;
+        private readonly IAppUserService _apiUserService;
 
-        public DataContext(DbContextOptions<DataContext> options, IApiUserService apiUserService) : base(options)
+        public DataContext(DbContextOptions<DataContext> options, IAppUserService apiUserService) : base(options)
         {
             _apiUserService = apiUserService;
         }
@@ -59,8 +59,16 @@ namespace BookApp.Server.Database
                 .HasMany(h => h.Tags)
                 .WithMany(t => t.Highlights);
 
-            
+            modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.Users)
+                .WithMany(u => u.BookAnalyses)
+                .UsingEntity<BookAnalysisUser>();
 
+            modelBuilder.Entity<BookAnalysis>()
+                .HasKey(b => b.Id);
+
+            modelBuilder.Entity<Tag>()
+                .HasKey(b => b.Id);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
@@ -83,6 +91,16 @@ namespace BookApp.Server.Database
                     case EntityState.Modified:
                         entry.Entity.UpdaterId = _apiUserService.GetCurrentUserId();
                         entry.Entity.UpdatedAt = DateTime.UtcNow;
+                        break;
+                }
+            }
+
+            foreach (EntityEntry<BookAnalysisUser> entry in ChangeTracker.Entries<BookAnalysisUser>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.MemberType = MemberType.Administrator;
                         break;
                 }
             }

@@ -9,9 +9,9 @@ namespace BookApp.Server.Controllers
     public class BookAnalysisController : ControllerBase
     {
         private readonly IBookAnalysisServerService _bookAnalysisService;
-        IApiUserService _userService;
+        IAppUserService _userService;
 
-        public BookAnalysisController(IBookAnalysisServerService bookAnalysisService, IApiUserService userService)
+        public BookAnalysisController(IBookAnalysisServerService bookAnalysisService, IAppUserService userService)
         {
             _bookAnalysisService = bookAnalysisService;
             _userService = userService;

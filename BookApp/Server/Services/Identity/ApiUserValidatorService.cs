@@ -3,13 +3,13 @@ using BookApp.Shared.Models.Services;
 
 namespace BookApp.Server.Services.Identity
 {
-    public class ApiUserValidatorService : IApiUserValidatorService
+    public class AppUserValidatorService : IAppUserValidatorService
     {
         private readonly int _maxNameLength;
         private readonly int _minNameLength;
         private readonly int _maxEmailLength;
 
-        public ApiUserValidatorService(IConfiguration configuration)
+        public AppUserValidatorService(IConfiguration configuration)
         {
             _maxNameLength = int.Parse(configuration.GetSection($"Validation:RegisterUser:MaxNameLength").Value);
             _minNameLength = int.Parse(configuration.GetSection($"Validation:RegisterUser:MinNameLength").Value);

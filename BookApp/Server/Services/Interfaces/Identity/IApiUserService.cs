@@ -1,6 +1,6 @@
 ﻿namespace BookApp.Server.Services.Interfaces.Identity
 {
-    public interface IApiUserService
+    public interface IAppUserService
     {
         public int GetCurrentUserId();
         public bool CurrentUserIsAdmin();

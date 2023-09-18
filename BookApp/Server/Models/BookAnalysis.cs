@@ -2,7 +2,6 @@
 {
     public class BookAnalysis : IDbModel
     {
-        [Key]
         public int Id { get; set; }
 
         [Required, MaxLength(100)]
@@ -19,6 +18,7 @@
 
         public virtual List<Tag> Tags { get; set; }
         public virtual List<Highlight> Highlights { get; set; }
+        public virtual List<AppUser> Users { get; set; } = new();
         //public virtual List<Note> Notes { get; set; }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using BookApp.Server.Services.Interfaces.Identity;
 
 namespace BookApp.Server.Services.Identity
 {
-    public class ApiUserService : IApiUserService
+    public class AppUserService : IAppUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ApiUserService(IHttpContextAccessor httpContextAccessor)
+        public AppUserService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }

@@ -9,16 +9,16 @@ namespace BookApp.Server.Services.Identity
 {
     public class AccountService : IAccountService
     {
-        private readonly IApiUserMapperService _apiUserMapperService;
-        private readonly IApiUserValidatorService _apiUserValidatorService;
+        private readonly IAppUserMapperService _apiUserMapperService;
+        private readonly IAppUserValidatorService _apiUserValidatorService;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IConfiguration _configuration;
 
-        public AccountService(IApiUserMapperService mapper, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            AuthenticationSettings authenticationSettings, IConfiguration configuration, IApiUserValidatorService apiUserValidatorService,
-            IApiUserMapperService apiUserMapperService)
+        public AccountService(IAppUserMapperService mapper, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
+            AuthenticationSettings authenticationSettings, IConfiguration configuration, IAppUserValidatorService apiUserValidatorService,
+            IAppUserMapperService apiUserMapperService)
         {
             _apiUserMapperService = mapper;
             _userManager = userManager;

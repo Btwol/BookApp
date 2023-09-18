@@ -6,10 +6,10 @@ namespace BookApp.Server.Services.Identity
 {
     public class ApiUserGetterService : IApiUserGetterService
     {
-        private readonly IApiUserRepository _apiUserRepository;
-        private readonly IApiUserMapperService _apiUserMapperService;
+        private readonly IAppUserRepository _apiUserRepository;
+        private readonly IAppUserMapperService _apiUserMapperService;
 
-        public ApiUserGetterService(IApiUserRepository apiUserRepository, IApiUserMapperService apiUserMapperService)
+        public ApiUserGetterService(IAppUserRepository apiUserRepository, IAppUserMapperService apiUserMapperService)
         {
             _apiUserRepository = apiUserRepository;
             _apiUserMapperService = apiUserMapperService;

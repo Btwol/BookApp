@@ -1,5 +1,5 @@
 ﻿@page "/"
-
+@inject IJSRuntime jsRuntime
 <PageTitle>Index</PageTitle>
 
 <ErrorBoundary @ref="@errorBoundary" Context="Exception"> 
@@ -16,4 +16,9 @@
 
 @code {
     private ErrorBoundary errorBoundary;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await jsRuntime.InvokeVoidAsync("openNewWindow", "https://localhost:7111/swagger/index.html", "_blank");
+    }
 }

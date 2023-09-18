@@ -1,5 +1,6 @@
 ﻿using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace BookApp.Server.Services
 {
@@ -7,17 +8,27 @@ namespace BookApp.Server.Services
     {
         private readonly IBookAnalysisMapper _bookAnalysisMapper;
         private readonly IBookAnalysisRepository _bookAnalysisRepository;
+        private readonly IAppUserService _userService;
+        private readonly UserManager<AppUser> _userManager;
 
         public BookAnalysisServerService(IBookAnalysisMapper bookAnalysisMapper,
-            IBookAnalysisRepository bookAnalysisRepository)
+            IBookAnalysisRepository bookAnalysisRepository,
+            IAppUserService userService,
+            UserManager<AppUser> userManager)
         {
             _bookAnalysisMapper = bookAnalysisMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
+            _userService = userService;
+            _userManager = userManager;
         }
 
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newAnalysisModel)
         {
             var newAnalysis = _bookAnalysisMapper.MapToBookAnalysis(newAnalysisModel);
+
+            var creator = await _userManager.FindByIdAsync(_userService.GetCurrentUserId().ToString());
+            newAnalysis.Users.Add(creator);
+
             newAnalysis = await _bookAnalysisRepository.Create(newAnalysis);
 
             newAnalysisModel = _bookAnalysisMapper.MapToBookAnalysisModel(newAnalysis);

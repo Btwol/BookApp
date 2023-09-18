@@ -2,6 +2,6 @@
 {
     public class AppUser : IdentityUser<int>, IDbModel
     {
-        //public virtual List<BookAnalysis> BookAnalyses { get; set; }
+        public virtual List<BookAnalysis> BookAnalyses { get; set; }
     }
 }

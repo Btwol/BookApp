@@ -3,12 +3,12 @@ using BookApp.Shared.Models.Identity;
 
 namespace BookApp.Server.Services.Identity
 {
-    public class ApiUserMapperService : IApiUserMapperService
+    public class AppUserMapperService : IAppUserMapperService
     {
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
 
-        public ApiUserMapperService(IMapper mapper, UserManager<AppUser> userManager)
+        public AppUserMapperService(IMapper mapper, UserManager<AppUser> userManager)
         {
             _mapper = mapper;
             _userManager = userManager;

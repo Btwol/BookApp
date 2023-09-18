@@ -85,12 +85,12 @@ namespace BookApp.Server.Services
 
             services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 
-            services.AddScoped(typeof(IApiUserService), typeof(ApiUserService));
-            services.AddScoped(typeof(IApiUserMapperService), typeof(ApiUserMapperService));
+            services.AddScoped(typeof(IAppUserService), typeof(AppUserService));
+            services.AddScoped(typeof(IAppUserMapperService), typeof(AppUserMapperService));
             services.AddScoped(typeof(IApiUserGetterService), typeof(ApiUserGetterService));
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
-            services.AddScoped(typeof(IApiUserRepository), typeof(ApiUserRepository));
-            services.AddScoped(typeof(IApiUserValidatorService), typeof(ApiUserValidatorService));
+            services.AddScoped(typeof(IAppUserRepository), typeof(AppUserRepository));
+            services.AddScoped(typeof(IAppUserValidatorService), typeof(AppUserValidatorService));
             services.AddScoped<RoleManager<AppRole>>();
         }
     }
