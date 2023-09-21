@@ -58,14 +58,24 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
         {
-            var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
-            List<BookAnalysisModel> mappedAnalyses = new();
-            foreach (var analysis in foundAnalyses)
+            try
             {
-                mappedAnalyses.Add(_bookAnalysisMapper.MapToBookAnalysisModel(analysis));
-            }
+                //int zero = 0;
+                //int a = 10 / zero;
 
-            return ServiceResponse<List<BookAnalysisModel>>.Success(mappedAnalyses, "Analyses retrieved.");
+                var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
+                List<BookAnalysisModel> mappedAnalyses = new();
+                foreach (var analysis in foundAnalyses)
+                {
+                    mappedAnalyses.Add(_bookAnalysisMapper.MapToBookAnalysisModel(analysis));
+                }
+
+                return ServiceResponse<List<BookAnalysisModel>>.Success(mappedAnalyses, "Analyses retrieved.");
+            }
+            catch
+            {
+                return ServiceResponse.Error("An error occured while attempting to get analyses by hash.");
+            }
         }
 
         public async Task<ServiceResponse> GetBookAnalysis(int analysisId)
@@ -80,7 +90,7 @@ namespace BookApp.Server.Services
             return ServiceResponse<BookAnalysisModel>.Success(mappedAnalysis, "Analysis retrieved.");
         }
 
-        public async Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysisModel)
+        public async Task<ServiceResponse> EditBookAnalysis(BookAnalysisModel updatedBookAnalysisModel)
         {
             var analysistoUpdate = await _bookAnalysisRepository.FindByConditionsFirstOrDefault(a => a.Id == updatedBookAnalysisModel.Id);
             if (analysistoUpdate is null)

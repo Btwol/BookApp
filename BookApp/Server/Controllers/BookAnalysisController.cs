@@ -25,15 +25,15 @@ namespace BookApp.Server.Controllers
         [HttpPost("CreateBookAnalysis")]
         public async Task<ServiceResponse> CreateBookAnalysis([FromBody] BookAnalysisModel newBookAnalysis)
         {
-            var resp =  await _bookAnalysisService.CreateBookAnalysis(newBookAnalysis);
-            return resp;
+            return await _bookAnalysisService.CreateBookAnalysis(newBookAnalysis);
         }
 
         [JwtAuthorize("User")]
-        [HttpPut("UpdateBookAnalysis")]
-        public async Task<ServiceResponse> UpdateBookAnalysis([FromBody] BookAnalysisModel updatedBookAnalysis)
+        [HttpPut("EditBookAnalysis")]
+        public async Task<ServiceResponse> EditBookAnalysis([FromBody] BookAnalysisModel updatedBookAnalysis)
         {
-            return await _bookAnalysisService.UpdateBookAnalysis(updatedBookAnalysis);
+            if (updatedBookAnalysis.AnalysisTitle == "rush") throw new Exception("test EditBookAnalysis exception!");
+            return await _bookAnalysisService.EditBookAnalysis(updatedBookAnalysis);
         }
 
         [JwtAuthorize("User")]

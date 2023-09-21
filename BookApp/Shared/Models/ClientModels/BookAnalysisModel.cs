@@ -23,5 +23,22 @@ namespace BookApp.Shared.Models.ClientModels
 
         //author (user)
         //book title/author
+
+        public BookAnalysisModel()
+        {
+
+        }
+
+        public BookAnalysisModel(BookAnalysisModel bookAnalysisModel)
+        {
+            this.Id = bookAnalysisModel.Id;
+            this.AnalysisTitle = bookAnalysisModel.AnalysisTitle;
+            this.BookHash = bookAnalysisModel.BookHash;
+            this.BookTitle = bookAnalysisModel.BookHash;
+            this.Authors = bookAnalysisModel.Authors;
+            this.Tags = bookAnalysisModel.Tags;
+            this.Highlights = bookAnalysisModel.Highlights;
+            this.Notes = bookAnalysisModel.Notes;
+        }
     }
 }

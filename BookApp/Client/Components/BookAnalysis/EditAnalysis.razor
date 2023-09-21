@@ -1,0 +1,61 @@
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared.Models.ClientModels
+@using EpubSharp
+@inject IBookAnalysisClientService _bookAnalysisClientService
+
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit analysys">
+<ChildContent>
+<EditForm Model="@analysisFormModel" OnValidSubmit="@EditAnalysisSubmit" class="form">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <div class="form-group">
+        <label for="AnalysisTitle">Book Analysis Title</label>
+        <InputText @bind-Value="analysisFormModel!.AnalysisTitle" class="form-control" />
+    </div>
+
+    @if (awaitingResponse)
+    {
+        <p>Editing Analysis...</p>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Submit</button>
+    }
+</EditForm>
+</ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+<button @onclick="Close">Close</button>
+
+@code {
+    [CascadingParameter] 
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter] 
+    public BookAnalysisModel analysisToEdit { get; set; }
+    public BookAnalysisModel analysisFormModel { get; set; }
+
+    private bool awaitingResponse = false;
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
+    public async Task EditAnalysisSubmit()
+    {
+        awaitingResponse = true;
+
+        var response = await _bookAnalysisClientService.EditBookAnalysis(analysisToEdit);
+        awaitingResponse = false;
+        await HelperService.HandleResponse(response);
+        analysisToEdit = new BookAnalysisModel(analysisFormModel);
+
+        await Close();
+    }
+
+    protected override void OnInitialized()
+    {
+        analysisFormModel = new BookAnalysisModel(analysisToEdit);
+    }
+}

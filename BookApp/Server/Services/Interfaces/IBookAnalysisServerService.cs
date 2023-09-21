@@ -7,7 +7,7 @@ namespace BookApp.Server.Services.Interfaces
     {
         public Task<ServiceResponse> GetBookAnalysis(int analysisId);
         public Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newBookAnalysis);
-        public Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis);
+        public Task<ServiceResponse> EditBookAnalysis(BookAnalysisModel updatedBookAnalysis);
         public Task<ServiceResponse> DeleteBookAnalysis(int analysisId);
         public Task<ServiceResponse> GetAnalysisByHash(string bookHash);
     }

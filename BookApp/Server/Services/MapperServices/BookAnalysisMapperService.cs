@@ -14,9 +14,9 @@ namespace BookApp.Server.Services.MapperServices
         public void MapEditBookAnalysis(BookAnalysis analysistoUpdate, BookAnalysisModel updatedBookAnalysisModel)
         {
             analysistoUpdate.AnalysisTitle = updatedBookAnalysisModel.AnalysisTitle;
-            analysistoUpdate.Authors = String.Join(", ", updatedBookAnalysisModel.Authors);
-            analysistoUpdate.BookTitle = updatedBookAnalysisModel.BookTitle;
-            analysistoUpdate.BookHash = updatedBookAnalysisModel.BookHash;
+            //analysistoUpdate.Authors = String.Join(", ", updatedBookAnalysisModel.Authors);
+            //analysistoUpdate.BookTitle = updatedBookAnalysisModel.BookTitle;
+            //analysistoUpdate.BookHash = updatedBookAnalysisModel.BookHash;
         }
 
         public BookAnalysis MapToBookAnalysis(BookAnalysisModel bookAnalysisModel)

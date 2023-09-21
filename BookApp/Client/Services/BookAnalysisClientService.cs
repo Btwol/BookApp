@@ -1,8 +1,11 @@
 ﻿using BookApp.Client.Services.Interfaces;
+using BookApp.Shared.Interfaces.Model;
 using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
 using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using static BookApp.Client.Services.BookAnalysisClientService;
 
 namespace BookApp.Client.Services
 {
@@ -29,17 +32,18 @@ namespace BookApp.Client.Services
             return await Http.DeleteAsync($"BookAnalysis/DeleteBookAnalysis/{bookAnalysisId}");
         }
 
+        public async Task<HttpResponseMessage> EditBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        {
+            await AddTokenToRequest();
+            return await Http.PutAsJsonAsync<BookAnalysisModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
+        }
+
         public async Task<HttpResponseMessage> GetAnalysisByHash(string bookHash)
         {
             await AddTokenToRequest();
             return await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
         }
 
-        public async Task<HttpResponseMessage> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis)
-        {
-            await AddTokenToRequest();
-            return await Http.PutAsJsonAsync<BookAnalysisModel>("BookAnalysis/UpdateBookAnalysis", updatedBookAnalysis);
-        }
 
         private async Task AddTokenToRequest()
         {

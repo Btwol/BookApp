@@ -18,7 +18,7 @@ namespace BookApp.Shared.Models.ClientModels
         public int FirstNodeCharIndex { get; set; }
         public int LastNodeIndex { get; set; }
         public int LastNodeCharIndex { get; set; }
-        public string RawPositionString { get; set; }
+        public string? RawPositionString { get; set; }
         public List<TagModel> Tags { get; set; } = new();
 
         public HighlightModel()

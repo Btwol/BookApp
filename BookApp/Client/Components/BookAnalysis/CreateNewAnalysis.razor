@@ -1,0 +1,67 @@
+﻿@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared.Models.ClientModels
+@using EpubSharp
+@inject IBookAnalysisClientService _bookAnalysisClientService
+
+<EditForm Model="@newAnalysis" OnValidSubmit="@CreateAnalysis" class="form">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <div class="form-group">
+        <label for="AnalysisTitle">Book Analysis Title</label>
+        <InputText @bind-Value="newAnalysis!.AnalysisTitle" class="form-control" />
+    </div>
+
+    @if (awaitingResponse)
+    {
+        <p>Creating Analysis...</p>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Submit</button>
+    }
+
+    @if (!bookAnalysisCreationSuccessful)
+    {
+        <div class="alert bg-danger text-white alert-dismissible">@bookAnalysisCreationResponseMessage</div>
+    }
+</EditForm> 
+
+@code {
+    [Parameter]
+    public EpubBook book { get; set; }
+
+    [Parameter]
+    public string loadedBookHash { get; set; }
+
+    [Parameter]
+    public List<BookAnalysisModel> foundBookAnalyses { get; set; }
+
+    [Parameter]
+    public EventCallback<List<BookAnalysisModel>> foundBookAnalysesChanged { get; set; }
+
+    private bool awaitingResponse = false;
+    private string bookAnalysisCreationResponseMessage = "";
+    private bool bookAnalysisCreationSuccessful = true;
+
+    private BookAnalysisModel newAnalysis { get; set; } = new();
+
+    public async Task CreateAnalysis()
+    {
+        awaitingResponse = true;
+
+        newAnalysis.BookHash = loadedBookHash;
+        newAnalysis.Authors = book.Authors.ToList();
+        newAnalysis.BookTitle = book.Title;
+
+        var response = await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
+        var newlyCreatedAnalysis = await HelperService.HandleResponse<BookAnalysisModel>(response);
+        bookAnalysisCreationSuccessful = true;
+        foundBookAnalyses.Insert(0, newlyCreatedAnalysis);
+
+        await foundBookAnalysesChanged.InvokeAsync(foundBookAnalyses);
+
+        awaitingResponse = false;
+    }
+}
