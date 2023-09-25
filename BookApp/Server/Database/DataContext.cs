@@ -1,8 +1,16 @@
-﻿namespace BookApp.Server.Database
+﻿using BookApp.Server.Models.Identity;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+namespace BookApp.Server.Database
 {
-    public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
+    public class DataContext : IdentityDbContext<AppUser, AppRole, int>
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+        private readonly IAppUserService _apiUserService;
+
+        public DataContext(DbContextOptions<DataContext> options, IAppUserService apiUserService) : base(options)
+        {
+            _apiUserService = apiUserService;
+        }
 
         public DbSet<BookAnalysis> BookAnalyses { get; set; }
         public DbSet<Highlight> Highlights { get; set; }
@@ -22,12 +30,20 @@
         {
             base.OnModelCreating(modelBuilder);
 
-            ////Database Seed
-            //modelBuilder.Entity<User>().HasData(
-            //    new User { Id = 1, Email = "test@test.com", PasswordHash = "123", UserName = "TestUser1" },
-            //    new User { Id = 2, Email = "test@test.com", PasswordHash = "123", UserName = "TestUser2" },
-            //    new User { Id = 3, Email = "test@test.com", PasswordHash = "123", UserName = "TestUser3" }
-            //);
+            modelBuilder.Entity<AppUser>().HasData(
+                new AppUser { Id = 1, UserName = "PlaceholderAdmin" },
+                new AppUser { Id = 2, UserName = "PlaceholderUser" }
+            );
+
+            modelBuilder.Entity<AppRole>().HasData(
+                new AppRole { Id = 1, Name = "Admin", NormalizedName = "ADMIN" },
+                new AppRole { Id = 2, Name = "User", NormalizedName = "USER" }
+                );
+
+            modelBuilder.Entity<IdentityUserRole<int>>().HasData(
+                new IdentityUserRole<int> { RoleId = 1, UserId = 1 },
+                new IdentityUserRole<int> { RoleId = 2, UserId = 2 }
+                );
 
             ////Database Configuration
             modelBuilder.Entity<BookAnalysis>().HasKey(b => b.Id);
@@ -43,43 +59,53 @@
                 .HasMany(h => h.Tags)
                 .WithMany(t => t.Highlights);
 
-            
+            modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.Users)
+                .WithMany(u => u.BookAnalyses)
+                .UsingEntity<BookAnalysisUser>();
 
-            //modelBuilder.Entity<PantryUser>().HasKey(u => new { u.UserId, u.PantryId });
+            modelBuilder.Entity<BookAnalysis>()
+                .HasKey(b => b.Id);
 
-            //modelBuilder.Entity<PantryUser>()
-            //    .HasOne(t => t.User)
-            //    .WithMany(t => t.PantryUser)
-            //    .HasForeignKey(t => t.UserId);
+            modelBuilder.Entity<Tag>()
+                .HasKey(b => b.Id);
+        }
 
-            //modelBuilder.Entity<PantryUser>()
-            //    .HasOne(t => t.Pantry)
-            //    .WithMany(t => t.PantryUser)
-            //    .HasForeignKey(t => t.PantryId);
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            foreach (EntityEntry<Creatable> entry in ChangeTracker.Entries<Creatable>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.CreatorId = _apiUserService.GetCurrentUserId();
+                        entry.Entity.CreatedAt = DateTime.UtcNow;
+                        break;
+                }
+            }
 
-            //modelBuilder.Entity<CategoryProduct>().HasKey(u => new { u.CategoryId, u.ProductId });
+            foreach (EntityEntry<Updatable> entry in ChangeTracker.Entries<Updatable>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Modified:
+                        entry.Entity.UpdaterId = _apiUserService.GetCurrentUserId();
+                        entry.Entity.UpdatedAt = DateTime.UtcNow;
+                        break;
+                }
+            }
 
-            //modelBuilder.Entity<CategoryProduct>()
-            //    .HasOne(t => t.Category)
-            //    .WithMany(t => t.CategoryProduct)
-            //    .HasForeignKey(t => t.CategoryId);
+            foreach (EntityEntry<BookAnalysisUser> entry in ChangeTracker.Entries<BookAnalysisUser>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.MemberType = MemberType.Administrator;
+                        break;
+                }
+            }
 
-            //modelBuilder.Entity<CategoryProduct>()
-            //    .HasOne(t => t.Product)
-            //    .WithMany(t => t.CategoryProduct)
-            //    .HasForeignKey(t => t.ProductId);
-
-            //modelBuilder.Entity<PantryInvite>()
-            //    .HasOne(t => t.Reciever)
-            //    .WithMany(t => t.RecievedPantryInvites)
-            //    .HasForeignKey(t => t.RecieverId)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
-            //modelBuilder.Entity<PantryInvite>()
-            //    .HasOne(t => t.Sender)
-            //    .WithMany(t => t.SentPantryInvites)
-            //    .HasForeignKey(t => t.SenderId)
-            //    .OnDelete(DeleteBehavior.NoAction);
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

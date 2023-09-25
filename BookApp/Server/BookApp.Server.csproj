@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>7179316f-6df4-4014-b504-f6c35ed7681f</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,13 @@
     </PackageReference>    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Html.Abstractions" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="7.0.4" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.28.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.28.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.28.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.28.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.28.0" />
   </ItemGroup>
 
   <ItemGroup>

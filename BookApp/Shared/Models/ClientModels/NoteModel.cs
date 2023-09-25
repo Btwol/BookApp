@@ -1,5 +1,4 @@
-﻿
-namespace BookApp.Shared.Data
+﻿namespace BookApp.Shared.Models.ClientModels
 {
     public class NoteModel
     {

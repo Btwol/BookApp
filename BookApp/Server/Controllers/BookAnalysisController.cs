@@ -1,4 +1,8 @@
-﻿namespace BookApp.Server.Controllers
+﻿using BookApp.Server.Attributes;
+using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
+
+namespace BookApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -17,23 +21,33 @@
             return await _bookAnalysisService.GetBookAnalysis(analysisId);
         }
 
+        [JwtAuthorize("User")]
         [HttpPost("CreateBookAnalysis")]
         public async Task<ServiceResponse> CreateBookAnalysis([FromBody] BookAnalysisModel newBookAnalysis)
         {
             return await _bookAnalysisService.CreateBookAnalysis(newBookAnalysis);
         }
 
-        [HttpPut("UpdateBookAnalysis")]
-        public async Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        [JwtAuthorize("User")]
+        [HttpPut("EditBookAnalysis")]
+        public async Task<ServiceResponse> EditBookAnalysis([FromBody] BookAnalysisModel updatedBookAnalysis)
         {
-            return await _bookAnalysisService.UpdateBookAnalysis(updatedBookAnalysis);
+            if (updatedBookAnalysis.AnalysisTitle == "rush") throw new Exception("test EditBookAnalysis exception!");
+            return await _bookAnalysisService.EditBookAnalysis(updatedBookAnalysis);
         }
 
+        [JwtAuthorize("User")]
         [HttpGet("GetAnalysisByHash/{bookHash}")]
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
         {
-            var response = await _bookAnalysisService.GetAnalysisByHash(bookHash);
-            return response;
+            return await _bookAnalysisService.GetAnalysisByHash(bookHash);
+        }
+
+        [JwtAuthorize("User")]
+        [HttpDelete("DeleteBookAnalysis/{bookAnalysisId}")]
+        public async Task<ServiceResponse> DeleteBookAnalysis(int bookAnalysisId)
+        {
+            return await _bookAnalysisService.DeleteBookAnalysis(bookAnalysisId);
         }
     }
 }

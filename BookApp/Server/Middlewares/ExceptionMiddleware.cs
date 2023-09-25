@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Middlewares
+﻿using BookApp.Shared.Models.Services;
+
+namespace BookApp.Server.Middlewares
 {
     public class ExceptionMiddleware
     {

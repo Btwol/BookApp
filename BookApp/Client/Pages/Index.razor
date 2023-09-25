@@ -1,19 +1,14 @@
 ﻿@page "/"
-
+@inject IJSRuntime jsRuntime
 <PageTitle>Index</PageTitle>
 
-<ErrorBoundary @ref="@errorBoundary" Context="Exception"> 
-    <ChildContent>
-        <BookApp.Client.Components.BookLoader></BookApp.Client.Components.BookLoader>
-    </ChildContent>
-    <ErrorContent>
-        <div class="alert bg-danger text-white alert-dismissible">
-            Index Error Boundary: @Exception.GetType(): @Exception.Message
-            <button class="btn-close" @onclick="@errorBoundary.Recover"></button>
-        </div>
-    </ErrorContent>
-</ErrorBoundary>
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Book Loader">
+    <ChildContent><BookApp.Client.Components.BookLoader /></ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
 @code {
-    private ErrorBoundary errorBoundary;
+    protected async override Task OnInitializedAsync()
+    {
+        //await jsRuntime.InvokeVoidAsync("openNewWindow", "https://localhost:7111/swagger/index.html", "_blank");
+    }
 }

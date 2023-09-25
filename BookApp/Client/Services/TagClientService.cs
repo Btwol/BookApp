@@ -1,5 +1,5 @@
 ﻿using BookApp.Client.Services.Interfaces;
-using BookApp.Shared.Data;
+using BookApp.Shared.Models.ClientModels;
 using System.Net.Http.Json;
 
 namespace BookApp.Client.Services

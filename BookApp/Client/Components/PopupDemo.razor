@@ -1,0 +1,32 @@
+﻿@page "/popupdemo"
+@using Blazored.Modal.Services
+@using BookApp.Client.Pages
+@inject IModalService Modal
+
+@*<button @onclick="@(()=>modal.Show<FetchData>("Modal Popup Example"))" class="btn btn-primary">View</button>*@
+
+@*<button @onclick="@(() => Modal.Show<FetchData>("My Movies"))">View Movies</button>*@
+
+<button @onclick="ShowModal">View Movies</button>
+
+@code {
+
+    //[CascadingParameter] IModalService Modal { get; set; } = default!;
+
+    //https://blazored.github.io/Modal/
+
+    private async Task ShowModal()
+    {
+        var moviesModal = Modal.Show<FetchData>("My Movies");
+        var result = await moviesModal.Result;
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled");
+        }
+        else if (result.Confirmed)
+        {
+            Console.WriteLine("Modal was closed");
+        }
+    }
+}

@@ -1,5 +1,5 @@
-﻿using BookApp.Shared.Data;
-using BookApp.Shared.Interfaces.Services;
+﻿using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
 
 namespace BookApp.Client.Services.Interfaces
 {

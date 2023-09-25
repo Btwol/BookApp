@@ -1,83 +1,54 @@
 ﻿using BookApp.Client.Services.Interfaces;
-using BookApp.Shared.Data;
-using Newtonsoft.Json;
+using BookApp.Shared.Interfaces.Model;
+using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.Services;
+using Microsoft.JSInterop;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using static BookApp.Client.Services.BookAnalysisClientService;
 
 namespace BookApp.Client.Services
 {
     public class BookAnalysisClientService : IBookAnalysisClientService
     {
         private readonly HttpClient Http;
+        private readonly IJSRuntime jsRuntime;
 
-        public BookAnalysisClientService(HttpClient http)
+        public BookAnalysisClientService(HttpClient http, IJSRuntime jSRuntime)
         {
             Http = http;
+            this.jsRuntime = jSRuntime;
         }
 
-        public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newBookAnalysis)
+        public async Task<HttpResponseMessage> CreateBookAnalysis(BookAnalysisModel newBookAnalysis)
         {
-            var response = await Http.PostAsJsonAsync<BookAnalysisModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
-            var content = await response.Content.ReadFromJsonAsync<ServiceResponse>();
-            if (content.SuccessStatus)
-            {
-                return content;
-            }
-            else
-            {
-                throw new Exception(content.Message);
-            }
+            await AddTokenToRequest();
+            return await Http.PostAsJsonAsync<BookAnalysisModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
+        }
+
+        public async Task<HttpResponseMessage> DeleteBookAnalysis(int bookAnalysisId)
+        {
+            await AddTokenToRequest();
+            return await Http.DeleteAsync($"BookAnalysis/DeleteBookAnalysis/{bookAnalysisId}");
+        }
+
+        public async Task<HttpResponseMessage> EditBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        {
+            await AddTokenToRequest();
+            return await Http.PutAsJsonAsync<BookAnalysisModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
         }
 
         public async Task<HttpResponseMessage> GetAnalysisByHash(string bookHash)
         {
-            //return await Http.GetFromJsonAsync<List<BookAnalysisModel>>($"GetAnalysisByHash/{bookHash}");
-
-            var response = await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
-            //return response;
-            //return await response.Content.ReadFromJsonAsync<ServiceResponse>();
-
-            return response;
-
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("a");
-                Console.WriteLine(await response.Content.ReadAsStringAsync());
-                var content = await response.Content.ReadFromJsonAsync<ServiceResponse<List<BookAnalysisModel>>>();
-                return response;
-            }
-            else
-            {
-                Console.WriteLine(response.Content);
-                Console.WriteLine(await response.Content.ReadAsStringAsync());
-                var content = await response.Content.ReadFromJsonAsync<ServiceResponse>();
-                throw new Exception(content.Message);
-            }
+            await AddTokenToRequest();
+            return await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
         }
 
-        public async Task<ServiceResponse> GetBookAnalysis(int analysisId)
-        {
-            //return await Http.GetFromJsonAsync<BookAnalysisModel>($"GetBookAnalysis/{analysisId}");
 
-            var response = await Http.GetFromJsonAsync<ServiceResponse<BookAnalysisModel>>($"GetBookAnalysis/{analysisId}");
-            if (response.SuccessStatus)
-            {
-                return response;
-            }
-            else
-            {
-                throw new Exception(response.Message);
-            }
-        }
-
-        public async Task<ServiceResponse> UpdateBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        private async Task AddTokenToRequest()
         {
-            //var a = await Http.PutAsJsonAsync<BookAnalysisModel>("UpdateBookAnalysis", updatedBookAnalysis);
-            return null;
-        }
-
-        public async Task Crash()
-        {
-            throw new Exception("Crash!");
+            var token = await jsRuntime.InvokeAsync<string>("localStorageFunctions.getItem", "currentUserToken");
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Models
+﻿using Microsoft.EntityFrameworkCore.Update.Internal;
+
+namespace BookApp.Server.Models
 {
     public class Highlight : IDbModel
     {

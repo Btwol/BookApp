@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace BookApp.Shared.Data
+namespace BookApp.Shared.Models.Services
 {
     public class ServiceResponse
     {

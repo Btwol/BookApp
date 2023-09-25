@@ -1,0 +1,77 @@
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared.Models.ClientModels
+@using Blazored.Modal.Services
+@inject IModalService Modal
+@inject IBookAnalysisClientService _bookAnalysisClientService
+
+@foreach (BookAnalysisModel bookAnalysis in foundBookAnalyses)
+{
+    <div class="book-analysis-listing">
+        <b>Analysis Title: </b>
+        <p>@bookAnalysis.AnalysisTitle</p>
+        <hr />
+        <b>Book Hash: </b>
+        <p>@bookAnalysis.BookHash</p>
+        <hr />
+        <b>Book Title: </b>
+        <p>@bookAnalysis.BookTitle</p>
+        <hr />
+        <b>Authors:</b>
+        @foreach (string author in bookAnalysis.Authors)
+        {
+            <p>@author</p>
+        }
+        <hr />
+        <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
+        <button class="button-action" @onclick="() => DeleteAnalysis(bookAnalysis)">Delete analysis</button>
+        <button class="button-action" @onclick="() => ShowEditAnalysisModal(bookAnalysis)">Edit analysis</button>
+    </div>
+    <hr />
+}
+
+@code {
+    [Parameter]
+    public List<BookAnalysisModel> foundBookAnalyses { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<BookAnalysisModel> selectedBookAnalysisChanged { get; set; }
+
+    [Parameter]
+    public BookAnalysisModel selectedBookAnalysis { get; set; }
+
+    bool showEditAnalysisForm = false;
+
+    private async Task ShowEditAnalysisModal(BookAnalysisModel bookAnalysis)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditAnalysis.analysisToEdit), bookAnalysis);
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<EditAnalysis>("Edit Analysis", parameters, options);
+        var result = await modal.Result;
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled");
+        }
+        else if (result.Confirmed)
+        {
+            Console.WriteLine("Modal was closed");
+        }
+    }
+
+    private async Task DeleteAnalysis(BookAnalysisModel analysisToDelete)
+    {
+        var response = await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
+        await HelperService.HandleResponse(response);
+
+        foundBookAnalyses.Remove(analysisToDelete);
+        StateHasChanged();    
+    }
+
+    private async Task LoadAnalysis(BookAnalysisModel selectedBookAnalysis)
+    {
+        this.selectedBookAnalysis = selectedBookAnalysis;
+        await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
+    }
+}

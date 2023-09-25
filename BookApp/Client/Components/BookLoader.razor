@@ -1,6 +1,7 @@
 ﻿@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
-@using BookApp.Shared.Data
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.Services
 @using EpubSharp
 @using System.Security.Cryptography
 @inject IBookAnalysisClientService _bookAnalysisClientService
@@ -32,70 +33,40 @@
         </label>
     </p>
 
-
     @if (bookLoaded)
     {
         <button class="button-action" @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
 
-        <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
-
         if (showCreateAnalysisForm)
         {
-            <form @onsubmit="CreateAnalysis">
-                <div class="form-group">
-                    <label for="AnalysisTitle">Analysis Title</label>
-                    <input id="AnalysisTitle" class="form-control" @bind="newAnalysis.AnalysisTitle" />
-                </div>
-                <button type="submit" class="button-action">Create</button>
-            </form>
+            <button class="button-action" @onclick="() => showCreateAnalysisForm = false">Hide create new analysis form</button>
+            <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Create new analysys">
+                <ChildContent><BookApp.Client.Components.BookAnalysis.CreateNewAnalysis loadedBookHash="@loadedBookHash" book="book" @bind-foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+            </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
         }
-
-        @foreach (BookAnalysisModel bookAnalysis in foundBookAnalyses)
+        else
         {
-            <div class="book-analysis-listing">
-                <b>Analysis Title: </b>
-                <p>@bookAnalysis.AnalysisTitle</p> 
-                <hr />
-                <b>Book Hash: </b>
-                <p>@bookAnalysis.BookHash</p>
-                <hr />
-                <b>Book Title: </b>
-                <p>@bookAnalysis.BookTitle</p>
-                <hr />
-                <b>Authors:</b>
-                @foreach (string author in bookAnalysis.Authors)
-                {
-                    <p>@author</p>
-                }
-                <hr />
-                <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
-            </div>
+            <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
         }
 
+        <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Book Analyses Listing">
+            <ChildContent><BookApp.Client.Components.BookAnalysis.FoundAnalysesListing @bind-selectedBookAnalysis="bookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+        </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+        }
     }
-
-}
-
 else
 {
-    <ErrorBoundary @ref="@errorBoundary" Context="Exception">
-        <ChildContent>
-            <BookApp.Client.Components.TextBox bookAnalysis="bookAnalysis" book="book" />
-        </ChildContent>
-        <ErrorContent>
-            <div class="alert bg-danger text-white alert-dismissible">
-                Text Box Error Boundary: @Exception.GetType(): @Exception.Message
-                <button class="btn-close" @onclick="@errorBoundary.Recover"></button>
-            </div>
-        </ErrorContent>
-    </ErrorBoundary>
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Text Box">
+        <ChildContent><BookApp.Client.Components.TextBox bookAnalysis="bookAnalysis" book="book" /></ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 }
 
 
 
 @code {
-    private ErrorBoundary errorBoundary;
-
+    private bool awaitingResponse = false;
+    private string bookAnalysisCreationResponseMessage = "";
+    private bool bookAnalysisCreationSuccessful = true;
     private bool loadingFile = false;
     private bool bookLoaded = false;
     private bool showLoadingAnalysis = false;
@@ -105,35 +76,10 @@ else
     private EpubBook book;
     private byte[] loadedBookByteArray;
     private string loadedBookHash;
-    private List<BookAnalysisModel> foundBookAnalyses = new();
+    public List<BookAnalysisModel> foundBookAnalyses { get; set; } = new();
 
     private bool showCreateAnalysisForm = false;
-    private BookAnalysisModel newAnalysis = new();
-
-    private async void CreateAnalysis()
-    {
-        showCreateAnalysisForm = false;
-
-        newAnalysis.BookHash = loadedBookHash;
-        newAnalysis.Authors = book.Authors.ToList();
-        newAnalysis.BookTitle = book.Title;
-
-        await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
-
-        var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
-        if(response.IsSuccessStatusCode)
-        {
-            Console.WriteLine("Succ");
-            Console.WriteLine(response);
-            //            foundBookAnalyses = (ServiceResponse<List<BookAnalysisModel>>)response.Con
-        }
-        else Console.WriteLine("Fail");
-    }
-
-    private void LoadAnalysis(BookAnalysisModel selectedBookAnalysis)
-    {
-        bookAnalysis = selectedBookAnalysis;
-    }
+    private BookAnalysisModel newAnalysis { get; set; } = new();
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -157,16 +103,11 @@ else
     private async Task LoadAnalysesFromServer(string loadedBookHash)
     {
         showLoadingAnalysis = true;
+
         var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
-        if (response.IsSuccessStatusCode)
-        {
-            foundBookAnalyses = await HelperService.ReadServiceResponseContent<List<BookAnalysisModel>>(response);
-            showLoadingAnalysis = false;
-        }
-        else
-        {
-            await HelperService.TriggerServiceResponseError(response);
-        }
+        foundBookAnalyses = await HelperService.HandleResponse<List<BookAnalysisModel>>(response);
+
+        showLoadingAnalysis = false;
     }
 
     private async Task<byte[]> ReadFully(Stream input)

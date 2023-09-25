@@ -1,7 +1,10 @@
-﻿<style>
+﻿@using BookApp.Client.Pages.Identity
+@inject IJSRuntime JSRuntime
+
+<style>
     /* wwwroot/css/styles.css */
     .fixed-navbar {
-        position: fixed;
+        position: sticky;
         top: 0;
         left: 0;
         width: 100%;
@@ -30,12 +33,37 @@
 
 </style>
 
-<div class="fixed-navbar">
+<div id="navbar" class="fixed-navbar">
     <ul>
         <li><a href="/">Home</a></li>
+        @if (userLoggedIn)
+        {
+            <li>Hello @currentUsername</li>
+            <li><a href="/logout">Logout</a></li>
+        }
+        else
+        {
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+        }
     </ul>
 </div>
 
 @code {
+    bool userLoggedIn = false;
+    string currentUsername = "";
 
+    private async Task<string> GetItemFromLocalStorage(string itemName)
+    {
+        return await JSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", itemName);
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        userLoggedIn = await GetItemFromLocalStorage("currentUserToken") != null;
+        if (userLoggedIn)
+        {
+            currentUsername = await GetItemFromLocalStorage("currentUsername");
+        }
+    }
 }

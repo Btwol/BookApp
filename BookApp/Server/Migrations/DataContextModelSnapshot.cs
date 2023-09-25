@@ -22,7 +22,144 @@ namespace BookApp.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("BookApp.Server.Models.AppUser", b =>
+            modelBuilder.Entity("BookApp.Server.Models.BookAnalysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AnalysisTitle")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Authors")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("BookHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BookTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookAnalyses");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.BookAnalysisUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookAnalysisId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookAnalysisId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("BookAnalysisUser");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookAnalysisId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FirstNodeCharIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FirstNodeIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastNodeCharIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastNodeIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PageNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookAnalysisId");
+
+                    b.ToTable("Highlights");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Identity.AppRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "52546e9c-fe6a-4103-851a-f8e2a19568fd",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConcurrencyStamp = "439c9e60-73b6-42b3-a172-cdaf12ad6a49",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Identity.AppUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -88,71 +225,30 @@ namespace BookApp.Server.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
 
-            modelBuilder.Entity("BookApp.Server.Models.BookAnalysis", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("AnalysisTitle")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Authors")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("BookHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BookTitle")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BookAnalyses");
-                });
-
-            modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("BookAnalysisId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FirstNodeCharIndex")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FirstNodeIndex")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LastNodeCharIndex")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LastNodeIndex")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PageNumber")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookAnalysisId");
-
-                    b.ToTable("Highlights");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "d62d7874-3166-4b28-b590-c0195cd3cfd9",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "PlaceholderAdmin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "d2f4bdf8-7da5-45f0-a518-c73fccd28255",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "PlaceholderUser"
+                        });
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Tag", b =>
@@ -190,36 +286,6 @@ namespace BookApp.Server.Migrations
                     b.HasIndex("TagsId");
 
                     b.ToTable("HighlightTag");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -304,6 +370,18 @@ namespace BookApp.Server.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            RoleId = 2
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -325,6 +403,25 @@ namespace BookApp.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BookApp.Server.Models.BookAnalysisUser", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
+                        .WithMany()
+                        .HasForeignKey("BookAnalysisId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookApp.Server.Models.Identity.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("BookAnalysis");
+                });
+
             modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
                 {
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
@@ -339,7 +436,7 @@ namespace BookApp.Server.Migrations
             modelBuilder.Entity("BookApp.Server.Models.Tag", b =>
                 {
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
-                        .WithMany()
+                        .WithMany("Tags")
                         .HasForeignKey("BookAnalysisId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -364,7 +461,7 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                    b.HasOne("BookApp.Server.Models.Identity.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -373,7 +470,7 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("BookApp.Server.Models.AppUser", null)
+                    b.HasOne("BookApp.Server.Models.Identity.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -382,7 +479,7 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("BookApp.Server.Models.AppUser", null)
+                    b.HasOne("BookApp.Server.Models.Identity.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -391,13 +488,13 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                    b.HasOne("BookApp.Server.Models.Identity.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BookApp.Server.Models.AppUser", null)
+                    b.HasOne("BookApp.Server.Models.Identity.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -406,7 +503,7 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("BookApp.Server.Models.AppUser", null)
+                    b.HasOne("BookApp.Server.Models.Identity.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -416,6 +513,8 @@ namespace BookApp.Server.Migrations
             modelBuilder.Entity("BookApp.Server.Models.BookAnalysis", b =>
                 {
                     b.Navigation("Highlights");
+
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }
