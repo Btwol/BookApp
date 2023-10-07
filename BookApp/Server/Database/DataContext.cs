@@ -15,6 +15,7 @@ namespace BookApp.Server.Database
         public DbSet<BookAnalysis> BookAnalyses { get; set; }
         public DbSet<Highlight> Highlights { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<HighlightNote> HighlightNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -59,6 +60,11 @@ namespace BookApp.Server.Database
                 .HasMany(h => h.Tags)
                 .WithMany(t => t.Highlights);
 
+            modelBuilder.Entity<Highlight>()
+                .HasMany(h => h.Notes)
+                .WithOne(n => n.Highlight)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.Users)
                 .WithMany(u => u.BookAnalyses)
@@ -69,6 +75,12 @@ namespace BookApp.Server.Database
 
             modelBuilder.Entity<Tag>()
                 .HasKey(b => b.Id);
+
+            modelBuilder.Entity<HighlightNote>()
+                .HasOne(n => n.Highlight)
+                .WithMany(h => h.Notes)
+                .HasForeignKey(n => n.HighlightId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

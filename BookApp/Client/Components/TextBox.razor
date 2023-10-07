@@ -2,6 +2,7 @@
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared
 @using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
 @using BookApp.Shared.Models.Services
 @using EpubSharp
 @using System.Web
@@ -20,7 +21,7 @@
     .highlight {
     position: absolute;
     background-color: rgba(1, 1, 255, 0.8);
-    z-index:9999;
+    z-index:998;
     transition: zoom 0.2s;
 }
 
@@ -39,7 +40,7 @@
             position:absolute;
 
       background-color: rgba(255, 1, 0, 0.8);
-      z-index:9999
+      z-index:997
     }
 
         .note-container {
@@ -58,13 +59,29 @@
 
 </style>
 
+
+<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
+    @if(html is not null)
+    {
+        @((MarkupString)html[currentCount].TextContent)
+    }
+</div>
+
+<div id="highlightContainer"></div>
+
+<div id="noteContainer" class="note-container"></div>
+
+<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
+
+
 @if (isLoading)
 {
     <p>Uploading...</p>
 }
 else
 {
-<ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
+
+<div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
             @if (currentHighlight != null)
             {
                 <p>Current Highlight Id: @currentHighlight.Id</p>
@@ -74,9 +91,8 @@ else
                 <p>currentHighlightId: @currentHighlightId</p>
             }
             <hr />
-            <li @onclick="DeleteHighlight">Delete</li>
-            <li @onclick="ReApplyHighlight">Reapply Highlight</li>
-            <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
+            <button class="button-action" @onclick="DeleteHighlight">Delete</button>
+            <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
             <hr />
             @if (currentHighlight != null)
             {
@@ -94,6 +110,15 @@ else
                 <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
             }
 <hr />
+
+<p>Create new note:</p>
+<EditForm Model="@NewHighlightNote" OnValidSubmit="@CreateNewHighlightNote">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText @bind-Value="NewHighlightNote!.Content" />
+    <button type="submit">Submit</button>
+</EditForm>
+
 <p>Create new tag:</p>
 <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
     <DataAnnotationsValidator />
@@ -102,41 +127,41 @@ else
     <button type="submit">Submit</button>
 </EditForm>
 
-</ul>
+</div>
 
-<div id="highlightContainer"></div>
-
-<div id="noteContainer" class="note-container"></div>
-
-<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
 }
 
-<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
-    @if(html is not null)
-    {
-        @((MarkupString)html[currentCount].TextContent)
-    }
-</div>
+
 
 <div class="text-box-bar">
-    <!-- Your navigation bar content goes here -->
-<button class="button-action" @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
-<button class="button-action" @onclick="AddNote">Add Note</button>
+    @if(currentHighlight is not null)
+{
+    foreach(HighlightNoteModel note in currentHighlight.Notes)
+    {
+        <h1>Note:</h1>
+        <p>@note.Content</p>
+        <hr />
+    }
+}
+    <button class="button-action" @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
+    <button class="button-action" @onclick="AddNote">Add Note</button>
+    <button class="button-action" @onclick="Refresh">Refresh</button>
 
-<div class="row">
-    <div class="col">
-        <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+    <div class="row">
+        <div class="col">
+            <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+        </div>
+        <div class="col">
+            <p role="status">Current count: @currentCount</p>
+        </div>
+        <div class="col">
+            <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
+        </div>
     </div>
-    <div class="col">
-        <p role="status">Current count: @currentCount</p>
-    </div>
-    <div class="col">
-        <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
-    </div>
-</div>
 </div>
 
 @code{
+    public HighlightNoteModel NewHighlightNote { get; set; } = new();
     public TagModel? NewTag { get; set; } = new();
     private List<TagModel> Tags = new();
     private List<IBrowserFile> loadedFiles = new();
@@ -177,6 +202,9 @@ else
 
     public List<string> overlays = new();
 
+
+
+    #region Tags
     private string tagSearchKeyword = "";
     private List<TagModel> filteredTags = new();
     private void FilterTags(ChangeEventArgs e)
@@ -245,14 +273,23 @@ else
         var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse<List<TagModel>>>();
         Tags = serviceResponse.Content;
     }
+    #endregion
 
-    async Task AttachNoteToHighlight()
+    void Refresh()
     {
-        //HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.GetElementId() == currentHighlightId);
-        if(highlight is not null)
+        StateHasChanged();
+    }
+
+    async Task CreateNewHighlightNote()
+    {
+        if(currentHighlight is not null)
         {
-            NoteModel newNote = new NoteModel(highlight);
-            //highlight.Notes.Add(newNote);
+            NewHighlightNote.HighlightId = currentHighlight.Id;
+            NewHighlightNote.BookAnalysisId = bookAnalysis.Id;
+
+            var response = await _highlightClientService.AddHighlightNote(NewHighlightNote);
+            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
+            currentHighlight.Notes.Add(newNote);
         }
     }
 
@@ -380,10 +417,16 @@ else
             }
         }
 
+        Console.WriteLine("ReRender...");
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+
         foreach(HighlightModel highlight in bookAnalysis.Highlights)
         {
             if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+            {
+                //await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
                 await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
+            }
         }
     }
 

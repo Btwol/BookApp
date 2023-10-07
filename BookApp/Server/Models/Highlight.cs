@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Update.Internal;
-
-namespace BookApp.Server.Models
+﻿namespace BookApp.Server.Models
 {
     public class Highlight : IDbModel
     {
@@ -27,6 +25,6 @@ namespace BookApp.Server.Models
         public virtual BookAnalysis BookAnalysis { get; set; }
 
         public virtual List<Tag> Tags { get; set; }
-        //public virtual List<Note> Notes { get; set; }
+        public virtual List<HighlightNote> Notes { get; set; }
     }
 }

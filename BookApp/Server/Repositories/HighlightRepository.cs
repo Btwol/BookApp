@@ -13,6 +13,7 @@ namespace BookApp.Server.Repositories
             return await _context.Set<Highlight>()
                 .Where(expresion)
                 .Include(h => h.Tags)
+                .Include(h => h.Notes)
                 .FirstOrDefaultAsync();
         }
     }

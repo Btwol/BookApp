@@ -1,5 +1,6 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.ClientModels.Notes;
 using BookApp.Shared.Models.Services;
 using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
@@ -18,6 +19,11 @@ namespace BookApp.Client.Services
         public async Task<HttpResponseMessage> AddHighlight(HighlightModel newHighlight)
         {
             return await Http.PostAsJsonAsync($"Highlight/AddHighlight", newHighlight);
+        }
+
+        public async Task<HttpResponseMessage> AddHighlightNote(HighlightNoteModel highlightNoteModel)
+        {
+            return await Http.PostAsJsonAsync($"HighlightNote/AddHighlightNote", highlightNoteModel);
         }
 
         public async Task<HttpResponseMessage> DeleteHighlight(int highlightId)

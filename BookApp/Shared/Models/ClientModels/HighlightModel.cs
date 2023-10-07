@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BookApp.Shared.Models.ClientModels.Notes;
+using Newtonsoft.Json;
 
 namespace BookApp.Shared.Models.ClientModels
 {
@@ -20,6 +21,7 @@ namespace BookApp.Shared.Models.ClientModels
         public int LastNodeCharIndex { get; set; }
         public string? RawPositionString { get; set; }
         public List<TagModel> Tags { get; set; } = new();
+        public List<HighlightNoteModel> Notes { get; set; } = new();
 
         public HighlightModel()
         {

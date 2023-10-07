@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BookApp.Shared.Models.ClientModels.Notes;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookApp.Shared.Models.ClientModels
 {
@@ -19,10 +15,12 @@ namespace BookApp.Shared.Models.ClientModels
         public List<string> Authors { get; set; } = new();
         public List<TagModel> Tags { get; set; } = new();
         public List<HighlightModel> Highlights { get; set; } = new();
-        public List<NoteModel> Notes { get; set; } = new();
+        public List<AnalysisNoteModel> AnalysisNotes { get; set; } = new();
+        public List<ChapterNoteModel> ChapterNotes { get; set; } = new();
+        public List<ParagraphNoteModel> ParagraphNotes { get; set; } = new();
 
         //author (user)
-        //book title/author
+        //book title/author (custom user addition?)
 
         public BookAnalysisModel()
         {
@@ -38,7 +36,9 @@ namespace BookApp.Shared.Models.ClientModels
             this.Authors = bookAnalysisModel.Authors;
             this.Tags = bookAnalysisModel.Tags;
             this.Highlights = bookAnalysisModel.Highlights;
-            this.Notes = bookAnalysisModel.Notes;
+            this.AnalysisNotes = bookAnalysisModel.AnalysisNotes;
+            this.ChapterNotes = bookAnalysisModel.ChapterNotes;
+            this.ParagraphNotes = bookAnalysisModel.ParagraphNotes;
         }
     }
 }
