@@ -49,6 +49,25 @@
       top: 0;
     }
 
+.add-paragraph-note{
+    position:absolute;
+    display:none;
+    z-index:9999;
+    width: 40px; /* Adjust the width and height as needed */
+  height: 40px;
+  background-color: #007bff; /* Change the background color to your desired color */
+  color: #fff; /* Change the text color to your desired color */
+  text-align: center;
+  line-height: 40px; /* Vertically center the text */
+  font-size: 24px; /* Adjust the font size as needed */
+  cursor: pointer;
+  border: none;
+}
+
+.add-paragraph-note:hover {
+  background-color: #0056b3; /* Change the background color on hover */
+}
+
     @if (css != null)
     {
         @foreach (EpubTextFile txt in css)
@@ -131,7 +150,13 @@ else
 
 }
 
-
+<button @ref=addParagraphNoteRef class="add-paragraph-note" @onclick="() => showAddParagraphNote = true">+</button>
+@if(showAddParagraphNote)
+{
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Create new paragraph note">
+        <ChildContent><BookApp.Client.Components.Notes.AddParagraphNoteComponent @bind-bookAnalysis="bookAnalysis" pageNumber="currentCount" textNodeIndex="lastClickedTextNodeIndex" @bind-showAddParagraphNote="showAddParagraphNote"/></ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+}
 
 <div class="text-box-bar">
     @if(currentHighlight is not null)
@@ -184,6 +209,7 @@ else
     private ElementReference contextMenuRef;
     private ElementReference overlayElementRef;
     private ElementReference highlightContainerRef;
+    private ElementReference addParagraphNoteRef;
 
     public string currentHighlightId = string.Empty;
     private HighlightModel? currentHighlight = null;
@@ -202,6 +228,8 @@ else
 
     public List<string> overlays = new();
 
+    public int lastClickedTextNodeIndex = -1;
+    bool showAddParagraphNote = false;
 
 
     #region Tags
@@ -327,6 +355,7 @@ else
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
         string items = selectionRange.ToString();
 
+
         if (items != "-1")
         {
             //if (editFlag)
@@ -364,10 +393,14 @@ else
         }
     }
 
-    [JSInvokableAttribute("GetClickedNodeIndex")]
-    public async void GetClickedNodeIndex(int clickedNodeIndex)
+    [JSInvokableAttribute("onTextNodeClick")]
+    public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-        Console.WriteLine();
+        Console.WriteLine("C# onTextNodeClick: " + lastSelectedNodeIndex);
+        Console.WriteLine("Left: " + left);
+        Console.WriteLine("Top: " + top);
+        lastClickedTextNodeIndex = lastSelectedNodeIndex;
+        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, addParagraphNoteRef);
     }
 
     [JSInvokableAttribute("onPernamentHighlightClick")]
@@ -401,7 +434,7 @@ else
     {
         if(firstRender)
         {
-            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer");
+            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
 
             if (book is not null)
             {   

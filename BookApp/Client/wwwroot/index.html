@@ -655,6 +655,16 @@
             console.log("Fisrt Node: " + firstNode);
             lastSelectedNode = event.target;
             lastSelectedNodeIndex = firstNode;
+
+            //retrieve position of clicked text node
+            var element = document.getElementById('textContainer');
+            var textNode = getTextNodes(element)[lastSelectedNodeIndex + i]; // Get the first text node within the element
+            var range = document.createRange();
+            range.setStart(textNode, 0);
+            range.setEnd(textNode, 0);
+            var rect = range.getBoundingClientRect();
+
+            dotNet.invokeMethodAsync("onTextNodeClick", lastSelectedNodeIndex, rect.left, rect.top);
         }
 
         // Attach event listener to the parent div
@@ -662,13 +672,20 @@
         //= document.getElementById('textContainer');
         //parentDiv.addEventListener('click', getTextNodeNumber);
 
-        function setupEvent(elementId) {
+        let dotNet;
+        function setupEvent(elementId, dotNetInit) {
             console.log("Element Id: " + elementId);
             parentDiv = document.getElementById(elementId);
             console.log(parentDiv);
             parentDiv.addEventListener('click', getTextNodeNumber);
+            dotNet = dotNetInit;
         }
 
+        function setAddParagraphNotePosition(left, top, element) {
+            element.style.left = left-100 + 'px';
+            element.style.top = top + 'px';
+            element.style.display = 'block';
+        }
 
         function getNodeIndex(node) {
             let index = 0;
