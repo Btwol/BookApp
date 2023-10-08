@@ -90,6 +90,12 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IParagraphNoteService), typeof(ParagraphNoteService));
             services.AddScoped(typeof(IParagraphNoteMapperService), typeof(ParagraphNoteMapperService));
 
+            services.AddScoped(typeof(IAnalysisNoteService), typeof(AnalysisNoteService));
+            services.AddScoped(typeof(IAnalysisNoteMapperService), typeof(AnalysisNoteMapperService));
+
+            services.AddScoped(typeof(IChapterNoteService), typeof(ChapterNoteService));
+            services.AddScoped(typeof(IChapterNoteMapperService), typeof(ChapterNoteMapperService));
+
             services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 
             services.AddScoped(typeof(IAppUserService), typeof(AppUserService));

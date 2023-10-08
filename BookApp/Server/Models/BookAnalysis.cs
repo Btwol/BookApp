@@ -20,5 +20,7 @@
         public virtual List<Highlight> Highlights { get; set; }
         public virtual List<AppUser> Users { get; set; } = new();
         public virtual List<ParagraphNote> ParagraphNotes { get; set; }
+        public virtual List<AnalysisNote> AnalysisNotes { get; set; }
+        public virtual List<ChapterNote> ChapterNotes { get; set; }
     }
 }

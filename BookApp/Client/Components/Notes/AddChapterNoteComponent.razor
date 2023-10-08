@@ -1,0 +1,70 @@
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IChapterNoteClientService _chapterNoteClientService
+
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit chapter">
+    <ChildContent>
+        <EditForm Model="@newChapterNote" OnValidSubmit="@CreateNote" class="form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+
+            <div class="form-group">
+                <label for="ChapterTitle">Note content:</label>
+                <InputText @bind-Value="newChapterNote!.Content" class="form-control" />
+            </div>
+
+            @if (awaitingResponse)
+            {
+                <p>Creating note...</p>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary">Submit</button>
+            }
+        </EditForm>
+    </ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+<button @onclick="Close">Close</button>
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public List<ChapterNoteModel> ChapterNotes { get; set; }
+
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+
+    [Parameter]
+    public int pageNumber { get; set; }
+
+    private bool awaitingResponse = false;
+
+    private ChapterNoteModel newChapterNote { get; set; } = new();
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
+    public async Task CreateNote()
+    {
+        awaitingResponse = true;
+
+        newChapterNote.BookAnalysisId = bookAnalysisId;
+        newChapterNote.ChapterNumber = pageNumber;
+
+        var response = await _chapterNoteClientService.AddChapterNote(newChapterNote);
+        var newNote = await HelperService.HandleResponse<ChapterNoteModel>(response);
+        ChapterNotes.Add(newNote);
+
+        await Close();
+    }
+
+    protected override void OnInitialized()
+    {
+        newChapterNote = new ChapterNoteModel();
+    }
+}

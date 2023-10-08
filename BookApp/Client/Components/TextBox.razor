@@ -172,7 +172,6 @@ else
 </EditForm>
 
 </div>
-
 }
 
 <button @ref=addParagraphNoteRef class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
@@ -200,10 +199,33 @@ else
             <button class="button-action">Edit</button>
             <button class="button-action">Delete</button>
         }
+        <hr /><hr />
+
+        <h3>Chapter Notes:</h3>
+        @foreach (ChapterNoteModel note in bookAnalysis.ChapterNotes.Where(n => n.ChapterNumber == currentCount))
+        {
+            <hr />
+            <p>@note.Content</p>
+            <button class="button-action">Edit</button>
+            <button class="button-action">Delete</button>
+        }
+        <hr /><hr />
+
+        <h3>Analysis Notes:</h3>
+        @foreach (AnalysisNoteModel note in bookAnalysis.AnalysisNotes)
+        {
+            <hr />
+            <p>@note.Content</p>
+            <button class="button-action">Edit</button>
+            <button class="button-action">Delete</button>
+        }
 </div>
 
 <div class="text-box-bar">
-    <button class="button-action" @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
+    <button class="button-action" @onclick="ShowAddChapterNoteModal">Add Chapter Note</button>
+    <button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
+
+    <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
     <button class="button-action" @onclick="AddNote">Add Note</button>
     <button class="button-action" @onclick="Refresh">Refresh</button>
 
@@ -221,7 +243,7 @@ else
 </div>
 
 @code{
-    public HighlightNoteModel NewHighlightNote { get; set; } = new();
+    
     public TagModel? NewTag { get; set; } = new();
     private List<TagModel> Tags = new();
     private List<IBrowserFile> loadedFiles = new();
@@ -337,6 +359,25 @@ else
     }
     #endregion
 
+    #region Notes
+    #region HighlightNotes
+    public HighlightNoteModel NewHighlightNote { get; set; } = new();
+
+    async Task CreateNewHighlightNote()
+    {
+        if (currentHighlight is not null)
+        {
+            NewHighlightNote.HighlightId = currentHighlight.Id;
+            NewHighlightNote.BookAnalysisId = bookAnalysis.Id;
+
+            var response = await _highlightClientService.AddHighlightNote(NewHighlightNote);
+            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
+            currentHighlight.Notes.Add(newNote);
+        }
+    }
+    #endregion
+
+    #region ParagraphNotes
     private async Task ShowAddParagraphNoteModal()
     {
         var parameters = new ModalParameters()
@@ -354,24 +395,48 @@ else
     {
         return bookAnalysis.ParagraphNotes.Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList();
     }
+    #endregion
+
+    #region AnalysisNotes
+    private async Task ShowAddAnalysisNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddAnalysisNoteComponent.AnalysisNotes), bookAnalysis.AnalysisNotes)
+            .Add(nameof(AddAnalysisNoteComponent.bookAnalysisId), bookAnalysis.Id);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+    #endregion
+
+    #region ChapterNotes
+    private async Task ShowAddChapterNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddChapterNoteComponent.ChapterNotes), bookAnalysis.ChapterNotes)
+            .Add(nameof(AddChapterNoteComponent.pageNumber), currentCount)
+            .Add(nameof(AddChapterNoteComponent.bookAnalysisId), bookAnalysis.Id);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+
+    #endregion
+
+    #endregion
+
+    
 
     void Refresh()
     {
         StateHasChanged();
     }
 
-    async Task CreateNewHighlightNote()
-    {
-        if(currentHighlight is not null)
-        {
-            NewHighlightNote.HighlightId = currentHighlight.Id;
-            NewHighlightNote.BookAnalysisId = bookAnalysis.Id;
-
-            var response = await _highlightClientService.AddHighlightNote(NewHighlightNote);
-            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
-            currentHighlight.Notes.Add(newNote);
-        }
-    }
+    
 
     async Task AddNote()
     {

@@ -14,6 +14,8 @@
                 .Include(b => b.Highlights).ThenInclude(h => h.Notes)
                 .Include(b => b.Tags)
                 .Include(b => b.ParagraphNotes)
+                .Include(b => b.ChapterNotes)
+                .Include(b => b.AnalysisNotes)
                 .ToListAsync();
         }
     }

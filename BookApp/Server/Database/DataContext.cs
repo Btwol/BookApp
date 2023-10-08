@@ -17,6 +17,8 @@ namespace BookApp.Server.Database
         public DbSet<Tag> Tags { get; set; }
         public DbSet<HighlightNote> HighlightNotes { get; set; }
         public DbSet<ParagraphNote> ParagraphNotes { get; set; }
+        public DbSet<AnalysisNote> AnalysisNotes { get; set; }
+        public DbSet<ChapterNote> ChapterNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -78,6 +80,18 @@ namespace BookApp.Server.Database
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.AnalysisNotes)
+                .WithOne(n => n.BookAnalysis)
+                .HasForeignKey(n => n.BookAnalysisId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.ChapterNotes)
+                .WithOne(n => n.BookAnalysis)
+                .HasForeignKey(n => n.BookAnalysisId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BookAnalysis>()
                 .HasKey(b => b.Id);
 
             modelBuilder.Entity<Tag>()
@@ -92,6 +106,18 @@ namespace BookApp.Server.Database
             modelBuilder.Entity<ParagraphNote>()
                 .HasOne(n => n.BookAnalysis)
                 .WithMany(h => h.ParagraphNotes)
+                .HasForeignKey(n => n.BookAnalysisId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<AnalysisNote>()
+                .HasOne(n => n.BookAnalysis)
+                .WithMany(h => h.AnalysisNotes)
+                .HasForeignKey(n => n.BookAnalysisId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ChapterNote>()
+                .HasOne(n => n.BookAnalysis)
+                .WithMany(h => h.ChapterNotes)
                 .HasForeignKey(n => n.BookAnalysisId)
                 .OnDelete(DeleteBehavior.NoAction);
         }

@@ -2,5 +2,6 @@
 {
     public class ChapterNote : Note
     {
+        public int ChapterNumber { get; set; }
     }
 }
