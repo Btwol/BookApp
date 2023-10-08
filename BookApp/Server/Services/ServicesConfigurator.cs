@@ -1,4 +1,5 @@
 ﻿using BookApp.Server.Services.Identity;
+using BookApp.Server.Services.MapperServices.Mappings;
 using BookApp.Server.Services.Notes;
 using Microsoft.OpenApi.Models;
 
@@ -85,6 +86,9 @@ namespace BookApp.Server.Services
 
             services.AddScoped(typeof(IHighlightNoteService), typeof(HighlightNoteService));
             services.AddScoped(typeof(IHighlightNoteMapperService), typeof(HighlightNoteMapperService));
+
+            services.AddScoped(typeof(IParagraphNoteService), typeof(ParagraphNoteService));
+            services.AddScoped(typeof(IParagraphNoteMapperService), typeof(ParagraphNoteMapperService));
 
             services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 

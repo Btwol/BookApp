@@ -1,9 +1,12 @@
-﻿@using BookApp.Client.Services
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
 @inject IParagraphNoteClientService _paragraphNoteClientService
 
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit analysys">
+<ChildContent>
 <EditForm Model="@newParagraphNote" OnValidSubmit="@CreateNote" class="form">
     <DataAnnotationsValidator />
     <ValidationSummary class="validation-summary" />
@@ -15,20 +18,27 @@
 
     @if (awaitingResponse)
     {
-        <p>Creating Analysis...</p>
+        <p>Creating note...</p>
     }
     else
     {
         <button type="submit" class="btn btn-primary">Submit</button>
     }
 </EditForm>
+</ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+<button @onclick="Close">Close</button>
 
 @code {
-    [Parameter]
-    public BookAnalysisModel bookAnalysis { get; set; }
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
     [Parameter]
-    public EventCallback<BookAnalysisModel> bookAnalysisChanged { get; set; }
+    public List<ParagraphNoteModel> ParagraphNotes { get; set; }
+
+    [Parameter]
+    public int bookAnalysisId { get; set; }
 
     [Parameter]
     public int pageNumber { get; set; }
@@ -36,32 +46,30 @@
     [Parameter]
     public int textNodeIndex { get; set; }
 
-    [Parameter]
-    public bool showAddParagraphNote { get; set; }
-
-    [Parameter]
-    public EventCallback<bool> showAddParagraphNoteChanged { get; set; }
-
     private bool awaitingResponse = false;
 
     private ParagraphNoteModel newParagraphNote { get; set; } = new();
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
 
     public async Task CreateNote()
     {
         awaitingResponse = true;
 
-        newParagraphNote.BookAnalysisId = bookAnalysis.Id;
+        newParagraphNote.BookAnalysisId = bookAnalysisId;
         newParagraphNote.TextNodeNumber = textNodeIndex;
         newParagraphNote.PageNumber = pageNumber;
 
         var response = await _paragraphNoteClientService.AddParagraphNote(newParagraphNote);
         var newNote = await HelperService.HandleResponse<ParagraphNoteModel>(response);
-        bookAnalysis.ParagraphNotes.Insert(0, newNote);
-        showAddParagraphNote = false;
+        ParagraphNotes.Add(newNote);
 
-        await bookAnalysisChanged.InvokeAsync(bookAnalysis);
-        await showAddParagraphNoteChanged.InvokeAsync(showAddParagraphNote);
+        await Close();
+    }
 
-        awaitingResponse = false;
+    protected override void OnInitialized()
+    {
+        newParagraphNote = new ParagraphNoteModel();
     }
 }

@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int BookAnalysisId { get; set; }
+        public virtual BookAnalysis BookAnalysis { get; set; }
         public string Content { get; set; }
     }
 }

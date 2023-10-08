@@ -19,6 +19,6 @@
         public virtual List<Tag> Tags { get; set; }
         public virtual List<Highlight> Highlights { get; set; }
         public virtual List<AppUser> Users { get; set; } = new();
-        //public virtual List<Note> Notes { get; set; }
+        public virtual List<ParagraphNote> ParagraphNotes { get; set; }
     }
 }

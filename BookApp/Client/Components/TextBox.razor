@@ -1,4 +1,7 @@
-﻿@using BookApp.Client.Services
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Components.Notes
+@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared
 @using BookApp.Shared.Models.ClientModels
@@ -16,6 +19,7 @@
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
+@inject IModalService Modal
 
 <style>
     .highlight {
@@ -68,6 +72,27 @@
   background-color: #0056b3; /* Change the background color on hover */
 }
 
+.vertical-bar {
+  position: fixed; /* Fixed position to keep it on the screen */
+  top: 0; /* Align it to the top of the screen */
+  right: 0%; /* 10px margin from the right */
+  width: 10%; /* 20% width of the entire page width */
+  height: 100%; /* Full height of the screen */
+  background-color: #0056b3; /* Background color for the vertical bar */
+  color: #fff;
+}
+
+    .vertical-bar-2 {
+      position: fixed; /* Fixed position to keep it on the screen */
+      top: 0; /* Align it to the top of the screen */
+      right: 11%; /* 10px margin from the right */
+      width: 10%; /* 20% width of the entire page width */
+      height: 100%; /* Full height of the screen */
+      background-color: #0056b3; /* Background color for the vertical bar */
+      color: #fff;
+    }
+
+
     @if (css != null)
     {
         @foreach (EpubTextFile txt in css)
@@ -88,7 +113,7 @@
 
 <div id="highlightContainer"></div>
 
-<div id="noteContainer" class="note-container"></div>
+@*<div id="noteContainer" class="note-container"></div>*@
 
 <div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
 
@@ -150,24 +175,34 @@ else
 
 }
 
-<button @ref=addParagraphNoteRef class="add-paragraph-note" @onclick="() => showAddParagraphNote = true">+</button>
-@if(showAddParagraphNote)
-{
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Create new paragraph note">
-        <ChildContent><BookApp.Client.Components.Notes.AddParagraphNoteComponent @bind-bookAnalysis="bookAnalysis" pageNumber="currentCount" textNodeIndex="lastClickedTextNodeIndex" @bind-showAddParagraphNote="showAddParagraphNote"/></ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
-}
+<button @ref=addParagraphNoteRef class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
 
-<div class="text-box-bar">
-    @if(currentHighlight is not null)
+<div id="noteContainer" class="vertical-bar">
+<h3>Notes:</h3>
+@if(currentHighlight is not null)
 {
     foreach(HighlightNoteModel note in currentHighlight.Notes)
     {
-        <h1>Note:</h1>
-        <p>@note.Content</p>
         <hr />
+        <p>@note.Content</p>
+        <button class="button-action">Edit</button>
+        <button class="button-action">Delete</button>
     }
 }
+</div>
+
+<div id="noteContainer" class="vertical-bar-2">
+        <h3>Paragraph Notes:</h3>
+        @foreach (ParagraphNoteModel note in GetCurrentParagraphNotes())
+        {
+            <hr />
+            <p>@note.Content</p>
+            <button class="button-action">Edit</button>
+            <button class="button-action">Delete</button>
+        }
+</div>
+
+<div class="text-box-bar">
     <button class="button-action" @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
     <button class="button-action" @onclick="AddNote">Add Note</button>
     <button class="button-action" @onclick="Refresh">Refresh</button>
@@ -229,7 +264,6 @@ else
     public List<string> overlays = new();
 
     public int lastClickedTextNodeIndex = -1;
-    bool showAddParagraphNote = false;
 
 
     #region Tags
@@ -302,6 +336,24 @@ else
         Tags = serviceResponse.Content;
     }
     #endregion
+
+    private async Task ShowAddParagraphNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddParagraphNoteComponent.ParagraphNotes), bookAnalysis.ParagraphNotes)
+            .Add(nameof(AddParagraphNoteComponent.pageNumber), currentCount)
+            .Add(nameof(AddParagraphNoteComponent.textNodeIndex), lastClickedTextNodeIndex)
+            .Add(nameof(AddParagraphNoteComponent.bookAnalysisId), bookAnalysis.Id);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+    List<ParagraphNoteModel> GetCurrentParagraphNotes()
+    {
+        return bookAnalysis.ParagraphNotes.Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList();
+    }
 
     void Refresh()
     {
@@ -396,11 +448,9 @@ else
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-        Console.WriteLine("C# onTextNodeClick: " + lastSelectedNodeIndex);
-        Console.WriteLine("Left: " + left);
-        Console.WriteLine("Top: " + top);
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
         await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, addParagraphNoteRef);
+        StateHasChanged();
     }
 
     [JSInvokableAttribute("onPernamentHighlightClick")]

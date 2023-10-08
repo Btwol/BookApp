@@ -620,12 +620,13 @@
             var contextMenu = document.getElementById("contextMenu");
             contextMenu.style.display = "block";
             const rect = contextMenu.getBoundingClientRect();
-            contextMenu.style.left = rect.left + 'px';
-            contextMenu.style.top = rect.top + 'px';
+            //contextMenu.style.left = rect.left + 'px';
+            //contextMenu.style.top = rect.top + 'px';
             document.addEventListener('click', (event) => {
                 const clickedOutside = !contextMenu.contains(event.target);
+                const clickedOnNotes = document.getElementById("noteContainer").contains(event.target); //Notes container
                 let highlightClicked = event.target.id.startsWith("pernamentHighlight_");
-                if (clickedOutside && !highlightClicked) {
+                if (clickedOutside && !highlightClicked && !clickedOnNotes) {
                     contextMenu.style.display = "none";
                     dotNetHelper.invokeMethodAsync("onPernamentHighlightClickOff");
                 }

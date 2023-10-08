@@ -16,6 +16,7 @@ namespace BookApp.Server.Database
         public DbSet<Highlight> Highlights { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<HighlightNote> HighlightNotes { get; set; }
+        public DbSet<ParagraphNote> ParagraphNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -71,6 +72,12 @@ namespace BookApp.Server.Database
                 .UsingEntity<BookAnalysisUser>();
 
             modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.ParagraphNotes)
+                .WithOne(n => n.BookAnalysis)
+                .HasForeignKey(n => n.BookAnalysisId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BookAnalysis>()
                 .HasKey(b => b.Id);
 
             modelBuilder.Entity<Tag>()
@@ -80,6 +87,12 @@ namespace BookApp.Server.Database
                 .HasOne(n => n.Highlight)
                 .WithMany(h => h.Notes)
                 .HasForeignKey(n => n.HighlightId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ParagraphNote>()
+                .HasOne(n => n.BookAnalysis)
+                .WithMany(h => h.ParagraphNotes)
+                .HasForeignKey(n => n.BookAnalysisId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 
