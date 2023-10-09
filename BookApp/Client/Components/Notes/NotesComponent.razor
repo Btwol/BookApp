@@ -2,10 +2,14 @@
 @using Blazored.Modal.Services
 @using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
 @inject IModalService Modal
-@inject IHighlightClientService _highlightClientService
+@inject IHighlightNoteClientService _highlightNoteClientService
+@inject IChapterNoteClientService _chapterNoteClientService
+@inject IParagraphNoteClientService _paragraphNoteClientService
+@inject IAnalysisNoteClientService _analysisNoteClientService
 
 <style>
 
@@ -68,8 +72,8 @@
         {
             <hr />
             <p>@note.Content</p>
-            <button class="button-action">Edit</button>
-            <button class="button-action">Delete</button>
+            <button class="button-action" @onclick="() => ShowEditHighlightNoteModal(note)">Edit</button>
+            <button class="button-action" @onclick="() => DeleteHighlightNote(note.Id)">Delete</button>
         }
     }
 
@@ -78,8 +82,8 @@
     {
         <hr />
         <p>@note.Content</p>
-        <button class="button-action">Edit</button>
-        <button class="button-action">Delete</button>
+        <button class="button-action" @onclick="() => ShowEditParagraphNoteModal(note)">Edit</button>
+        <button class="button-action" @onclick="() => DeleteParagraphNote(note.Id)">Delete</button>
     }
     <hr /><hr />
 
@@ -89,8 +93,8 @@
     {
         <hr />
         <p>@note.Content</p>
-        <button class="button-action">Edit</button>
-        <button class="button-action">Delete</button>
+        <button class="button-action" @onclick="() => ShowEditChapterNoteModal(note)">Edit</button>
+        <button class="button-action" @onclick="() => DeleteChapterNote(note.Id)">Delete</button>
     }
     <hr /><hr />
 
@@ -101,22 +105,30 @@
         <hr />
         <p>@note.Content</p>
         <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
-        <button class="button-action">Delete</button>
+        <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
     }
 </div>
 
 @code {
     [Parameter]
     public List<AnalysisNoteModel> AnalysisNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<AnalysisNoteModel>> AnalysisNotesChanged { get; set; }
 
     [Parameter]
     public List<ChapterNoteModel> ChapterNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<ChapterNoteModel>> ChapterNotesChanged { get; set; }
 
     [Parameter]
     public List<ParagraphNoteModel> ParagraphNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<ParagraphNoteModel>> ParagraphNotesChanged { get; set; }
 
     [Parameter]
     public List<HighlightNoteModel> HighlightNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<HighlightNoteModel>> HighlightNotesChanged { get; set; }
 
     [Parameter]
     public int currentHighlightId { get; set; }
@@ -140,13 +152,31 @@
             NewHighlightNote.HighlightId = currentHighlightId;
             NewHighlightNote.BookAnalysisId = bookAnalysisId;
 
-            var response = await _highlightClientService.AddHighlightNote(NewHighlightNote);  //add HighlightNoteClientService
+            var response = await _highlightNoteClientService.AddNote(NewHighlightNote);
             var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
             HighlightNotes.Add(newNote);
-
-            //await HighlightNotesChanged.InvokeAsync();
         }
     }
+
+    private async Task ShowEditHighlightNoteModal(HighlightNoteModel note)
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(EditNoteComponent.Note), note)
+            .Add(nameof(EditNoteComponent._noteClientService), _highlightNoteClientService);
+
+        var modal = Modal.Show<EditNoteComponent>("Edit Highlight Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteHighlightNote(int noteId)
+    {
+        var response = await _highlightNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        HighlightNotes.RemoveAll(n => n.Id == noteId);
+        await HighlightNotesChanged.InvokeAsync();
+    }
+
     #endregion
 
     #region ParagraphNotes
@@ -158,9 +188,8 @@
             .Add(nameof(AddParagraphNoteComponent.textNodeIndex), lastClickedTextNodeIndex)
             .Add(nameof(AddParagraphNoteComponent.bookAnalysisId), bookAnalysisId);
 
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters, options);
-        var result = await modal.Result;
+        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters);
+        await modal.Result;
     }
 
     List<ParagraphNoteModel> GetCurrentParagraphNotes()
@@ -169,6 +198,26 @@
         .Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList() 
         ?? new List<ParagraphNoteModel>();
     }
+
+    private async Task ShowEditParagraphNoteModal(ParagraphNoteModel note)
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(EditNoteComponent.Note), note)
+            .Add(nameof(EditNoteComponent._noteClientService), _paragraphNoteClientService);
+
+        var modal = Modal.Show<EditNoteComponent>("Edit Paragraph Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteParagraphNote(int noteId)
+    {
+        var response = await _paragraphNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        ParagraphNotes.RemoveAll(n => n.Id == noteId);
+        await ParagraphNotesChanged.InvokeAsync();
+    }
+
     #endregion
 
     #region AnalysisNotes
@@ -178,18 +227,27 @@
             .Add(nameof(AddAnalysisNoteComponent.AnalysisNotes), AnalysisNotes)
             .Add(nameof(AddAnalysisNoteComponent.bookAnalysisId), bookAnalysisId);
 
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters, options);
-        var result = await modal.Result;
+        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters);
+        await modal.Result;
     }
 
     private async Task ShowEditAnalysisNoteModal(AnalysisNoteModel note)
     {
-        var parameters = new ModalParameters().Add(nameof(EditAnalysisNoteComponent.AnalysisNote), note);
+        var parameters = new ModalParameters()
+        .Add(nameof(EditNoteComponent.Note), note)
+        .Add(nameof(EditNoteComponent._noteClientService), _analysisNoteClientService);
 
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<EditAnalysisNoteComponent>("Edit Analysis Note", parameters, options);
-        var result = await modal.Result;
+        var modal = Modal.Show<EditNoteComponent>("Edit Analysis Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteAnalysisNote(int noteId)
+    {
+        var response = await _analysisNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        AnalysisNotes.RemoveAll(n => n.Id == noteId);
+        await AnalysisNotesChanged.InvokeAsync();
     }
 
     #endregion
@@ -202,9 +260,27 @@
             .Add(nameof(AddChapterNoteComponent.pageNumber), currentCount)
             .Add(nameof(AddChapterNoteComponent.bookAnalysisId), bookAnalysisId);
 
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters, options);
-        var result = await modal.Result;
+        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task ShowEditChapterNoteModal(ChapterNoteModel note)
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(EditNoteComponent.Note), note)
+            .Add(nameof(EditNoteComponent._noteClientService), _chapterNoteClientService);
+
+        var modal = Modal.Show<EditNoteComponent>("Edit Chapter Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteChapterNote(int noteId)
+    {
+        var response = await _chapterNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        ChapterNotes.RemoveAll(n => n.Id == noteId);
+        await ChapterNotesChanged.InvokeAsync();
     }
 
 

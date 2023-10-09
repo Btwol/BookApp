@@ -2,8 +2,7 @@
 
 namespace BookApp.Client.Services.Interfaces.Notes
 {
-    public interface IChapterNoteClientService
+    public interface IChapterNoteClientService : INoteClientService<ChapterNoteModel>
     {
-        public Task<HttpResponseMessage> AddChapterNote(ChapterNoteModel chapterNoteModel);
     }
 }

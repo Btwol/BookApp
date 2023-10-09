@@ -5,22 +5,22 @@ using System.Net.Http.Json;
 
 namespace BookApp.Client.Services.Notes
 {
-    public class ChapterNoteClientService : IChapterNoteClientService
+    public class HighlightNoteClientService : IHighlightNoteClientService
     {
         private readonly HttpClient Http;
 
-        public ChapterNoteClientService(HttpClient http, IJSRuntime jsRuntime)
+        public HighlightNoteClientService(HttpClient http, IJSRuntime jsRuntime)
         {
             Http = http;
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddChapterNote(ChapterNoteModel chapterNoteModel)
+        public async Task<HttpResponseMessage> AddHighlightNote(HighlightNoteModel highlightNoteModel)
         {
-            return await Http.PostAsJsonAsync($"ChapterNote/AddChapterNote", chapterNoteModel);
+            return await Http.PostAsJsonAsync($"HighlightNote/AddHighlightNote", highlightNoteModel);
         }
 
-        public Task<HttpResponseMessage> AddNote(ChapterNoteModel noteModel)
+        public Task<HttpResponseMessage> AddNote(HighlightNoteModel noteModel)
         {
             throw new NotImplementedException();
         }
@@ -35,7 +35,7 @@ namespace BookApp.Client.Services.Notes
             throw new NotImplementedException();
         }
 
-        public Task<HttpResponseMessage> EditNote(ChapterNoteModel noteModel)
+        public Task<HttpResponseMessage> EditNote(HighlightNoteModel noteModel)
         {
             throw new NotImplementedException();
         }

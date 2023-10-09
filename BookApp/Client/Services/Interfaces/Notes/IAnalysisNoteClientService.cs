@@ -2,8 +2,7 @@
 
 namespace BookApp.Client.Services.Interfaces.Notes
 {
-    public interface IAnalysisNoteClientService
+    public interface IAnalysisNoteClientService : INoteClientService<AnalysisNoteModel>
     {
-        public Task<HttpResponseMessage> AddAnalysisNote(AnalysisNoteModel analysisNoteModel);
     }
 }

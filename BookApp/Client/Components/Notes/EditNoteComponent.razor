@@ -3,22 +3,21 @@
 @using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
-@inject IAnalysisNoteClientService _analysisNoteClientService
 
 <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit analysis">
     <ChildContent>
-        <EditForm Model="@newAnalysisNote" OnValidSubmit="@CreateNote" class="form">
+        <EditForm Model="@currentNote" OnValidSubmit="@EditNote" class="form">
             <DataAnnotationsValidator />
             <ValidationSummary class="validation-summary" />
 
             <div class="form-group">
                 <label for="AnalysisTitle">Note content:</label>
-                <InputText @bind-Value="newAnalysisNote!.Content" class="form-control" />
+                <InputText @bind-Value="currentNote!.Content" class="form-control" />
             </div>
 
             @if (awaitingResponse)
             {
-                <p>Creating note...</p>
+                <p>Editing note...</p>
             }
             else
             {
@@ -35,31 +34,30 @@
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
     [Parameter]
-    public List<AnalysisNoteModel> AnalysisNotes { get; set; }
+    public NoteModel Note { get; set; }
 
     [Parameter]
-    public int bookAnalysisId { get; set; }
+    public INoteClientService<INoteModel> _noteClientService { get; set; }
 
     private bool awaitingResponse = false;
 
-    private AnalysisNoteModel newAnalysisNote { get; set; } = new();
+    private NoteModel currentNote { get; set; } = new();
 
     private async Task Close() => await BlazoredModal.CloseAsync();
 
-    public async Task CreateNote()
+    public async Task EditNote()
     {
         awaitingResponse = true;
 
-        newAnalysisNote.BookAnalysisId = bookAnalysisId;
-        
-        var response = await _analysisNoteClientService.AddNote(newAnalysisNote);
-        var newNote = await HelperService.HandleResponse<AnalysisNoteModel>(response);
-        AnalysisNotes.Add(newNote);
+        var response = await _noteClientService.EditNote(currentNote);
+        var editedNote = await HelperService.HandleResponse<NoteModel>(response);
+        Note = editedNote;
+
         await Close();
     }
 
     protected override void OnInitialized()
     {
-        newAnalysisNote = new AnalysisNoteModel();
+        currentNote = Note;
     }
 }

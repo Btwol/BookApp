@@ -22,6 +22,7 @@ builder.Services.AddScoped(typeof(ITagClientService), typeof(TagClientService));
 builder.Services.AddScoped(typeof(IParagraphNoteClientService), typeof(ParagraphNoteClientService));
 builder.Services.AddScoped(typeof(IAnalysisNoteClientService), typeof(AnalysisNoteClientService));
 builder.Services.AddScoped(typeof(IChapterNoteClientService), typeof(ChapterNoteClientService));
+builder.Services.AddScoped(typeof(IHighlightNoteClientService), typeof(HighlightNoteClientService));
 
 builder.Services.AddBlazoredModal();
 

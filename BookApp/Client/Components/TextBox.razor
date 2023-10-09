@@ -76,9 +76,9 @@
 <div id="highlightContainer"></div>
 
     <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Notes component">
-    <ChildContent><NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" ChapterNotes="bookAnalysis.ChapterNotes"
-        ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                        bookAnalysisId="bookAnalysis.Id" HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id" />
+    <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
+                        @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id" />
     </ChildContent>
     </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
