@@ -53,44 +53,6 @@
       top: 0;
     }
 
-.add-paragraph-note{
-    position:absolute;
-    display:none;
-    z-index:9999;
-    width: 40px; /* Adjust the width and height as needed */
-  height: 40px;
-  background-color: #007bff; /* Change the background color to your desired color */
-  color: #fff; /* Change the text color to your desired color */
-  text-align: center;
-  line-height: 40px; /* Vertically center the text */
-  font-size: 24px; /* Adjust the font size as needed */
-  cursor: pointer;
-  border: none;
-}
-
-.add-paragraph-note:hover {
-  background-color: #0056b3; /* Change the background color on hover */
-}
-
-.vertical-bar {
-  position: fixed; /* Fixed position to keep it on the screen */
-  top: 0; /* Align it to the top of the screen */
-  right: 0%; /* 10px margin from the right */
-  width: 10%; /* 20% width of the entire page width */
-  height: 100%; /* Full height of the screen */
-  background-color: #0056b3; /* Background color for the vertical bar */
-  color: #fff;
-}
-
-    .vertical-bar-2 {
-      position: fixed; /* Fixed position to keep it on the screen */
-      top: 0; /* Align it to the top of the screen */
-      right: 11%; /* 10px margin from the right */
-      width: 10%; /* 20% width of the entire page width */
-      height: 100%; /* Full height of the screen */
-      background-color: #0056b3; /* Background color for the vertical bar */
-      color: #fff;
-    }
 
 
     @if (css != null)
@@ -113,7 +75,12 @@
 
 <div id="highlightContainer"></div>
 
-@*<div id="noteContainer" class="note-container"></div>*@
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Notes component">
+    <ChildContent><NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" ChapterNotes="bookAnalysis.ChapterNotes"
+        ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                        bookAnalysisId="bookAnalysis.Id" HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id" />
+    </ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
 <div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
 
@@ -126,7 +93,7 @@ else
 {
 
 <div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-            @if (currentHighlight != null)
+            @if (currentHighlight.Id != 0)
             {
                 <p>Current Highlight Id: @currentHighlight.Id</p>
             }
@@ -138,7 +105,7 @@ else
             <button class="button-action" @onclick="DeleteHighlight">Delete</button>
             <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
             <hr />
-            @if (currentHighlight != null)
+            @if (currentHighlight.Id != 0)
             {
                 <p>Current Tags: </p>
                 @foreach (var tag in currentHighlight.Tags)
@@ -155,14 +122,6 @@ else
             }
 <hr />
 
-<p>Create new note:</p>
-<EditForm Model="@NewHighlightNote" OnValidSubmit="@CreateNewHighlightNote">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <InputText @bind-Value="NewHighlightNote!.Content" />
-    <button type="submit">Submit</button>
-</EditForm>
-
 <p>Create new tag:</p>
 <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
     <DataAnnotationsValidator />
@@ -174,56 +133,8 @@ else
 </div>
 }
 
-<button @ref=addParagraphNoteRef class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
-
-<div id="noteContainer" class="vertical-bar">
-<h3>Notes:</h3>
-@if(currentHighlight is not null)
-{
-    foreach(HighlightNoteModel note in currentHighlight.Notes)
-    {
-        <hr />
-        <p>@note.Content</p>
-        <button class="button-action">Edit</button>
-        <button class="button-action">Delete</button>
-    }
-}
-</div>
-
-<div id="noteContainer" class="vertical-bar-2">
-        <h3>Paragraph Notes:</h3>
-        @foreach (ParagraphNoteModel note in GetCurrentParagraphNotes())
-        {
-            <hr />
-            <p>@note.Content</p>
-            <button class="button-action">Edit</button>
-            <button class="button-action">Delete</button>
-        }
-        <hr /><hr />
-
-        <h3>Chapter Notes:</h3>
-        @foreach (ChapterNoteModel note in bookAnalysis.ChapterNotes.Where(n => n.ChapterNumber == currentCount))
-        {
-            <hr />
-            <p>@note.Content</p>
-            <button class="button-action">Edit</button>
-            <button class="button-action">Delete</button>
-        }
-        <hr /><hr />
-
-        <h3>Analysis Notes:</h3>
-        @foreach (AnalysisNoteModel note in bookAnalysis.AnalysisNotes)
-        {
-            <hr />
-            <p>@note.Content</p>
-            <button class="button-action">Edit</button>
-            <button class="button-action">Delete</button>
-        }
-</div>
 
 <div class="text-box-bar">
-    <button class="button-action" @onclick="ShowAddChapterNoteModal">Add Chapter Note</button>
-    <button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
 
     <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
     <button class="button-action" @onclick="AddNote">Add Note</button>
@@ -243,7 +154,7 @@ else
 </div>
 
 @code{
-    
+
     public TagModel? NewTag { get; set; } = new();
     private List<TagModel> Tags = new();
     private List<IBrowserFile> loadedFiles = new();
@@ -266,10 +177,10 @@ else
     private ElementReference contextMenuRef;
     private ElementReference overlayElementRef;
     private ElementReference highlightContainerRef;
-    private ElementReference addParagraphNoteRef;
+
 
     public string currentHighlightId = string.Empty;
-    private HighlightModel? currentHighlight = null;
+    private HighlightModel currentHighlight = new HighlightModel();
 
     public string text;
     List<EpubTextFile> html;
@@ -359,84 +270,14 @@ else
     }
     #endregion
 
-    #region Notes
-    #region HighlightNotes
-    public HighlightNoteModel NewHighlightNote { get; set; } = new();
 
-    async Task CreateNewHighlightNote()
-    {
-        if (currentHighlight is not null)
-        {
-            NewHighlightNote.HighlightId = currentHighlight.Id;
-            NewHighlightNote.BookAnalysisId = bookAnalysis.Id;
-
-            var response = await _highlightClientService.AddHighlightNote(NewHighlightNote);
-            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
-            currentHighlight.Notes.Add(newNote);
-        }
-    }
-    #endregion
-
-    #region ParagraphNotes
-    private async Task ShowAddParagraphNoteModal()
-    {
-        var parameters = new ModalParameters()
-            .Add(nameof(AddParagraphNoteComponent.ParagraphNotes), bookAnalysis.ParagraphNotes)
-            .Add(nameof(AddParagraphNoteComponent.pageNumber), currentCount)
-            .Add(nameof(AddParagraphNoteComponent.textNodeIndex), lastClickedTextNodeIndex)
-            .Add(nameof(AddParagraphNoteComponent.bookAnalysisId), bookAnalysis.Id);
-
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters, options);
-        var result = await modal.Result;
-    }
-
-    List<ParagraphNoteModel> GetCurrentParagraphNotes()
-    {
-        return bookAnalysis.ParagraphNotes.Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList();
-    }
-    #endregion
-
-    #region AnalysisNotes
-    private async Task ShowAddAnalysisNoteModal()
-    {
-        var parameters = new ModalParameters()
-            .Add(nameof(AddAnalysisNoteComponent.AnalysisNotes), bookAnalysis.AnalysisNotes)
-            .Add(nameof(AddAnalysisNoteComponent.bookAnalysisId), bookAnalysis.Id);
-
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters, options);
-        var result = await modal.Result;
-    }
-
-    #endregion
-
-    #region ChapterNotes
-    private async Task ShowAddChapterNoteModal()
-    {
-        var parameters = new ModalParameters()
-            .Add(nameof(AddChapterNoteComponent.ChapterNotes), bookAnalysis.ChapterNotes)
-            .Add(nameof(AddChapterNoteComponent.pageNumber), currentCount)
-            .Add(nameof(AddChapterNoteComponent.bookAnalysisId), bookAnalysis.Id);
-
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters, options);
-        var result = await modal.Result;
-    }
-
-
-    #endregion
-
-    #endregion
-
-    
 
     void Refresh()
     {
         StateHasChanged();
     }
 
-    
+
 
     async Task AddNote()
     {
@@ -514,7 +355,7 @@ else
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
-        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, addParagraphNoteRef);
+        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
         StateHasChanged();
     }
 
@@ -531,7 +372,7 @@ else
     public async void onPernamentHighlightClickOff()
     {
         currentHighlightId = string.Empty;
-        currentHighlight = null;
+        currentHighlight = new HighlightModel();
         StateHasChanged();
         //currentHighlightId = idToString;
         //currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
@@ -568,7 +409,9 @@ else
         Console.WriteLine("ReRender...");
         await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
-        foreach(HighlightModel highlight in bookAnalysis.Highlights)
+        List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
+
+        foreach (HighlightModel highlight in currentHighlights)
         {
             if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
             {

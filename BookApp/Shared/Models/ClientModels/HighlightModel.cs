@@ -5,7 +5,7 @@ namespace BookApp.Shared.Models.ClientModels
 {
     public class HighlightModel
     {
-        public int Id { get; set; }
+        public int Id { get; set; } = 0;
         public int BookAnalysisId { get; set; }
         public int PageNumber { get; set; }
         public int NodeCount

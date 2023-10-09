@@ -682,7 +682,8 @@
             dotNet = dotNetInit;
         }
 
-        function setAddParagraphNotePosition(left, top, element) {
+        function setAddParagraphNotePosition(left, top, elementId) {
+            element = document.getElementById(elementId);
             element.style.left = left-100 + 'px';
             element.style.top = top + 'px';
             element.style.display = 'block';

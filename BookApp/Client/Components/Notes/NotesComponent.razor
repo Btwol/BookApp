@@ -1,0 +1,213 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IModalService Modal
+@inject IHighlightClientService _highlightClientService
+
+<style>
+
+    .add-paragraph-note {
+        position: absolute;
+        display: none;
+        z-index: 9999;
+        width: 40px; /* Adjust the width and height as needed */
+        height: 40px;
+        background-color: #007bff; /* Change the background color to your desired color */
+        color: #fff; /* Change the text color to your desired color */
+        text-align: center;
+        line-height: 40px; /* Vertically center the text */
+        font-size: 24px; /* Adjust the font size as needed */
+        cursor: pointer;
+        border: none;
+    }
+
+        .add-paragraph-note:hover {
+            background-color: #0056b3; /* Change the background color on hover */
+        }
+
+    .vertical-bar {
+        position: fixed;
+        top: 0;
+        right: 0%;
+        width: 20%;
+        height: 100%;
+        background-color: #0056b3;
+        color: #fff;
+        overflow-y: auto; /* Make the vertical bar scrollable when content exceeds height */
+    }
+
+    .vertical-bar-2 {
+        position: fixed; /* Fixed position to keep it on the screen */
+        top: 0; /* Align it to the top of the screen */
+        right: 11%; /* 10px margin from the right */
+        width: 10%; /* 20% width of the entire page width */
+        height: 100%; /* Full height of the screen */
+        background-color: #0056b3; /* Background color for the vertical bar */
+        color: #fff;
+    }
+</style>
+
+<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
+
+<div id="noteContainer" class="vertical-bar">
+    <h3>Current Highlight Notes:</h3>
+    @if (currentHighlightId != 0)
+    {
+        <p>Create new note:</p>
+        <EditForm Model="@NewHighlightNote" OnValidSubmit="@CreateNewHighlightNote">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputText @bind-Value="NewHighlightNote!.Content" />
+            <button type="submit">Submit</button>
+        </EditForm>
+        
+        foreach (HighlightNoteModel note in HighlightNotes)
+        {
+            <hr />
+            <p>@note.Content</p>
+            <button class="button-action">Edit</button>
+            <button class="button-action">Delete</button>
+        }
+    }
+
+    <h3>Paragraph Notes:</h3>
+    @foreach (ParagraphNoteModel note in GetCurrentParagraphNotes())
+    {
+        <hr />
+        <p>@note.Content</p>
+        <button class="button-action">Edit</button>
+        <button class="button-action">Delete</button>
+    }
+    <hr /><hr />
+
+    <button class="button-action" @onclick="ShowAddChapterNoteModal">Add Chapter Note</button>
+    <h3>Chapter Notes:</h3>
+    @foreach (ChapterNoteModel note in ChapterNotes.Where(n => n.ChapterNumber == currentCount))
+    {
+        <hr />
+        <p>@note.Content</p>
+        <button class="button-action">Edit</button>
+        <button class="button-action">Delete</button>
+    }
+    <hr /><hr />
+
+    <button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
+    <h3>Analysis Notes:</h3>
+    @foreach (AnalysisNoteModel note in AnalysisNotes)
+    {
+        <hr />
+        <p>@note.Content</p>
+        <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
+        <button class="button-action">Delete</button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<AnalysisNoteModel> AnalysisNotes { get; set; }
+
+    [Parameter]
+    public List<ChapterNoteModel> ChapterNotes { get; set; }
+
+    [Parameter]
+    public List<ParagraphNoteModel> ParagraphNotes { get; set; }
+
+    [Parameter]
+    public List<HighlightNoteModel> HighlightNotes { get; set; }
+
+    [Parameter]
+    public int currentHighlightId { get; set; }
+
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+
+    [Parameter]
+    public int currentCount { get; set; }
+
+    [Parameter]
+    public int lastClickedTextNodeIndex { get; set; }
+
+    #region HighlightNotes
+    public HighlightNoteModel NewHighlightNote { get; set; } = new();
+
+    async Task CreateNewHighlightNote()
+    {
+        if (currentHighlightId != 0)
+        {
+            NewHighlightNote.HighlightId = currentHighlightId;
+            NewHighlightNote.BookAnalysisId = bookAnalysisId;
+
+            var response = await _highlightClientService.AddHighlightNote(NewHighlightNote);  //add HighlightNoteClientService
+            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
+            HighlightNotes.Add(newNote);
+
+            //await HighlightNotesChanged.InvokeAsync();
+        }
+    }
+    #endregion
+
+    #region ParagraphNotes
+    private async Task ShowAddParagraphNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddParagraphNoteComponent.ParagraphNotes), ParagraphNotes)
+            .Add(nameof(AddParagraphNoteComponent.pageNumber), currentCount)
+            .Add(nameof(AddParagraphNoteComponent.textNodeIndex), lastClickedTextNodeIndex)
+            .Add(nameof(AddParagraphNoteComponent.bookAnalysisId), bookAnalysisId);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+    List<ParagraphNoteModel> GetCurrentParagraphNotes()
+    {
+        return ParagraphNotes?
+        .Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList() 
+        ?? new List<ParagraphNoteModel>();
+    }
+    #endregion
+
+    #region AnalysisNotes
+    private async Task ShowAddAnalysisNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddAnalysisNoteComponent.AnalysisNotes), AnalysisNotes)
+            .Add(nameof(AddAnalysisNoteComponent.bookAnalysisId), bookAnalysisId);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+    private async Task ShowEditAnalysisNoteModal(AnalysisNoteModel note)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditAnalysisNoteComponent.AnalysisNote), note);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<EditAnalysisNoteComponent>("Edit Analysis Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+    #endregion
+
+    #region ChapterNotes
+    private async Task ShowAddChapterNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddChapterNoteComponent.ChapterNotes), ChapterNotes)
+            .Add(nameof(AddChapterNoteComponent.pageNumber), currentCount)
+            .Add(nameof(AddChapterNoteComponent.bookAnalysisId), bookAnalysisId);
+
+        var options = new ModalOptions() { DisableBackgroundCancel = true };
+        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters, options);
+        var result = await modal.Result;
+    }
+
+
+    #endregion
+
+}
