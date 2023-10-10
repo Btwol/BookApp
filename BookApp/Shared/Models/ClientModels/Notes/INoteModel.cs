@@ -2,8 +2,8 @@
 
 namespace BookApp.Shared.Models.ClientModels.Notes
 {
-    public interface INoteModel : IClientModel
+    public interface INoteClientModel : IClientModel, INote
     {
-        public int BookAnalysisId { get; set; }
+        public int Id { get; set; }
     }
 }

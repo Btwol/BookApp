@@ -109,7 +109,7 @@ namespace BookApp.Server.Services
             return ServiceResponse.Success("Analysis updated.");
         }
 
-        private async Task<bool> CurrentUserIsMemberTypeOfAnalysis(int analysisId, params MemberType[] memberType)
+        public async Task<bool> CurrentUserIsMemberTypeOfAnalysis(int analysisId, params MemberType[] memberType)
         {
             var memberTypes = memberType.ToList();
             return await _bookAnalysisUserRepository.CheckIfExists(bau =>

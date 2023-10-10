@@ -15,29 +15,19 @@ namespace BookApp.Client.Services.Notes
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddChapterNote(ChapterNoteModel chapterNoteModel)
+        public async Task<HttpResponseMessage> AddNote(ChapterNoteModel chapterNoteModel)
         {
             return await Http.PostAsJsonAsync($"ChapterNote/AddChapterNote", chapterNoteModel);
         }
 
-        public Task<HttpResponseMessage> AddNote(ChapterNoteModel noteModel)
+        public async Task<HttpResponseMessage> DeleteNote(int noteId)
         {
-            throw new NotImplementedException();
+            return await Http.DeleteAsync($"ChapterNote/DeleteChapterNote/{noteId}");
         }
 
-        public Task<HttpResponseMessage> DeleteNote(int noteId)
+        public async Task<HttpResponseMessage> EditNote(ChapterNoteModel chapterNoteModel)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<HttpResponseMessage> EditNote(NoteModel noteModel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<HttpResponseMessage> EditNote(ChapterNoteModel noteModel)
-        {
-            throw new NotImplementedException();
+            return await Http.PutAsJsonAsync($"ChapterNote/EditChapterNote", chapterNoteModel);
         }
     }
 }

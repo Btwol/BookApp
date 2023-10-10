@@ -20,14 +20,14 @@ namespace BookApp.Client.Services.Notes
             return await Http.PostAsJsonAsync($"AnalysisNote/AddAnalysisNote", analysisNoteModel);
         }
 
-        public Task<HttpResponseMessage> DeleteNote(int noteId)
+        public async Task<HttpResponseMessage> DeleteNote(int noteId)
         {
-            throw new NotImplementedException();
+            return await Http.DeleteAsync($"AnalysisNote/DeleteAnalysisNote/{noteId}");
         }
 
-        public Task<HttpResponseMessage> EditNote(AnalysisNoteModel noteModel)
+        public async Task<HttpResponseMessage> EditNote(AnalysisNoteModel analysisNoteModel)
         {
-            throw new NotImplementedException("Service reached!");
+            return await Http.PutAsJsonAsync($"AnalysisNote/EditAnalysisNote", analysisNoteModel);
         }
     }
 }

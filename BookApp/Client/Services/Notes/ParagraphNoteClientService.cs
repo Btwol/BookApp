@@ -2,7 +2,6 @@
 using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services.Notes
 {
@@ -16,29 +15,19 @@ namespace BookApp.Client.Services.Notes
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public Task<HttpResponseMessage> AddNote(ParagraphNoteModel noteModel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<HttpResponseMessage> AddParagraphNote(ParagraphNoteModel paragraphNoteModel)
+        public async Task<HttpResponseMessage> AddNote(ParagraphNoteModel paragraphNoteModel)
         {
             return await Http.PostAsJsonAsync($"ParagraphNote/AddParagraphNote", paragraphNoteModel);
         }
 
-        public Task<HttpResponseMessage> DeleteNote(int noteId)
+        public async Task<HttpResponseMessage> DeleteNote(int noteId)
         {
-            throw new NotImplementedException();
+            return await Http.DeleteAsync($"ParagraphNote/DeleteParagraphNote/{noteId}");
         }
 
-        public Task<HttpResponseMessage> EditNote(NoteModel noteModel)
+        public async Task<HttpResponseMessage> EditNote(ParagraphNoteModel paragraphNoteModel)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<HttpResponseMessage> EditNote(ParagraphNoteModel noteModel)
-        {
-            throw new NotImplementedException();
+            return await Http.PutAsJsonAsync($"ParagraphNote/EditParagraphNote", paragraphNoteModel);
         }
     }
 }

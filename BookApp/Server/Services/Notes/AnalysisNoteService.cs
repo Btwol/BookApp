@@ -2,9 +2,9 @@
 {
     public class AnalysisNoteService : NoteService<AnalysisNote, AnalysisNoteModel>, IAnalysisNoteService
     {
-        public AnalysisNoteService(IAnalysisNoteMapperService noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            IBaseRepository<AnalysisNote> noteRepository)
-            : base(noteMapper, bookAnalysisRepository, noteRepository)
+        public AnalysisNoteService(IAnalysisNoteMapperService analysisNoteMapperService, IBookAnalysisRepository bookAnalysisRepository, 
+            IBaseRepository<AnalysisNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService) 
+            : base(analysisNoteMapperService, bookAnalysisRepository, noteRepository, bookAnalysisServerService)
         {
         }
     }

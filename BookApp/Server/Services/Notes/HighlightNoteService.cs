@@ -4,21 +4,21 @@
     {
         private readonly IHighlightRepository _highlightRepository;
 
-        public HighlightNoteService(IHighlightNoteMapperService noteMapper, IBookAnalysisRepository bookAnalysisRepository, 
-            IBaseRepository<HighlightNote> noteRepository, IHighlightRepository highlightRepository) 
-            : base(noteMapper, bookAnalysisRepository, noteRepository)
+        public HighlightNoteService(IHighlightNoteMapperService highlightNoteMapperService, IBookAnalysisRepository bookAnalysisRepository,
+            IBaseRepository<HighlightNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHighlightRepository highlightRepository)
+            : base(highlightNoteMapperService, bookAnalysisRepository, noteRepository, bookAnalysisServerService)
         {
             _highlightRepository = highlightRepository;
         }
 
-        protected override async Task<ServiceResponse> ValidateNote(HighlightNoteModel noteModel)
+        protected override async Task<ServiceResponse> ValidateNoteRequest(HighlightNoteModel noteModel)
         {
             if (!await _highlightRepository.CheckIfExists(h => h.Id == noteModel.HighlightId))
             {
                 return ServiceResponse.Error("Highlight does not exist.");
             }
 
-            return await base.ValidateNote(noteModel);
+            return await base.ValidateNoteRequest(noteModel);
         }
     }
 }

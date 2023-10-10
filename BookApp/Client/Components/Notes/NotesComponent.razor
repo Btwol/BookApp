@@ -158,13 +158,11 @@
         }
     }
 
+
     private async Task ShowEditHighlightNoteModal(HighlightNoteModel note)
     {
-        var parameters = new ModalParameters()
-            .Add(nameof(EditNoteComponent.Note), note)
-            .Add(nameof(EditNoteComponent._noteClientService), _highlightNoteClientService);
-
-        var modal = Modal.Show<EditNoteComponent>("Edit Highlight Note", parameters);
+        var parameters = new ModalParameters().Add(nameof(EditHighlightNoteComponent.HighlightNote), note);
+        var modal = Modal.Show<EditHighlightNoteComponent>("Edit Highlight Note", parameters);
         await modal.Result;
     }
 
@@ -173,13 +171,14 @@
         var response = await _highlightNoteClientService.DeleteNote(noteId);
         await HelperService.ReadServiceResponse(response);
 
-        HighlightNotes.RemoveAll(n => n.Id == noteId);
-        await HighlightNotesChanged.InvokeAsync();
+        var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
+        HighlightNotes.Remove(noteToRemove);
     }
 
     #endregion
 
     #region ParagraphNotes
+
     private async Task ShowAddParagraphNoteModal()
     {
         var parameters = new ModalParameters()
@@ -192,20 +191,17 @@
         await modal.Result;
     }
 
-    List<ParagraphNoteModel> GetCurrentParagraphNotes()
+    private List<ParagraphNoteModel> GetCurrentParagraphNotes()
     {
         return ParagraphNotes?
-        .Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList() 
+        .Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList()
         ?? new List<ParagraphNoteModel>();
     }
 
     private async Task ShowEditParagraphNoteModal(ParagraphNoteModel note)
     {
-        var parameters = new ModalParameters()
-            .Add(nameof(EditNoteComponent.Note), note)
-            .Add(nameof(EditNoteComponent._noteClientService), _paragraphNoteClientService);
-
-        var modal = Modal.Show<EditNoteComponent>("Edit Paragraph Note", parameters);
+        var parameters = new ModalParameters().Add(nameof(EditParagraphNoteComponent.ParagraphNote), note);
+        var modal = Modal.Show<EditParagraphNoteComponent>("Edit Paragraph Note", parameters);
         await modal.Result;
     }
 
@@ -214,9 +210,10 @@
         var response = await _paragraphNoteClientService.DeleteNote(noteId);
         await HelperService.ReadServiceResponse(response);
 
-        ParagraphNotes.RemoveAll(n => n.Id == noteId);
-        await ParagraphNotesChanged.InvokeAsync();
+        var noteToRemove = ParagraphNotes.FirstOrDefault(n => n.Id == noteId);
+        ParagraphNotes.Remove(noteToRemove);
     }
+
 
     #endregion
 
@@ -233,11 +230,8 @@
 
     private async Task ShowEditAnalysisNoteModal(AnalysisNoteModel note)
     {
-        var parameters = new ModalParameters()
-        .Add(nameof(EditNoteComponent.Note), note)
-        .Add(nameof(EditNoteComponent._noteClientService), _analysisNoteClientService);
-
-        var modal = Modal.Show<EditNoteComponent>("Edit Analysis Note", parameters);
+        var parameters = new ModalParameters().Add(nameof(EditAnalysisNoteComponent.AnalysisNote), note);
+        var modal = Modal.Show<EditAnalysisNoteComponent>("Edit Analysis Note", parameters);
         await modal.Result;
     }
 
@@ -246,8 +240,8 @@
         var response = await _analysisNoteClientService.DeleteNote(noteId);
         await HelperService.ReadServiceResponse(response);
 
-        AnalysisNotes.RemoveAll(n => n.Id == noteId);
-        await AnalysisNotesChanged.InvokeAsync();
+        var noteToRemove = AnalysisNotes.FirstOrDefault(n => n.Id == noteId);
+        AnalysisNotes.Remove(noteToRemove);
     }
 
     #endregion
@@ -266,11 +260,8 @@
 
     private async Task ShowEditChapterNoteModal(ChapterNoteModel note)
     {
-        var parameters = new ModalParameters()
-            .Add(nameof(EditNoteComponent.Note), note)
-            .Add(nameof(EditNoteComponent._noteClientService), _chapterNoteClientService);
-
-        var modal = Modal.Show<EditNoteComponent>("Edit Chapter Note", parameters);
+        var parameters = new ModalParameters().Add(nameof(EditChapterNoteComponent.ChapterNote), note);
+        var modal = Modal.Show<EditChapterNoteComponent>("Edit Chapter Note", parameters);
         await modal.Result;
     }
 
@@ -279,8 +270,8 @@
         var response = await _chapterNoteClientService.DeleteNote(noteId);
         await HelperService.ReadServiceResponse(response);
 
-        ChapterNotes.RemoveAll(n => n.Id == noteId);
-        await ChapterNotesChanged.InvokeAsync();
+        var noteToRemove = ChapterNotes.FirstOrDefault(n => n.Id == noteId);
+        ChapterNotes.Remove(noteToRemove);
     }
 
 

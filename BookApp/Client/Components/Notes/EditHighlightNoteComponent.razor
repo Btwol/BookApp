@@ -3,16 +3,17 @@
 @using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
+@inject IHighlightNoteClientService _highlightNoteClientService
 
-<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit analysis">
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit highlight">
     <ChildContent>
-        <EditForm Model="@currentNote" OnValidSubmit="@EditNote" class="form">
+        <EditForm Model="@currentHighlightNote" OnValidSubmit="@EditNote" class="form">
             <DataAnnotationsValidator />
             <ValidationSummary class="validation-summary" />
 
             <div class="form-group">
-                <label for="AnalysisTitle">Note content:</label>
-                <InputText @bind-Value="currentNote!.Content" class="form-control" />
+                <label for="HighlightTitle">Note content:</label>
+                <InputText @bind-Value="currentHighlightNote!.Content" class="form-control" />
             </div>
 
             @if (awaitingResponse)
@@ -34,14 +35,11 @@
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
     [Parameter]
-    public NoteModel Note { get; set; }
-
-    [Parameter]
-    public INoteClientService<INoteModel> _noteClientService { get; set; }
+    public HighlightNoteModel HighlightNote { get; set; }
 
     private bool awaitingResponse = false;
 
-    private NoteModel currentNote { get; set; } = new();
+    private HighlightNoteModel currentHighlightNote { get; set; } = new();
 
     private async Task Close() => await BlazoredModal.CloseAsync();
 
@@ -49,15 +47,15 @@
     {
         awaitingResponse = true;
 
-        var response = await _noteClientService.EditNote(currentNote);
-        var editedNote = await HelperService.HandleResponse<NoteModel>(response);
-        Note = editedNote;
+        var response = await _highlightNoteClientService.EditNote(currentHighlightNote);
+        var editedNote = await HelperService.HandleResponse<HighlightNoteModel>(response);
+        HighlightNote = editedNote;
 
         await Close();
     }
 
     protected override void OnInitialized()
     {
-        currentNote = Note;
+        currentHighlightNote = HighlightNote;
     }
 }

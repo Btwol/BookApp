@@ -47,12 +47,9 @@
     {
         awaitingResponse = true;
 
-        Console.WriteLine("Edit note request sent!");
-        Console.WriteLine("currentAnalysisNote: " + currentAnalysisNote);
-        Console.WriteLine("AnalysisNote: " + AnalysisNote);
-        //var response = await _analysisNoteClientService.EditAnalysisNote(currentAnalysisNote);
-        //var editedNote = await HelperService.HandleResponse<AnalysisNoteModel>(response);
-        //AnalysisNote = editedNote;
+        var response = await _analysisNoteClientService.EditNote(currentAnalysisNote);
+        var editedNote = await HelperService.HandleResponse<AnalysisNoteModel>(response);
+        AnalysisNote = editedNote;
 
         await Close();
     }

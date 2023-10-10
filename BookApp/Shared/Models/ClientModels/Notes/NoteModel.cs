@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BookApp.Shared.Models.ClientModels.Notes
 {
-    public class NoteModel : INoteModel
+    public class NoteModel : INoteClientModel
     {
         public int Id { get; set; }
         public int BookAnalysisId { get; set; }

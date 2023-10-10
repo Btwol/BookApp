@@ -1,5 +1,61 @@
-﻿<h3>EditParagraphNoteComponent</h3>
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IParagraphNoteClientService _paragraphNoteClientService
+
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit paragraph">
+    <ChildContent>
+        <EditForm Model="@currentParagraphNote" OnValidSubmit="@EditNote" class="form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+
+            <div class="form-group">
+                <label for="ParagraphTitle">Note content:</label>
+                <InputText @bind-Value="currentParagraphNote!.Content" class="form-control" />
+            </div>
+
+            @if (awaitingResponse)
+            {
+                <p>Editing note...</p>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary">Submit</button>
+            }
+        </EditForm>
+    </ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+<button @onclick="Close">Close</button>
 
 @code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
+    [Parameter]
+    public ParagraphNoteModel ParagraphNote { get; set; }
+
+    private bool awaitingResponse = false;
+
+    private ParagraphNoteModel currentParagraphNote { get; set; } = new();
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
+    public async Task EditNote()
+    {
+        awaitingResponse = true;
+
+        var response = await _paragraphNoteClientService.EditNote(currentParagraphNote);
+        var editedNote = await HelperService.HandleResponse<ParagraphNoteModel>(response);
+        ParagraphNote = editedNote;
+
+        await Close();
+    }
+
+    protected override void OnInitialized()
+    {
+        currentParagraphNote = ParagraphNote;
+    }
 }

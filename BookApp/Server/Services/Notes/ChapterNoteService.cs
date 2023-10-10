@@ -2,9 +2,9 @@
 {
     public class ChapterNoteService : NoteService<ChapterNote, ChapterNoteModel>, IChapterNoteService
     {
-        public ChapterNoteService(IChapterNoteMapperService noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            IBaseRepository<ChapterNote> noteRepository)
-            : base(noteMapper, bookAnalysisRepository, noteRepository)
+        public ChapterNoteService(IChapterNoteMapperService chapterNoteMapperService, IBookAnalysisRepository bookAnalysisRepository, 
+            IBaseRepository<ChapterNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService) 
+            : base(chapterNoteMapperService, bookAnalysisRepository, noteRepository, bookAnalysisServerService)
         {
         }
     }
