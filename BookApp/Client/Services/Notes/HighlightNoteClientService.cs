@@ -29,5 +29,15 @@ namespace BookApp.Client.Services.Notes
         {
             return await Http.PutAsJsonAsync($"HighlightNote/EditHighlightNote", highlightNoteModel);
         }
+
+        public async Task<HttpResponseMessage> AddTag(int highlightNoteId, int tagId)
+        {
+            return await Http.PostAsync($"HighlightNote/AddTag/{highlightNoteId}/{tagId}", null);
+        }
+
+        public async Task<HttpResponseMessage> RemoveTag(int highlightNoteId, int tagId)
+        {
+            return await Http.DeleteAsync($"HighlightNote/RemoveTag/{highlightNoteId}/{tagId}");
+        }
     }
 }

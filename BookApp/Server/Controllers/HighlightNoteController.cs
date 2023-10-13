@@ -8,10 +8,12 @@ namespace BookApp.Server.Controllers
     public class HighlightNoteController : ControllerBase
     {
         private readonly IHighlightNoteService _highlightNoteService;
+        private readonly ITagServerService<HighlightNote> _tagService;
 
-        public HighlightNoteController(IHighlightNoteService highlightNoteService)
+        public HighlightNoteController(IHighlightNoteService highlightNoteService, ITagServerService<HighlightNote> tagService)
         {
             _highlightNoteService = highlightNoteService;
+            _tagService = tagService;
         }
 
         [HttpPost("AddHighlightNote")]
@@ -31,5 +33,18 @@ namespace BookApp.Server.Controllers
         {
             return await _highlightNoteService.EditNote(highlightNoteModel);
         }
+
+        [HttpPost("AddTag/{noteId}/{tagId}")]
+        public async Task<ServiceResponse> AddTag(int noteId, int tagId)
+        {
+            return await _tagService.AddTag(noteId, tagId);
+        }
+
+        [HttpDelete("RemoveTag/{noteId}")]
+        public async Task<ServiceResponse> RemoveTag(int noteId, int tagId)
+        {
+            return await _tagService.RemoveTag(noteId, tagId);
+        }
+
     }
 }

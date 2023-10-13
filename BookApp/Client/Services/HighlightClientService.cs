@@ -32,5 +32,15 @@ namespace BookApp.Client.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<HttpResponseMessage> AddTag(int highlightId, int tagId)
+        {
+            return await Http.PostAsync($"Highlight/AddTag/{highlightId}/{tagId}", null);
+        }
+
+        public async Task<HttpResponseMessage> RemoveTag(int highlightId, int tagId)
+        {
+            return await Http.DeleteAsync($"Highlight/RemoveTag/{highlightId}/{tagId}");
+        }
     }
 }

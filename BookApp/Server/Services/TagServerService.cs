@@ -1,45 +1,91 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
+﻿
 namespace BookApp.Server.Services
 {
-    public class TagServerService : ITagServerService
+    public class TagServerService<T> : ITagServerService<T> where T : ITaggable
     {
         private readonly ITagRepository _tagRepository;
         private readonly ITagMapperService _tagMapperService;
-        private readonly IHighlightRepository _highlightRepository;
+        private readonly IBaseRepository<T> _taggedRepository;
+        private readonly IBookAnalysisServerService _bookAnalysisServerService;
 
-        public TagServerService(ITagRepository tagRepository, ITagMapperService tagMapperService, IHighlightRepository highlightRepository)
+        public TagServerService(IBaseRepository<T> taggedRepository, ITagMapperService tagMapperService, ITagRepository tagRepository,
+            IBookAnalysisServerService bookAnalysisServerService)
         {
-            _tagRepository = tagRepository;
+            _taggedRepository = taggedRepository;
             _tagMapperService = tagMapperService;
-            _highlightRepository = highlightRepository;
+            _tagRepository = tagRepository;
+            _bookAnalysisServerService = bookAnalysisServerService;
         }
 
-        public async Task<ServiceResponse> AddTag(int highlightId, int tagId)
+        public async Task<ServiceResponse> AddTag(int taggedItemId, int tagId)
         {
-            var highlight = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == highlightId);
+            var taggedItem = await _taggedRepository.FindByConditionsFirstOrDefault(h => h.Id == taggedItemId);
             var tag = await _tagRepository.FindByConditionsFirstOrDefault(t => t.Id == tagId);
 
-            highlight.Tags.Add(tag);
-            await _highlightRepository.Edit(highlight);
+            taggedItem.Tags.Add(tag);
+            await _taggedRepository.Edit(taggedItem);
 
-            return ServiceResponse.Success("Tag added to highlight.");
+            return ServiceResponse.Success("Tag added to item.");
         }
 
-        public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
+        public async Task<ServiceResponse> RemoveTag(int taggedItemId, int tagId)
         {
-            var highlight = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == highlightId);
+            var taggedItem = await _taggedRepository.FindByConditionsFirstOrDefault(h => h.Id == taggedItemId);
             var tag = await _tagRepository.FindByConditionsFirstOrDefault(t => t.Id == tagId);
 
-            highlight.Tags.Remove(tag);
-            await _highlightRepository.Edit(highlight);
+            taggedItem.Tags.Remove(tag);
+            await _taggedRepository.Edit(taggedItem);
 
-            return ServiceResponse.Success("Tag removed from highlight.");
+            return ServiceResponse.Success("Tag removed from item.");
+        }
+
+
+
+
+
+
+
+
+
+        public async Task<ServiceResponse> GetTags(int bookAnalysisId)
+        {
+            var tags = await _tagRepository.FindByConditions(t => t.BookAnalysisId == bookAnalysisId);
+            var mappedTags = new List<TagModel>();
+            foreach (var tag in tags)
+            {
+                mappedTags.Add(_tagMapperService.MapToClientModel(tag));
+            }
+
+            return ServiceResponse<List<TagModel>>.Success(mappedTags, "Tags retrieved.");
+        }
+
+        public async Task<ServiceResponse> DeleteTag(int tagId)
+        {
+            var tagToRemove = await _tagRepository.FindByConditionsFirstOrDefault(t => t.Id == tagId);
+            if (tagToRemove is null)
+            {
+                return ServiceResponse.Error("Tag does not exist.");
+            }
+
+            var validationResult = await ValidateTagRequest(tagToRemove.BookAnalysisId);
+            if(!validationResult.SuccessStatus)
+            {
+                return validationResult;
+            }
+
+            await _tagRepository.DeleteById(tagId);
+
+            return ServiceResponse.Success("Tag deleted.");
         }
 
         public async Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId)
         {
+            var validationResult = await ValidateTagRequest(bookAnalysisId);
+            if (!validationResult.SuccessStatus)
+            {
+                return validationResult;
+            }
+
             var mappedTag = _tagMapperService.MapToDbModel(newTag);
             mappedTag.BookAnalysisId = bookAnalysisId;
 
@@ -49,16 +95,15 @@ namespace BookApp.Server.Services
             return ServiceResponse<TagModel>.Success(mappedAddedTag, "Tag created.");
         }
 
-        public async Task<ServiceResponse> GetTags(int bookAnalysisId)
+        private async Task<ServiceResponse> ValidateTagRequest(int bookAnalysisId)
         {
-            var tags = await _tagRepository.FindByConditions(t => t.BookAnalysisId == bookAnalysisId);
-            var mappedTags = new List<TagModel>();
-            foreach(var tag in tags)
+            if (!await _bookAnalysisServerService.CurrentUserIsMemberTypeOfAnalysis(bookAnalysisId, MemberType.Editor,
+                MemberType.Moderator, MemberType.Administrator))
             {
-                mappedTags.Add(_tagMapperService.MapToClientModel(tag));
+                return ServiceResponse.Error("User needs to be at least an editor to delete a tag.");
             }
 
-            return ServiceResponse<List<TagModel>>.Success(mappedTags, "Tags retrieved.");
+            return ServiceResponse.Success();
         }
     }
 }

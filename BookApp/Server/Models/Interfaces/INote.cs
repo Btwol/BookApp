@@ -1,6 +1,6 @@
 ﻿namespace BookApp.Server.Models.Interfaces
 {
-    public interface INoteDBModel : IDbModel, INote
+    public interface INoteDBModel : ITaggable, INote
     {
     }
 }

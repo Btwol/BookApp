@@ -8,10 +8,11 @@ namespace BookApp.Server.Controllers
     public class ParagraphNoteController : ControllerBase
     {
         private readonly IParagraphNoteService _paragraphNoteService;
-
-        public ParagraphNoteController(IParagraphNoteService paragraphNoteService)
+        private readonly ITagServerService<ParagraphNote> _tagService;
+        public ParagraphNoteController(IParagraphNoteService paragraphNoteService, ITagServerService<ParagraphNote> tagService)
         {
             _paragraphNoteService = paragraphNoteService;
+            _tagService = tagService;
         }
 
         [HttpPost("AddParagraphNote")]
@@ -30,6 +31,18 @@ namespace BookApp.Server.Controllers
         public async Task<ServiceResponse> EditParagraphNote(ParagraphNoteModel paragraphNoteModel)
         {
             return await _paragraphNoteService.EditNote(paragraphNoteModel);
+        }
+
+        [HttpPost("AddTag/{noteId}/{tagId}")]
+        public async Task<ServiceResponse> AddTag(int noteId, int tagId)
+        {
+            return await _tagService.AddTag(noteId, tagId);
+        }
+
+        [HttpDelete("RemoveTag/{noteId}")]
+        public async Task<ServiceResponse> RemoveTag(int noteId, int tagId)
+        {
+            return await _tagService.RemoveTag(noteId, tagId);
         }
     }
 }

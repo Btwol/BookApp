@@ -12,6 +12,9 @@
         public virtual BookAnalysis BookAnalysis { get; set; }
 
         public virtual List<Highlight> Highlights { get; set; }
-        //notes {}
+        public virtual List<AnalysisNote> AnalysisNotes { get; set; }
+        public virtual List<ParagraphNote> ParagraphNotes { get; set; }
+        public virtual List<ChapterNote> ChapterNotes { get; set; }
+        public virtual List<HighlightNote> HighlightNotes { get; set; }
     }
 }

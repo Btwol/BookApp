@@ -1,4 +1,5 @@
 ﻿using BookApp.Client.Services.Interfaces;
+using BookApp.Shared.Enums;
 using BookApp.Shared.Models.ClientModels;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
@@ -15,9 +16,9 @@ namespace BookApp.Client.Services
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddTag(int tagId, int highlightId)
+        public async Task<HttpResponseMessage> AddTag(int tagId, int highlightId, TaggedType taggedType)
         {
-            return await Http.PostAsync($"Tag/AddTag/{highlightId}/{tagId}", null);
+            return await Http.PostAsync($"Tag/AddTag/{highlightId}/{tagId}/{taggedType}", null);
         }
 
         public async Task<HttpResponseMessage> CreateNewTag(TagModel newTag, int bookAnalysisId)

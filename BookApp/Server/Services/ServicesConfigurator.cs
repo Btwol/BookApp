@@ -80,7 +80,7 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IHighlightMapperService), typeof(HighlightMapperService));
             services.AddScoped(typeof(IHighlightRepository), typeof(HighlightRepository));
 
-            services.AddScoped(typeof(ITagServerService), typeof(TagServerService));
+            services.AddScoped(typeof(ITagServerService<>), typeof(TagServerService<>));
             services.AddScoped(typeof(ITagMapperService), typeof(TagMapperService));
             services.AddScoped(typeof(ITagRepository), typeof(TagRepository));
 

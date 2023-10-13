@@ -1,9 +1,4 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-using Microsoft.AspNetCore.Identity;
-using System.Reflection;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class BookAnalysisServerService : IBookAnalysisServerService
     {

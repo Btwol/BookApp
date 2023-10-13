@@ -78,7 +78,8 @@
     <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Notes component">
     <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
                         @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id" />
+                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id"
+                        Tags="bookAnalysis.tags"/>
     </ChildContent>
     </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
@@ -250,7 +251,7 @@ else
             return;
         }
 
-        var resposne = await _tagService.AddTag(tagId, HighlightModel.GetElementId(currentHighlightId));
+        var resposne = await _highlightClientService.AddTag(currentHighlight.Id,tagId);
         if(resposne.IsSuccessStatusCode)
         {
             var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);

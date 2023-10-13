@@ -1,15 +1,12 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class TagController : ControllerBase
     {
-        private readonly ITagServerService _tagService;
+        private readonly ITagServerService<Highlight> _tagService;  //change this
 
-        public TagController(ITagServerService tagService)
+        public TagController(ITagServerService<Highlight> tagService)
         {
             _tagService = tagService;
         }
@@ -20,16 +17,10 @@ namespace BookApp.Server.Controllers
             return await _tagService.GetTags(bookAnalysisId);
         }
 
-        [HttpPost("AddTag/{highlightId}/{tagId}")]
-        public async Task<ServiceResponse> AddTag(int highlightId, int tagId)
+        [HttpDelete("DeleteTag/{tagId}")]
+        public async Task<ServiceResponse> DeleteTag(int tagId)
         {
-            return await _tagService.AddTag(highlightId, tagId);
-        }
-
-        [HttpDelete("RemoveTag/{highlightId}/{tagId}")]
-        public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
-        {
-            return await _tagService.RemoveTag(highlightId, tagId);
+            return await _tagService.DeleteTag(tagId);
         }
 
         [HttpPost("CreateNewTag/{bookAnalysisId}")]

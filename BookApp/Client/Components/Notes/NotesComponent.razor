@@ -75,6 +75,13 @@
             <button class="button-action" @onclick="() => ShowEditHighlightNoteModal(note)">Edit</button>
             <button class="button-action" @onclick="() => DeleteHighlightNote(note.Id)">Delete</button>
         }
+
+        <p>Add Tag: </p>
+        <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
+        @foreach (var tag in filteredTags)
+        {
+            <li class="tag-item" @onclick="() => AddTag(tag.Id, )">@tag.Name</li>
+        }
     }
 
     <h3>Paragraph Notes:</h3>
@@ -141,6 +148,20 @@
 
     [Parameter]
     public int lastClickedTextNodeIndex { get; set; }
+
+    [Parameter]
+    public List<TagModel> tags { get; set; }
+
+    private string tagSearchKeyword = "";
+    private List<TagModel> filteredTags = new();
+    private void FilterTags(ChangeEventArgs e)
+    {
+        tagSearchKeyword = e.Value.ToString();
+        Console.WriteLine("current: " + e.Value);
+        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
+            ? tags
+            : tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
 
     #region HighlightNotes
     public HighlightNoteModel NewHighlightNote { get; set; } = new();

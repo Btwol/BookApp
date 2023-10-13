@@ -1,4 +1,5 @@
-﻿using BookApp.Shared.Models.ClientModels;
+﻿using BookApp.Server.Models;
+using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Services;
 
 namespace BookApp.Server.Controllers
@@ -8,10 +9,12 @@ namespace BookApp.Server.Controllers
     public class HighlightController : ControllerBase
     {
         private readonly IHighlightServerService _highlightService;
+        private readonly ITagServerService<Highlight> _tagService;
 
-        public HighlightController(IHighlightServerService highlightService)
+        public HighlightController(IHighlightServerService highlightService, ITagServerService<Highlight> tagService)
         {
             _highlightService = highlightService;
+            _tagService = tagService;
         }
 
         [HttpPut("UpdateHighlight")]
@@ -32,5 +35,16 @@ namespace BookApp.Server.Controllers
             return await _highlightService.DeleteHighlight(highlightId);
         }
 
+        [HttpPost("AddTag/{highlightId}/{tagId}")]
+        public async Task<ServiceResponse> AddTag(int highlightId, int tagId)
+        {
+            return await _tagService.AddTag(highlightId, tagId);
+        }
+
+        [HttpDelete("RemoveTag/{highlightId}")]
+        public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
+        {
+            return await _tagService.AddTag(highlightId, tagId);
+        }
     }
 }

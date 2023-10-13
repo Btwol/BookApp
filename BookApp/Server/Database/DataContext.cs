@@ -1,5 +1,4 @@
-﻿using BookApp.Server.Models.Identity;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BookApp.Server.Database
 {
@@ -103,11 +102,19 @@ namespace BookApp.Server.Database
                 .HasForeignKey(n => n.HighlightId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<HighlightNote>()
+                .HasMany(h => h.Tags)
+                .WithMany(t => t.HighlightNotes);
+
             modelBuilder.Entity<ParagraphNote>()
                 .HasOne(n => n.BookAnalysis)
                 .WithMany(h => h.ParagraphNotes)
                 .HasForeignKey(n => n.BookAnalysisId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ParagraphNote>()
+                .HasMany(p => p.Tags)
+                .WithMany(t => t.ParagraphNotes);
 
             modelBuilder.Entity<AnalysisNote>()
                 .HasOne(n => n.BookAnalysis)
@@ -115,11 +122,19 @@ namespace BookApp.Server.Database
                 .HasForeignKey(n => n.BookAnalysisId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<AnalysisNote>()
+                .HasMany(a => a.Tags)
+                .WithMany(t => t.AnalysisNotes);
+
             modelBuilder.Entity<ChapterNote>()
                 .HasOne(n => n.BookAnalysis)
                 .WithMany(h => h.ChapterNotes)
                 .HasForeignKey(n => n.BookAnalysisId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ChapterNote>()
+                .HasMany(c => c.Tags)
+                .WithMany(t => t.ChapterNotes);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

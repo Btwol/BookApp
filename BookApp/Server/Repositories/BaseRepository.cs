@@ -34,6 +34,12 @@
             await _context.SaveChangesAsync();
         }
 
+        public virtual async Task DeleteById(int id)
+        {
+            _context.Remove(await FindByConditionsFirstOrDefault(t => t.Id == id));
+            await _context.SaveChangesAsync();
+        }
+
         public virtual async Task Edit(T model)
         {
             _context.Update(model);
