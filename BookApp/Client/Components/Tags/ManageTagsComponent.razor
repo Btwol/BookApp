@@ -1,0 +1,60 @@
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Manage tags">
+    <ChildContent>
+        <h3>Current Tags:</h3>
+        @foreach(TagModel tag in taggedItem.Tags)
+        {
+            <button class="button-action" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+        }
+        <hr />
+        <h3>Add Tags</h3>
+        @foreach(TagModel tag in Tags)
+        {
+            <button class="button-action" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+        }
+    </ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+<button @onclick="Close">Close</button>
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
+
+    [Parameter]
+    public ITagableItemModel taggedItem { get; set; }
+
+    [Parameter]
+    public ITagManagerClientService tagManagerClientService { get; set; }
+
+    private bool awaitingResponse = false;
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
+    public async Task AddTag(int tagId)
+    {
+        awaitingResponse = true;
+
+        var response = await tagManagerClientService.AddTag(taggedItem.Id, tagId);
+        var editedNote = await HelperService.HandleResponse(response);
+        awaitingResponse = false;
+    }
+
+    public async Task RemoveTag(int tagId)
+    {
+        awaitingResponse = true;
+
+        var response = await tagManagerClientService.RemoveTag(taggedItem.Id, tagId);
+        var editedNote = await HelperService.HandleResponse(response);
+        awaitingResponse = false;
+    }
+}

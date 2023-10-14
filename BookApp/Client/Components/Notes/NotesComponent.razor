@@ -35,7 +35,7 @@
 
     <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Analysis Notes">
         <ChildContent>
-            <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" />
+            <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags"/>
         </ChildContent>
     </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
@@ -61,6 +61,9 @@
     public List<HighlightNoteModel> HighlightNotes { get; set; }
     [Parameter]
     public EventCallback<List<HighlightNoteModel>> HighlightNotesChanged { get; set; }
+    
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
 
     [Parameter]
     public int currentHighlightId { get; set; }

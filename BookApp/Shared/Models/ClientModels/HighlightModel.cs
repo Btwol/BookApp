@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace BookApp.Shared.Models.ClientModels
 {
-    public class HighlightModel
+    public class HighlightModel : ITagableItemModel
     {
         public int Id { get; set; } = 0;
         public int BookAnalysisId { get; set; }

@@ -11,5 +11,7 @@ namespace BookApp.Shared.Models.ClientModels.Notes
         [Required]
         [StringLength(2000, ErrorMessage = "Note is too long.")]
         public string Content { get; set; }
+
+        public List<TagModel> Tags { get; set; }
     }
 }

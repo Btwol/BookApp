@@ -1,5 +1,6 @@
 ﻿@using Blazored.Modal
 @using Blazored.Modal.Services
+@using BookApp.Client.Components.Tags
 @using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Client.Services.Interfaces.Notes
@@ -18,6 +19,7 @@
     </div>
     <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
     <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+    <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Manage Tags</button>
 }
 
 @code {
@@ -27,6 +29,8 @@
     public EventCallback<List<AnalysisNoteModel>> AnalysisNotesChanged { get; set; }
     [Parameter]
     public int bookAnalysisId { get; set; }
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
 
     private async Task ShowAddAnalysisNoteModal()
     {
@@ -42,6 +46,17 @@
     {
         var parameters = new ModalParameters().Add(nameof(EditAnalysisNoteComponent.AnalysisNote), note);
         var modal = Modal.Show<EditAnalysisNoteComponent>("Edit Analysis Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task ShowManageTagsModal(AnalysisNoteModel note)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.Tags), Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), note)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), _analysisNoteClientService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Analysis Note Tags", parameters);
         await modal.Result;
     }
 
