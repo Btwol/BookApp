@@ -1,0 +1,57 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IModalService Modal
+@inject IAnalysisNoteClientService _analysisNoteClientService
+
+<button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
+<h3>Analysis Notes:</h3>
+@foreach (AnalysisNoteModel note in AnalysisNotes)
+{
+    <hr />
+    <div class="note-holder">
+        <p>@note.Content</p>
+    </div>
+    <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
+    <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+}
+
+@code {
+    [Parameter]
+    public List<AnalysisNoteModel> AnalysisNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<AnalysisNoteModel>> AnalysisNotesChanged { get; set; }
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+
+    private async Task ShowAddAnalysisNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddAnalysisNoteComponent.AnalysisNotes), AnalysisNotes)
+            .Add(nameof(AddAnalysisNoteComponent.bookAnalysisId), bookAnalysisId);
+
+        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task ShowEditAnalysisNoteModal(AnalysisNoteModel note)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditAnalysisNoteComponent.AnalysisNote), note);
+        var modal = Modal.Show<EditAnalysisNoteComponent>("Edit Analysis Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteAnalysisNote(int noteId)
+    {
+        var response = await _analysisNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        var noteToRemove = AnalysisNotes.FirstOrDefault(n => n.Id == noteId);
+        AnalysisNotes.Remove(noteToRemove);
+    }
+
+}

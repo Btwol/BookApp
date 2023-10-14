@@ -1,0 +1,67 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IModalService Modal
+@inject IParagraphNoteClientService _paragraphNoteClientService
+
+<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
+<h3>Paragraph Notes:</h3>
+@foreach (ParagraphNoteModel note in GetCurrentParagraphNotes())
+{
+    <hr />
+    <p>@note.Content</p>
+    <button class="button-action" @onclick="() => ShowEditParagraphNoteModal(note)">Edit</button>
+    <button class="button-action" @onclick="() => DeleteParagraphNote(note.Id)">Delete</button>
+}
+
+@code {
+    [Parameter]
+    public List<ParagraphNoteModel> ParagraphNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<ParagraphNoteModel>> ParagraphNotesChanged { get; set; }
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+    [Parameter]
+    public int currentCount { get; set; }
+    [Parameter]
+    public int lastClickedTextNodeIndex { get; set; }
+
+    private async Task ShowAddParagraphNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddParagraphNoteComponent.ParagraphNotes), ParagraphNotes)
+            .Add(nameof(AddParagraphNoteComponent.pageNumber), currentCount)
+            .Add(nameof(AddParagraphNoteComponent.textNodeIndex), lastClickedTextNodeIndex)
+            .Add(nameof(AddParagraphNoteComponent.bookAnalysisId), bookAnalysisId);
+
+        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters);
+        await modal.Result;
+    }
+
+    private List<ParagraphNoteModel> GetCurrentParagraphNotes()
+    {
+        return ParagraphNotes?
+        .Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList()
+        ?? new List<ParagraphNoteModel>();
+    }
+
+    private async Task ShowEditParagraphNoteModal(ParagraphNoteModel note)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditParagraphNoteComponent.ParagraphNote), note);
+        var modal = Modal.Show<EditParagraphNoteComponent>("Edit Paragraph Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteParagraphNote(int noteId)
+    {
+        var response = await _paragraphNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        var noteToRemove = ParagraphNotes.FirstOrDefault(n => n.Id == noteId);
+        ParagraphNotes.Remove(noteToRemove);
+    }
+}

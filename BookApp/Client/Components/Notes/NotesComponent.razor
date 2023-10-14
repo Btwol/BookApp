@@ -5,115 +5,40 @@
 @using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
-@inject IModalService Modal
-@inject IHighlightNoteClientService _highlightNoteClientService
-@inject IChapterNoteClientService _chapterNoteClientService
-@inject IParagraphNoteClientService _paragraphNoteClientService
-@inject IAnalysisNoteClientService _analysisNoteClientService
-
-<style>
-
-    .add-paragraph-note {
-        position: absolute;
-        display: none;
-        z-index: 9999;
-        width: 40px; /* Adjust the width and height as needed */
-        height: 40px;
-        background-color: #007bff; /* Change the background color to your desired color */
-        color: #fff; /* Change the text color to your desired color */
-        text-align: center;
-        line-height: 40px; /* Vertically center the text */
-        font-size: 24px; /* Adjust the font size as needed */
-        cursor: pointer;
-        border: none;
-    }
-
-        .add-paragraph-note:hover {
-            background-color: #0056b3; /* Change the background color on hover */
-        }
-
-    .vertical-bar {
-        position: fixed;
-        top: 0;
-        right: 0%;
-        width: 20%;
-        height: 100%;
-        background-color: #0056b3;
-        color: #fff;
-        overflow-y: auto; /* Make the vertical bar scrollable when content exceeds height */
-    }
-
-    .vertical-bar-2 {
-        position: fixed; /* Fixed position to keep it on the screen */
-        top: 0; /* Align it to the top of the screen */
-        right: 11%; /* 10px margin from the right */
-        width: 10%; /* 20% width of the entire page width */
-        height: 100%; /* Full height of the screen */
-        background-color: #0056b3; /* Background color for the vertical bar */
-        color: #fff;
-    }
-</style>
-
-<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
 
 <div id="noteContainer" class="vertical-bar">
-    <h3>Current Highlight Notes:</h3>
-    @if (currentHighlightId != 0)
-    {
-        <p>Create new note:</p>
-        <EditForm Model="@NewHighlightNote" OnValidSubmit="@CreateNewHighlightNote">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <InputText @bind-Value="NewHighlightNote!.Content" />
-            <button type="submit">Submit</button>
-        </EditForm>
-        
-        foreach (HighlightNoteModel note in HighlightNotes)
-        {
-            <hr />
-            <p>@note.Content</p>
-            <button class="button-action" @onclick="() => ShowEditHighlightNoteModal(note)">Edit</button>
-            <button class="button-action" @onclick="() => DeleteHighlightNote(note.Id)">Delete</button>
-        }
 
-        <p>Add Tag: </p>
-        <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
-        @foreach (var tag in filteredTags)
-        {
-            <li class="tag-item" @onclick="() => AddTag(tag.Id, )">@tag.Name</li>
-        }
-    }
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Highlight Notes">
+        <ChildContent>
+            <HighlightNoteComponent @bind-HighlightNotes="HighlightNotes" bookAnalysisId="bookAnalysisId" currentHighlightId="currentHighlightId" />
+        </ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
-    <h3>Paragraph Notes:</h3>
-    @foreach (ParagraphNoteModel note in GetCurrentParagraphNotes())
-    {
-        <hr />
-        <p>@note.Content</p>
-        <button class="button-action" @onclick="() => ShowEditParagraphNoteModal(note)">Edit</button>
-        <button class="button-action" @onclick="() => DeleteParagraphNote(note.Id)">Delete</button>
-    }
-    <hr /><hr />
+    <hr />
 
-    <button class="button-action" @onclick="ShowAddChapterNoteModal">Add Chapter Note</button>
-    <h3>Chapter Notes:</h3>
-    @foreach (ChapterNoteModel note in ChapterNotes.Where(n => n.ChapterNumber == currentCount))
-    {
-        <hr />
-        <p>@note.Content</p>
-        <button class="button-action" @onclick="() => ShowEditChapterNoteModal(note)">Edit</button>
-        <button class="button-action" @onclick="() => DeleteChapterNote(note.Id)">Delete</button>
-    }
-    <hr /><hr />
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+        <ChildContent>
+            <ParagraphNoteComponent @bind-ParagraphNotes="ParagraphNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount"
+            lastClickedTextNodeIndex="lastClickedTextNodeIndex"/>
+        </ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
-    <button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
-    <h3>Analysis Notes:</h3>
-    @foreach (AnalysisNoteModel note in AnalysisNotes)
-    {
-        <hr />
-        <p>@note.Content</p>
-        <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
-        <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
-    }
+    <hr />
+
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Chapter Notes">
+        <ChildContent>
+            <ChapterNoteComponent @bind-ChapterNotes="ChapterNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount" />
+        </ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+    <hr />
+
+    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Analysis Notes">
+        <ChildContent>
+            <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" />
+        </ChildContent>
+    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
 </div>
 
 @code {
@@ -148,154 +73,4 @@
 
     [Parameter]
     public int lastClickedTextNodeIndex { get; set; }
-
-    [Parameter]
-    public List<TagModel> tags { get; set; }
-
-    private string tagSearchKeyword = "";
-    private List<TagModel> filteredTags = new();
-    private void FilterTags(ChangeEventArgs e)
-    {
-        tagSearchKeyword = e.Value.ToString();
-        Console.WriteLine("current: " + e.Value);
-        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
-            ? tags
-            : tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
-    }
-
-    #region HighlightNotes
-    public HighlightNoteModel NewHighlightNote { get; set; } = new();
-
-    async Task CreateNewHighlightNote()
-    {
-        if (currentHighlightId != 0)
-        {
-            NewHighlightNote.HighlightId = currentHighlightId;
-            NewHighlightNote.BookAnalysisId = bookAnalysisId;
-
-            var response = await _highlightNoteClientService.AddNote(NewHighlightNote);
-            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
-            HighlightNotes.Add(newNote);
-        }
-    }
-
-
-    private async Task ShowEditHighlightNoteModal(HighlightNoteModel note)
-    {
-        var parameters = new ModalParameters().Add(nameof(EditHighlightNoteComponent.HighlightNote), note);
-        var modal = Modal.Show<EditHighlightNoteComponent>("Edit Highlight Note", parameters);
-        await modal.Result;
-    }
-
-    private async Task DeleteHighlightNote(int noteId)
-    {
-        var response = await _highlightNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
-        var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
-        HighlightNotes.Remove(noteToRemove);
-    }
-
-    #endregion
-
-    #region ParagraphNotes
-
-    private async Task ShowAddParagraphNoteModal()
-    {
-        var parameters = new ModalParameters()
-            .Add(nameof(AddParagraphNoteComponent.ParagraphNotes), ParagraphNotes)
-            .Add(nameof(AddParagraphNoteComponent.pageNumber), currentCount)
-            .Add(nameof(AddParagraphNoteComponent.textNodeIndex), lastClickedTextNodeIndex)
-            .Add(nameof(AddParagraphNoteComponent.bookAnalysisId), bookAnalysisId);
-
-        var modal = Modal.Show<AddParagraphNoteComponent>("Add Paragraph Note", parameters);
-        await modal.Result;
-    }
-
-    private List<ParagraphNoteModel> GetCurrentParagraphNotes()
-    {
-        return ParagraphNotes?
-        .Where(p => p.TextNodeNumber == lastClickedTextNodeIndex && p.PageNumber == currentCount).ToList()
-        ?? new List<ParagraphNoteModel>();
-    }
-
-    private async Task ShowEditParagraphNoteModal(ParagraphNoteModel note)
-    {
-        var parameters = new ModalParameters().Add(nameof(EditParagraphNoteComponent.ParagraphNote), note);
-        var modal = Modal.Show<EditParagraphNoteComponent>("Edit Paragraph Note", parameters);
-        await modal.Result;
-    }
-
-    private async Task DeleteParagraphNote(int noteId)
-    {
-        var response = await _paragraphNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
-        var noteToRemove = ParagraphNotes.FirstOrDefault(n => n.Id == noteId);
-        ParagraphNotes.Remove(noteToRemove);
-    }
-
-
-    #endregion
-
-    #region AnalysisNotes
-    private async Task ShowAddAnalysisNoteModal()
-    {
-        var parameters = new ModalParameters()
-            .Add(nameof(AddAnalysisNoteComponent.AnalysisNotes), AnalysisNotes)
-            .Add(nameof(AddAnalysisNoteComponent.bookAnalysisId), bookAnalysisId);
-
-        var modal = Modal.Show<AddAnalysisNoteComponent>("Add Analysis Note", parameters);
-        await modal.Result;
-    }
-
-    private async Task ShowEditAnalysisNoteModal(AnalysisNoteModel note)
-    {
-        var parameters = new ModalParameters().Add(nameof(EditAnalysisNoteComponent.AnalysisNote), note);
-        var modal = Modal.Show<EditAnalysisNoteComponent>("Edit Analysis Note", parameters);
-        await modal.Result;
-    }
-
-    private async Task DeleteAnalysisNote(int noteId)
-    {
-        var response = await _analysisNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
-        var noteToRemove = AnalysisNotes.FirstOrDefault(n => n.Id == noteId);
-        AnalysisNotes.Remove(noteToRemove);
-    }
-
-    #endregion
-
-    #region ChapterNotes
-    private async Task ShowAddChapterNoteModal()
-    {
-        var parameters = new ModalParameters()
-            .Add(nameof(AddChapterNoteComponent.ChapterNotes), ChapterNotes)
-            .Add(nameof(AddChapterNoteComponent.pageNumber), currentCount)
-            .Add(nameof(AddChapterNoteComponent.bookAnalysisId), bookAnalysisId);
-
-        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters);
-        await modal.Result;
-    }
-
-    private async Task ShowEditChapterNoteModal(ChapterNoteModel note)
-    {
-        var parameters = new ModalParameters().Add(nameof(EditChapterNoteComponent.ChapterNote), note);
-        var modal = Modal.Show<EditChapterNoteComponent>("Edit Chapter Note", parameters);
-        await modal.Result;
-    }
-
-    private async Task DeleteChapterNote(int noteId)
-    {
-        var response = await _chapterNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
-        var noteToRemove = ChapterNotes.FirstOrDefault(n => n.Id == noteId);
-        ChapterNotes.Remove(noteToRemove);
-    }
-
-
-    #endregion
-
 }

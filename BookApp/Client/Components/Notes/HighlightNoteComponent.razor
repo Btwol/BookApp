@@ -1,0 +1,71 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IModalService Modal
+@inject IHighlightNoteClientService _highlightNoteClientService
+
+<h3>Current Highlight Notes:</h3>
+@if (currentHighlightId != 0)
+{
+    <p>Create new note:</p>
+    <EditForm Model="@NewHighlightNote" OnValidSubmit="@CreateNewHighlightNote">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <InputText @bind-Value="NewHighlightNote!.Content" />
+        <button type="submit">Submit</button>
+    </EditForm>
+
+    foreach (HighlightNoteModel note in HighlightNotes)
+    {
+        <hr />
+        <p>@note.Content</p>
+        <button class="button-action" @onclick="() => ShowEditHighlightNoteModal(note)">Edit</button>
+        <button class="button-action" @onclick="() => DeleteHighlightNote(note.Id)">Delete</button>
+    }
+}
+
+@code {
+    [Parameter]
+    public List<HighlightNoteModel> HighlightNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<HighlightNoteModel>> HighlightNotesChanged { get; set; }
+    [Parameter]
+    public int currentHighlightId { get; set; }
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+
+    public HighlightNoteModel NewHighlightNote { get; set; } = new();
+
+    async Task CreateNewHighlightNote()
+    {
+        if (currentHighlightId != 0)
+        {
+            NewHighlightNote.HighlightId = currentHighlightId;
+            NewHighlightNote.BookAnalysisId = bookAnalysisId;
+
+            var response = await _highlightNoteClientService.AddNote(NewHighlightNote);
+            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
+            HighlightNotes.Add(newNote);
+        }
+    }
+
+    private async Task ShowEditHighlightNoteModal(HighlightNoteModel note)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditHighlightNoteComponent.HighlightNote), note);
+        var modal = Modal.Show<EditHighlightNoteComponent>("Edit Highlight Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteHighlightNote(int noteId)
+    {
+        var response = await _highlightNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
+        HighlightNotes.Remove(noteToRemove);
+    }
+}

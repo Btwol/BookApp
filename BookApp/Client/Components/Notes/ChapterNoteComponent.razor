@@ -1,0 +1,57 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IModalService Modal
+@inject IChapterNoteClientService _chapterNoteClientService
+
+<button class="button-action" @onclick="ShowAddChapterNoteModal">Add Chapter Note</button>
+<h3>Chapter Notes:</h3>
+@foreach (ChapterNoteModel note in ChapterNotes.Where(n => n.ChapterNumber == currentCount))
+{
+    <hr />
+    <p>@note.Content</p>
+    <button class="button-action" @onclick="() => ShowEditChapterNoteModal(note)">Edit</button>
+    <button class="button-action" @onclick="() => DeleteChapterNote(note.Id)">Delete</button>
+}
+
+@code {
+    [Parameter]
+    public List<ChapterNoteModel> ChapterNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<ChapterNoteModel>> ChapterNotesChanged { get; set; }
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+    [Parameter]
+    public int currentCount { get; set; }
+
+    private async Task ShowAddChapterNoteModal()
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(AddChapterNoteComponent.ChapterNotes), ChapterNotes)
+            .Add(nameof(AddChapterNoteComponent.pageNumber), currentCount)
+            .Add(nameof(AddChapterNoteComponent.bookAnalysisId), bookAnalysisId);
+
+        var modal = Modal.Show<AddChapterNoteComponent>("Add Chapter Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task ShowEditChapterNoteModal(ChapterNoteModel note)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditChapterNoteComponent.ChapterNote), note);
+        var modal = Modal.Show<EditChapterNoteComponent>("Edit Chapter Note", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteChapterNote(int noteId)
+    {
+        var response = await _chapterNoteClientService.DeleteNote(noteId);
+        await HelperService.ReadServiceResponse(response);
+
+        var noteToRemove = ChapterNotes.FirstOrDefault(n => n.Id == noteId);
+        ChapterNotes.Remove(noteToRemove);
+    }
+}
