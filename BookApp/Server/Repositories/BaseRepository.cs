@@ -48,17 +48,22 @@
 
         public virtual async Task<IEnumerable<T>> FindAll()
         {
-            return await _context.Set<T>().ToListAsync();
+            return await QueryWithIncludes(_context.Set<T>()).ToListAsync();
         }
 
         public virtual async Task<IEnumerable<T>> FindByConditions(Expression<Func<T, bool>> expresion)
         {
-            return await _context.Set<T>().Where(expresion).ToListAsync();
+            return await QueryWithIncludes(_context.Set<T>()).Where(expresion).ToListAsync();
         }
 
         public virtual async Task<T> FindByConditionsFirstOrDefault(Expression<Func<T, bool>> expresion)
         {
-            return await _context.Set<T>().Where(expresion).FirstOrDefaultAsync();
+            return await QueryWithIncludes(_context.Set<T>()).Where(expresion).FirstOrDefaultAsync();
+        }
+
+        public virtual IQueryable<T> QueryWithIncludes(DbSet<T> querry)
+        {
+            return querry;
         }
     }
 }

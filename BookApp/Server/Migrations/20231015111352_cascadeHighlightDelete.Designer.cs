@@ -4,6 +4,7 @@ using BookApp.Server.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookApp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231015111352_cascadeHighlightDelete")]
+    partial class cascadeHighlightDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,14 +163,14 @@ namespace BookApp.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "bedc8629-dbdc-4b7c-a311-13826efddc9a",
+                            ConcurrencyStamp = "b54c4f5c-d7c9-4bd9-bed4-c6b2b0867afd",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "8b4986bb-68d5-4753-830e-7b552df286f9",
+                            ConcurrencyStamp = "92554c41-6ce5-4622-b2b8-e18069525ba8",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -246,7 +248,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0acfc48c-b243-4935-99ae-0de506e0b200",
+                            ConcurrencyStamp = "e4c2bbf4-c99b-41ae-81c0-e783af384434",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -257,7 +259,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e3707a86-7216-4f8e-a05e-28bcfcbcc9d2",
+                            ConcurrencyStamp = "073ef02f-281d-4044-983c-eefae74a933e",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -638,7 +640,7 @@ namespace BookApp.Server.Migrations
                         .IsRequired();
 
                     b.HasOne("BookApp.Server.Models.Highlight", "Highlight")
-                        .WithMany("HighlightNotes")
+                        .WithMany("Notes")
                         .HasForeignKey("HighlightId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -794,7 +796,7 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
                 {
-                    b.Navigation("HighlightNotes");
+                    b.Navigation("Notes");
                 });
 #pragma warning restore 612, 618
         }

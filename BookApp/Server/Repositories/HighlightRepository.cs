@@ -8,13 +8,11 @@ namespace BookApp.Server.Repositories
         {
         }
 
-        public override async Task<Highlight> FindByConditionsFirstOrDefault(Expression<Func<Highlight, bool>> expresion)
+        public override IQueryable<Highlight> QueryWithIncludes(DbSet<Highlight> querry)
         {
-            return await _context.Set<Highlight>()
-                .Where(expresion)
+            return querry
                 .Include(h => h.Tags)
-                .Include(h => h.Notes)
-                .FirstOrDefaultAsync();
+                .Include(h => h.HighlightNotes);
         }
     }
 }

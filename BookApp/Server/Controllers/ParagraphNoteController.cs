@@ -39,7 +39,7 @@ namespace BookApp.Server.Controllers
             return await _tagService.AddTag(noteId, tagId);
         }
 
-        [HttpDelete("RemoveTag/{noteId}")]
+        [HttpDelete("RemoveTag/{noteId}/{tagId}")]
         public async Task<ServiceResponse> RemoveTag(int noteId, int tagId)
         {
             return await _tagService.RemoveTag(noteId, tagId);

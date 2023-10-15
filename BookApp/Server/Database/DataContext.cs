@@ -27,6 +27,8 @@ namespace BookApp.Server.Database
                 .Build();
             var connectionString = configuration.GetConnectionString("BookAppDBConnection");
             optionsBuilder.UseSqlServer(connectionString);
+
+            optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -54,7 +56,9 @@ namespace BookApp.Server.Database
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.Highlights)
                 .WithOne(h => h.BookAnalysis)
-                .HasForeignKey(h => h.BookAnalysisId);
+                .HasForeignKey(h => h.BookAnalysisId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
             modelBuilder.Entity<Highlight>().HasKey(b => b.Id);
 
@@ -63,9 +67,10 @@ namespace BookApp.Server.Database
                 .WithMany(t => t.Highlights);
 
             modelBuilder.Entity<Highlight>()
-                .HasMany(h => h.Notes)
+                .HasMany(h => h.HighlightNotes)
                 .WithOne(n => n.Highlight)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.Users)
@@ -76,19 +81,29 @@ namespace BookApp.Server.Database
                 .HasMany(b => b.ParagraphNotes)
                 .WithOne(n => n.BookAnalysis)
                 .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.AnalysisNotes)
                 .WithOne(n => n.BookAnalysis)
                 .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.ChapterNotes)
                 .WithOne(n => n.BookAnalysis)
                 .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.Tags)
+                .WithOne(n => n.BookAnalysis)
+                .HasForeignKey(n => n.BookAnalysisId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasKey(b => b.Id);
@@ -98,8 +113,9 @@ namespace BookApp.Server.Database
 
             modelBuilder.Entity<HighlightNote>()
                 .HasOne(n => n.Highlight)
-                .WithMany(h => h.Notes)
+                .WithMany(h => h.HighlightNotes)
                 .HasForeignKey(n => n.HighlightId)
+                .IsRequired(true)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<HighlightNote>()

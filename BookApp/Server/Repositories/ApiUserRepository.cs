@@ -4,11 +4,9 @@
     {
         public AppUserRepository(DataContext context) : base(context) { }
 
-        public async override Task<AppUser> FindByConditionsFirstOrDefault(Expression<Func<AppUser, bool>> expresion)
+        public override IQueryable<AppUser> QueryWithIncludes(DbSet<AppUser> querry)
         {
-            return await _context.Set<AppUser>().Where(expresion)
-            .Include(i => i.BookAnalyses)
-            .FirstOrDefaultAsync();
+            return querry.Include(i => i.BookAnalyses);
         }
     }
 }

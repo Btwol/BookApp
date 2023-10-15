@@ -1,9 +1,11 @@
-﻿namespace BookApp.Server.Services.Notes
+﻿using BookApp.Server.Repositories.Interfaces.Notes;
+
+namespace BookApp.Server.Services.Notes
 {
     public class ParagraphNoteService : NoteService<ParagraphNote, ParagraphNoteModel>, IParagraphNoteService
     {
         public ParagraphNoteService(IParagraphNoteMapperService paragraphNoteMapperService, IBookAnalysisRepository bookAnalysisRepository,
-            IBaseRepository<ParagraphNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService) 
+            INoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService) 
             : base(paragraphNoteMapperService, bookAnalysisRepository, noteRepository, bookAnalysisServerService)
         {
         }

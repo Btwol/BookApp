@@ -1,16 +1,17 @@
-﻿using BookApp.Shared.Models.ClientModels.Notes;
+﻿using BookApp.Server.Repositories.Interfaces.Notes;
+using BookApp.Shared.Models.ClientModels.Notes;
 
 namespace BookApp.Server.Services.Notes
 {
     public abstract class NoteService<D, C> : INoteService<D, C> where D : INoteDBModel where C : INoteClientModel 
     {
-        private readonly IBaseRepository<D> _noteRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IBookAnalysisRepository _bookAnalysisRepository;
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
         private readonly INoteMapperService<D, C> _noteMapper;
 
         protected NoteService(INoteMapperService<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            IBaseRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
+            INoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService)
         {
             _noteMapper = noteMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
@@ -61,10 +62,10 @@ namespace BookApp.Server.Services.Notes
                 return ServiceResponse.Error("Note not found.");
             }
 
-            ModifyNote(noteModel, noteToEdit);
+            ModifyNote(noteModel, (D)noteToEdit);
 
             await _noteRepository.Edit(noteToEdit);
-            noteModel = _noteMapper.MapToClientModel(noteToEdit);
+            noteModel = _noteMapper.MapToClientModel((D)noteToEdit);
             return ServiceResponse<C>.Success(noteModel, "Note edited.");
         }
 
@@ -109,7 +110,7 @@ namespace BookApp.Server.Services.Notes
         {
             var mappedNote = _noteMapper.MapToDbModel(noteModel);
             var savedNote = await _noteRepository.Create(mappedNote);
-            var createdNote = _noteMapper.MapToClientModel(savedNote);
+            var createdNote = _noteMapper.MapToClientModel((D)savedNote);
 
             return ServiceResponse<C>.Success(createdNote, "Note added.");
         }

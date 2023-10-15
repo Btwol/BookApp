@@ -17,7 +17,7 @@ namespace BookApp.Client.Services.Notes
 
         public async Task<HttpResponseMessage> AddNote(ChapterNoteModel chapterNoteModel)
         {
-            return await Http.PostAsJsonAsync($"ChapterNote/AddChapterNote", chapterNoteModel);
+            return await Http.PostAsJsonAsync<ChapterNoteModel>($"ChapterNote/AddChapterNote", chapterNoteModel);
         }
 
         public async Task<HttpResponseMessage> DeleteNote(int noteId)

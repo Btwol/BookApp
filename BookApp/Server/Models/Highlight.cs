@@ -24,7 +24,7 @@
         public int BookAnalysisId { get; set; }
         public virtual BookAnalysis BookAnalysis { get; set; }
 
-        public virtual List<Tag> Tags { get; set; } = new();
-        public virtual List<HighlightNote> Notes { get; set; }
+        public virtual List<Tag>? Tags { get; set; } = new();
+        public virtual List<HighlightNote>? HighlightNotes { get; set; }
     }
 }

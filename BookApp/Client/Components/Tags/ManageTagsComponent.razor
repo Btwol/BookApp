@@ -13,11 +13,19 @@
             <button class="button-action" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
         }
         <hr />
-        <h3>Add Tags</h3>
-        @foreach(TagModel tag in Tags)
+        @if(!awaitingResponse)
         {
-            <button class="button-action" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+            <h3>Add Tags</h3>
+            @foreach (TagModel tag in Tags)
+            {
+                <button class="button-action" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+            }
         }
+        else
+        {
+            <h3>Adding tag...</h3>
+        }
+        
     </ChildContent>
 </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
@@ -45,7 +53,9 @@
         awaitingResponse = true;
 
         var response = await tagManagerClientService.AddTag(taggedItem.Id, tagId);
-        var editedNote = await HelperService.HandleResponse(response);
+        await HelperService.HandleResponse(response);
+        taggedItem.Tags.Add(Tags.FirstOrDefault(t => t.Id == tagId));
+
         awaitingResponse = false;
     }
 
@@ -54,7 +64,9 @@
         awaitingResponse = true;
 
         var response = await tagManagerClientService.RemoveTag(taggedItem.Id, tagId);
-        var editedNote = await HelperService.HandleResponse(response);
+        await HelperService.HandleResponse(response);
+        taggedItem.Tags.Remove(taggedItem.Tags.FirstOrDefault(t => t.Id == tagId));
+
         awaitingResponse = false;
     }
 }
