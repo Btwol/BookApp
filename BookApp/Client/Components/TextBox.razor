@@ -14,6 +14,7 @@
 @using Microsoft.AspNetCore.Html
 @using Newtonsoft.Json
 @using BookApp.Client.Components
+@using BookApp.Client.Components.ErrorHandler
 
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
@@ -36,8 +37,13 @@
              /* margin-right: 5%;
               margin-left: 5%;*/
               background-color:ghostwhite;
-              width: 50%;
-              margin: 0 auto;
+              width: 60%;
+              padding: 10px;
+                          left: 50%;
+              transform: translateX(-50%);
+              border:double;
+              text-align:justify;
+            overflow-x: clip;
     }
 
         .highlight-window-2 {
@@ -75,13 +81,13 @@
 
 <div id="highlightContainer"></div>
 
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Notes component">
+    <ErrorHandlerComponent ChildComponentName="Notes component">
     <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
                         @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
                         bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id"
                         Tags="bookAnalysis.Tags "/>
     </ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+    </ErrorHandlerComponent>
 
 <div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
 

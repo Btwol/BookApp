@@ -5,39 +5,44 @@
 @using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
+@using BookApp.Client.Components.Notes.AnalysisNotes
+@using BookApp.Client.Components.Notes.ChapterNotes
+@using BookApp.Client.Components.Notes.HighlightNotes
+@using BookApp.Client.Components.Notes.ParagraphNotes
+@using BookApp.Client.Components.ErrorHandler
 
 <div id="noteContainer" class="vertical-bar">
 
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Highlight Notes">
+    <ErrorHandlerComponent ChildComponentName="Highlight Notes">
         <ChildContent>
-            <HighlightNoteComponent @bind-HighlightNotes="HighlightNotes" bookAnalysisId="bookAnalysisId" currentHighlightId="currentHighlightId" />
+            <HighlightNoteComponent @bind-HighlightNotes="HighlightNotes" bookAnalysisId="bookAnalysisId" currentHighlightId="currentHighlightId" Tags="Tags" />
         </ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+    </ErrorHandlerComponent>
 
     <hr />
 
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+    <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
         <ChildContent>
             <ParagraphNoteComponent @bind-ParagraphNotes="ParagraphNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount"
-            lastClickedTextNodeIndex="lastClickedTextNodeIndex"/>
+                                    lastClickedTextNodeIndex="lastClickedTextNodeIndex" Tags="Tags" />
         </ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+    </ErrorHandlerComponent>
 
     <hr />
 
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Chapter Notes">
+    <ErrorHandlerComponent ChildComponentName="Chapter Notes">
         <ChildContent>
-            <ChapterNoteComponent @bind-ChapterNotes="ChapterNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount" />
+            <ChapterNoteComponent @bind-ChapterNotes="ChapterNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount" Tags="Tags" />
         </ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+    </ErrorHandlerComponent>
 
     <hr />
 
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Analysis Notes">
+    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
         <ChildContent>
             <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags"/>
         </ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+    </ErrorHandlerComponent>
 
 </div>
 

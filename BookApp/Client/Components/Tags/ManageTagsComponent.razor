@@ -7,29 +7,34 @@
 
 <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Manage tags">
     <ChildContent>
-        <h3>Current Tags:</h3>
-        @foreach(TagModel tag in taggedItem.Tags)
+        @if (!awaitingResponse)
         {
-            <button class="button-action" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-        }
-        <hr />
-        @if(!awaitingResponse)
-        {
+            <h3>Current Tags:</h3>
+            @foreach (TagModel tag in taggedItem.Tags)
+            {
+                <button class="button-action" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+            }
+
+            <hr />
+
             <h3>Add Tags</h3>
             @foreach (TagModel tag in Tags)
             {
-                <button class="button-action" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+                @if(!taggedItem.Tags.Any(t => t.Id == tag.Id))
+                {
+                    <button class="button-action" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+                }
             }
         }
         else
         {
-            <h3>Adding tag...</h3>
+            <h3>Awaiting response...</h3>
         }
         
     </ChildContent>
 </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
 
-<button @onclick="Close">Close</button>
+<button class="button-action" @onclick="Close">Close</button>
 
 @code {
     [CascadingParameter]

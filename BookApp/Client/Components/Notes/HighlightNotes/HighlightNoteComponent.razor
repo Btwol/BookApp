@@ -1,5 +1,6 @@
 ﻿@using Blazored.Modal
 @using Blazored.Modal.Services
+@using BookApp.Client.Components.Tags
 @using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Client.Services.Interfaces.Notes
@@ -22,9 +23,12 @@
     foreach (HighlightNoteModel note in HighlightNotes)
     {
         <hr />
-        <p>@note.Content</p>
+        <div class="note-holder">
+            <p>@note.Content</p>
+        </div>
         <button class="button-action" @onclick="() => ShowEditHighlightNoteModal(note)">Edit</button>
         <button class="button-action" @onclick="() => DeleteHighlightNote(note.Id)">Delete</button>
+        <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Manage Tags</button>
     }
 }
 
@@ -37,6 +41,8 @@
     public int currentHighlightId { get; set; }
     [Parameter]
     public int bookAnalysisId { get; set; }
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
 
     public HighlightNoteModel NewHighlightNote { get; set; } = new();
 
@@ -67,5 +73,16 @@
 
         var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
         HighlightNotes.Remove(noteToRemove);
+    }
+
+    private async Task ShowManageTagsModal(HighlightNoteModel note)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.Tags), Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), note)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), _highlightNoteClientService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Note Tags", parameters);
+        await modal.Result;
     }
 }

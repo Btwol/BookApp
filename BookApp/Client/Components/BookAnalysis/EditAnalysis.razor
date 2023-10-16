@@ -3,9 +3,10 @@
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared.Models.ClientModels
 @using EpubSharp
+@using BookApp.Client.Components.ErrorHandler
 @inject IBookAnalysisClientService _bookAnalysisClientService
 
-<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit analysys">
+<ErrorHandlerComponent ChildComponentName="Edit analysys">
 <ChildContent>
 <EditForm Model="@analysisFormModel" OnValidSubmit="@EditAnalysisSubmit" class="form">
     <DataAnnotationsValidator />
@@ -26,7 +27,7 @@
     }
 </EditForm>
 </ChildContent>
-</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+</ErrorHandlerComponent>
 
 <button @onclick="Close">Close</button>
 

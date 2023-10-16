@@ -6,10 +6,10 @@ namespace BookApp.Server.Services.Notes
 {
     public abstract class NoteService<D, C> : INoteService<D, C> where D : INoteDBModel where C : INoteClientModel 
     {
-        private readonly INoteRepository<D> _noteRepository;
-        private readonly IBookAnalysisRepository _bookAnalysisRepository;
-        private readonly IBookAnalysisServerService _bookAnalysisServerService;
-        private readonly INoteMapperService<D, C> _noteMapper;
+        protected readonly INoteRepository<D> _noteRepository;
+        protected readonly IBookAnalysisRepository _bookAnalysisRepository;
+        protected readonly IBookAnalysisServerService _bookAnalysisServerService;
+        protected readonly INoteMapperService<D, C> _noteMapper;
 
         protected NoteService(INoteMapperService<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
             INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
@@ -94,8 +94,8 @@ namespace BookApp.Server.Services.Notes
         protected virtual async Task<ServiceResponse> SaveNote(C noteModel)
         {
             var mappedNote = _noteMapper.MapToDbModel(noteModel);
-            var savedNoteId = (await _noteRepository.Create(mappedNote)).Id;
-            var createdNote = _noteMapper.MapToClientModel((D)(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId)));
+            var savedNote = await _noteRepository.Create(mappedNote);
+            var createdNote = _noteMapper.MapToClientModel((D)savedNote);
 
             return ServiceResponse<C>.Success(createdNote, "Note added.");
         }
