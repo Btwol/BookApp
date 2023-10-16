@@ -1,6 +1,6 @@
 ﻿namespace BookApp.Server.Repositories.Interfaces.Notes
 {
-    public interface INoteRepository : IBaseRepository<INoteDBModel>
+    public interface INoteRepository<T> : IBaseRepository<T> where T : INoteDBModel
     {
     }
 }

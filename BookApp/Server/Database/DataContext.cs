@@ -66,11 +66,7 @@ namespace BookApp.Server.Database
                 .HasMany(h => h.Tags)
                 .WithMany(t => t.Highlights);
 
-            modelBuilder.Entity<Highlight>()
-                .HasMany(h => h.HighlightNotes)
-                .WithOne(n => n.Highlight)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.Users)
@@ -111,12 +107,18 @@ namespace BookApp.Server.Database
             modelBuilder.Entity<Tag>()
                 .HasKey(b => b.Id);
 
+            //modelBuilder.Entity<Highlight>()
+            //    .HasMany(h => h.HighlightNotes)
+            //    .WithOne(n => n.Highlight)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<HighlightNote>()
                 .HasOne(n => n.Highlight)
                 .WithMany(h => h.HighlightNotes)
                 .HasForeignKey(n => n.HighlightId)
                 .IsRequired(true)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<HighlightNote>()
                 .HasMany(h => h.Tags)

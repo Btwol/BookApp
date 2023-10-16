@@ -161,14 +161,14 @@ namespace BookApp.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "bedc8629-dbdc-4b7c-a311-13826efddc9a",
+                            ConcurrencyStamp = "6ebd6854-b117-4549-b093-c5b57ad57bb5",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "8b4986bb-68d5-4753-830e-7b552df286f9",
+                            ConcurrencyStamp = "ac565a91-bb4f-4d74-bee4-ee037178b891",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -246,7 +246,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0acfc48c-b243-4935-99ae-0de506e0b200",
+                            ConcurrencyStamp = "db251ed6-341d-4de8-9a55-d7b329f28580",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -257,7 +257,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e3707a86-7216-4f8e-a05e-28bcfcbcc9d2",
+                            ConcurrencyStamp = "e21dd91e-60f6-4238-8595-e71ac10ed199",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -321,9 +321,6 @@ namespace BookApp.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("BookAnalysisId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -332,8 +329,6 @@ namespace BookApp.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BookAnalysisId");
 
                     b.HasIndex("HighlightId");
 
@@ -631,19 +626,11 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("BookApp.Server.Models.Notes.HighlightNote", b =>
                 {
-                    b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
-                        .WithMany()
-                        .HasForeignKey("BookAnalysisId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BookApp.Server.Models.Highlight", "Highlight")
                         .WithMany("HighlightNotes")
                         .HasForeignKey("HighlightId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("BookAnalysis");
 
                     b.Navigation("Highlight");
                 });

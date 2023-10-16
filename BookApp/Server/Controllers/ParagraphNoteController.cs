@@ -18,20 +18,21 @@ namespace BookApp.Server.Controllers
         [HttpPost("AddParagraphNote")]
         public async Task<ServiceResponse> AddParagraphNote(ParagraphNoteModel paragraphNoteModel)
         {
-            return await _paragraphNoteService.AddNote(paragraphNoteModel);
+            return await _paragraphNoteService.AddNote(paragraphNoteModel, paragraphNoteModel.BookAnalysisId);
         }
 
-        [HttpDelete("DeleteParagraphNote/{noteId}")]
-        public async Task<ServiceResponse> DeleteParagraphNote(int noteId)
+        [HttpDelete("DeleteParagraphNote/{noteId}/{bookAnalysisId}")]
+        public async Task<ServiceResponse> DeleteNote(int noteId, int bookAnalysisId)
         {
-            return await _paragraphNoteService.DeleteNote(noteId);
+            return await _paragraphNoteService.DeleteNote(noteId, bookAnalysisId);
         }
 
         [HttpPut("EditParagraphNote")]
-        public async Task<ServiceResponse> EditParagraphNote(ParagraphNoteModel paragraphNoteModel)
+        public async Task<ServiceResponse> EditNote(ParagraphNoteModel paragraphNoteModel)
         {
-            return await _paragraphNoteService.EditNote(paragraphNoteModel);
+            return await _paragraphNoteService.EditNote(paragraphNoteModel, paragraphNoteModel.BookAnalysisId);
         }
+
 
         [HttpPost("AddTag/{noteId}/{tagId}")]
         public async Task<ServiceResponse> AddTag(int noteId, int tagId)

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookApp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231015111352_cascadeHighlightDelete")]
-    partial class cascadeHighlightDelete
+    [Migration("20231016115443_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -163,14 +163,14 @@ namespace BookApp.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "b54c4f5c-d7c9-4bd9-bed4-c6b2b0867afd",
+                            ConcurrencyStamp = "6ebd6854-b117-4549-b093-c5b57ad57bb5",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "92554c41-6ce5-4622-b2b8-e18069525ba8",
+                            ConcurrencyStamp = "ac565a91-bb4f-4d74-bee4-ee037178b891",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -248,7 +248,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e4c2bbf4-c99b-41ae-81c0-e783af384434",
+                            ConcurrencyStamp = "db251ed6-341d-4de8-9a55-d7b329f28580",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -259,7 +259,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "073ef02f-281d-4044-983c-eefae74a933e",
+                            ConcurrencyStamp = "e21dd91e-60f6-4238-8595-e71ac10ed199",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -323,9 +323,6 @@ namespace BookApp.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("BookAnalysisId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -334,8 +331,6 @@ namespace BookApp.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BookAnalysisId");
 
                     b.HasIndex("HighlightId");
 
@@ -633,19 +628,11 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("BookApp.Server.Models.Notes.HighlightNote", b =>
                 {
-                    b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
-                        .WithMany()
-                        .HasForeignKey("BookAnalysisId")
+                    b.HasOne("BookApp.Server.Models.Highlight", "Highlight")
+                        .WithMany("HighlightNotes")
+                        .HasForeignKey("HighlightId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("BookApp.Server.Models.Highlight", "Highlight")
-                        .WithMany("Notes")
-                        .HasForeignKey("HighlightId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("BookAnalysis");
 
                     b.Navigation("Highlight");
                 });
@@ -796,7 +783,7 @@ namespace BookApp.Server.Migrations
 
             modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
                 {
-                    b.Navigation("Notes");
+                    b.Navigation("HighlightNotes");
                 });
 #pragma warning restore 612, 618
         }

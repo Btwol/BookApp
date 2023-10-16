@@ -2,5 +2,7 @@
 {
     public class AnalysisNote : Note
     {
+        public int BookAnalysisId { get; set; }
+        public virtual BookAnalysis BookAnalysis { get; set; }
     }
 }

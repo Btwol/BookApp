@@ -1,17 +1,18 @@
-﻿using BookApp.Server.Repositories.Interfaces.Notes;
+﻿using BookApp.Server.Models;
+using BookApp.Server.Repositories.Interfaces.Notes;
 using BookApp.Shared.Models.ClientModels.Notes;
 
 namespace BookApp.Server.Services.Notes
 {
     public abstract class NoteService<D, C> : INoteService<D, C> where D : INoteDBModel where C : INoteClientModel 
     {
-        private readonly INoteRepository _noteRepository;
+        private readonly INoteRepository<D> _noteRepository;
         private readonly IBookAnalysisRepository _bookAnalysisRepository;
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
         private readonly INoteMapperService<D, C> _noteMapper;
 
         protected NoteService(INoteMapperService<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            INoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService)
+            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
         {
             _noteMapper = noteMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
@@ -19,9 +20,9 @@ namespace BookApp.Server.Services.Notes
             _bookAnalysisServerService = bookAnalysisServerService;
         }
 
-        public async Task<ServiceResponse> AddNote(C noteModel)
+        public async Task<ServiceResponse> AddNote(C noteModel, int bookAnalysisId)
         {
-            var validationResult = await ValidateNoteRequest(noteModel);
+            var validationResult = await ValidateNoteRequest(bookAnalysisId, noteModel);
             if(!validationResult.SuccessStatus)
             {
                 return validationResult;
@@ -30,7 +31,7 @@ namespace BookApp.Server.Services.Notes
             return await SaveNote(noteModel);
         }
 
-        public async Task<ServiceResponse> DeleteNote(int noteId)
+        public async Task<ServiceResponse> DeleteNote(int noteId, int bookAnalysisId)
         {
             var noteToDelete = await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == noteId);
             if(noteToDelete is null)
@@ -38,7 +39,7 @@ namespace BookApp.Server.Services.Notes
                 return ServiceResponse.Error("Note not found.");
             }
 
-            var validationResult = await ValidateNoteRequest(noteId);
+            var validationResult = await ValidateNoteRequest(bookAnalysisId, noteToDelete);
             if (!validationResult.SuccessStatus)
             {
                 return validationResult;
@@ -48,9 +49,9 @@ namespace BookApp.Server.Services.Notes
             return ServiceResponse.Success("Note deleted.");
         }
 
-        public async Task<ServiceResponse> EditNote(C noteModel)
+        public async Task<ServiceResponse> EditNote(C noteModel, int bookAnalysisId)
         {
-            var validationResult = await ValidateNoteRequest(noteModel);
+            var validationResult = await ValidateNoteRequest(bookAnalysisId, noteModel);
             if (!validationResult.SuccessStatus)
             {
                 return validationResult;
@@ -74,23 +75,7 @@ namespace BookApp.Server.Services.Notes
             destinationNote.Content = sourceNote.Content;
         }
 
-        protected virtual async Task<ServiceResponse> ValidateNoteRequest(C noteModel)
-        {
-            if (!await _bookAnalysisRepository.CheckIfExists(a => a.Id == noteModel.BookAnalysisId))
-            {
-                return ServiceResponse.Error("Book analysis does not exist.");
-            }
-
-            if (!await _bookAnalysisServerService.CurrentUserIsMemberTypeOfAnalysis(noteModel.BookAnalysisId,
-                MemberType.Administrator, MemberType.Moderator, MemberType.Editor))
-            {
-                return ServiceResponse.Error("Only the user with rights of editor or above can modify notes.", HttpStatusCode.Forbidden);
-            }
-
-            return ServiceResponse.Success();
-        }
-
-        protected virtual async Task<ServiceResponse> ValidateNoteRequest(int bookAnalysisId)
+        protected virtual async Task<ServiceResponse> ValidateNoteRequest<T>(int bookAnalysisId, T noteModel) where T : INote
         {
             if (!await _bookAnalysisRepository.CheckIfExists(a => a.Id == bookAnalysisId))
             {
@@ -109,8 +94,8 @@ namespace BookApp.Server.Services.Notes
         protected virtual async Task<ServiceResponse> SaveNote(C noteModel)
         {
             var mappedNote = _noteMapper.MapToDbModel(noteModel);
-            var savedNote = await _noteRepository.Create(mappedNote);
-            var createdNote = _noteMapper.MapToClientModel((D)savedNote);
+            var savedNoteId = (await _noteRepository.Create(mappedNote)).Id;
+            var createdNote = _noteMapper.MapToClientModel((D)(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId)));
 
             return ServiceResponse<C>.Success(createdNote, "Note added.");
         }
