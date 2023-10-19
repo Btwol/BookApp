@@ -23,11 +23,28 @@
 @inject IModalService Modal
 
 <style>
-    .highlight {
-    position: absolute;
+    .highlight-container
+    {
+        position:absolute;
+        left: 0;
+      top: 0;
+    }
+
+        .highlight {
+    position: fixed;
     background-color: rgba(1, 1, 255, 0.8);
     z-index:998;
     transition: zoom 0.2s;
+}
+
+.texbox-wrapper
+{
+
+}
+
+.highlight-textbox-wrapper
+{
+
 }
 
     .small-window-2 {
@@ -37,13 +54,8 @@
              /* margin-right: 5%;
               margin-left: 5%;*/
               background-color:ghostwhite;
-              width: 60%;
-              padding: 10px;
-                          left: 50%;
-              transform: translateX(-50%);
-              border:double;
-              text-align:justify;
-            overflow-x: clip;
+              width: 50%;
+              margin: 0 auto;
     }
 
         .highlight-window-2 {
@@ -72,14 +84,18 @@
 </style>
 
 
-<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
-    @if(html is not null)
-    {
-        @((MarkupString)html[currentCount].TextContent)
-    }
+<div class="highlight-textbox-wrapper">
+    <div class="texbox-wrapper">
+        <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
+            @if (html is not null)
+            {
+                @((MarkupString)html[currentCount].TextContent)
+            }
+            <div id="highlightContainer" class="highlight-container"></div>
+        </div>
+    </div>
 </div>
 
-<div id="highlightContainer"></div>
 
     <ErrorHandlerComponent ChildComponentName="Notes component">
     <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
@@ -198,7 +214,7 @@ else
 
     HighlightModel highlight;
 
-    private int currentCount = 2;
+    private int currentCount =7;
 
     public List<string> overlays = new();
 
@@ -276,7 +292,11 @@ else
     }
     #endregion
 
-
+    [JSInvokableAttribute("ReRender")]
+    public async void ReRender()
+    {
+        Refresh();
+    }
 
     void Refresh()
     {
@@ -413,12 +433,17 @@ else
         }
 
         Console.WriteLine("ReRender...");
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+        //await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
         List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
 
         foreach (HighlightModel highlight in currentHighlights)
         {
+            if (await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+            {
+                await jsRuntime.InvokeVoidAsync("deleteElementById", highlight.GetElementId() + "_s");
+            }
+
             if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
             {
                 //await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");

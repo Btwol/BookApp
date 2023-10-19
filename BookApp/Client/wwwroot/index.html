@@ -448,6 +448,14 @@
 
 
     <script>
+        function getOffset(el) {
+            const rect = el.getBoundingClientRect();
+            return {
+                left: rect.left + window.scrollX,
+                top: rect.top + window.scrollY
+            };
+        }
+
         let placeholderString = "a";
         //FirstNodeIndex, FirstNodeCharIndex, LastNodeIndex, LastNodeCharIndex, RawArray
         function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, dotNetHelper, highlightId) {
@@ -457,10 +465,7 @@
             //SINGLE NODE
             if (nodeCount == 1) {
                 var element = document.getElementById(elementId);
-                console.log("THE ELEMENT: ");
-                console.log(element);
                 var textNode = getTextNodes(element)[firstNodeIndex];
-                console.log("AFTER READ");
                 var text = textNode.textContent;
 
                 startOffset = firstNodeCharIndex;
@@ -480,6 +485,7 @@
                 range.setStart(textNode, startOffset);
                 range.setEnd(textNode, endOffset);
                 var rect = range.getBoundingClientRect();
+                
 
                 // Position the highlight element on top of the specified text
                 highlight.style.left = rect.left + "px";
@@ -488,8 +494,18 @@
                 highlight.style.height = rect.height + "px";
 
                 // Append the highlight element to the highlight container
-                var highlightContainer = document.getElementById("highlightContainer");
+                var highlightContainer = document.getElementById("textContainer");
                 highlightContainer.appendChild(highlight);
+
+                var aaa = getOffset(highlight);
+                console.log("H top: " + rect.top);
+                console.log("H left: " + rect.left);
+                console.log("ITEM top: " + aaa.top);
+                console.log("ITEM left: " + aaa.left);
+
+                var textboxOffset = getOffset(element);
+                console.log("textboxOffset top: " + textboxOffset.top);
+                console.log("textboxOffset left: " + textboxOffset.left);
 
                 return;
             }
@@ -680,6 +696,7 @@
             console.log(parentDiv);
             parentDiv.addEventListener('click', getTextNodeNumber);
             dotNet = dotNetInit;
+            document.addEventListener('scroll', function (e) { dotNet.invokeMethodAsync("ReRender"); }, true);
         }
 
         function setAddParagraphNotePosition(left, top, elementId) {
