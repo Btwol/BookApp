@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Models.ClientModels.Notes;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [JwtAuthorize("User")]

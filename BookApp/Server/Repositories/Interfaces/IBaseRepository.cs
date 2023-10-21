@@ -1,7 +1,4 @@
-﻿using BookApp.Server.Models.Interfaces;
-using System.Linq.Expressions;
-
-namespace BookApp.Server.Repositories.Interfaces
+﻿namespace BookApp.Server.Repositories.Interfaces
 {
     public interface IBaseRepository<T> : IRepository where T : IDbModel
     {

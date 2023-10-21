@@ -1,8 +1,4 @@
-﻿using BookApp.Server.Models;
-using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]

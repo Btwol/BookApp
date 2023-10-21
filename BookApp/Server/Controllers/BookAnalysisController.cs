@@ -28,7 +28,11 @@
         [HttpPut("EditBookAnalysis")]
         public async Task<ServiceResponse> EditBookAnalysis([FromBody] BookAnalysisModel updatedBookAnalysis)
         {
-            if (updatedBookAnalysis.AnalysisTitle == "rush") throw new Exception("test EditBookAnalysis exception!");
+            if (updatedBookAnalysis.AnalysisTitle == "rush")
+            {
+                throw new Exception("test EditBookAnalysis exception!");
+            }
+
             return await _bookAnalysisService.EditBookAnalysis(updatedBookAnalysis);
         }
 

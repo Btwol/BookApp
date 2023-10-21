@@ -6,7 +6,7 @@
         public int Id { get; set; }
 
         [Required]
-        public int PageNumber { get; set;  }
+        public int PageNumber { get; set; }
 
         [Required]
         public int FirstNodeIndex { get; set; }

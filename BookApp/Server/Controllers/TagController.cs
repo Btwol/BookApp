@@ -24,7 +24,7 @@
         }
 
         [HttpPost("CreateNewTag/{bookAnalysisId}")]
-        public async Task<ServiceResponse> CreateNewTag([FromBody]TagModel newTag, int bookAnalysisId)
+        public async Task<ServiceResponse> CreateNewTag([FromBody] TagModel newTag, int bookAnalysisId)
         {
             return await _tagService.CreateNewTag(newTag, bookAnalysisId);
         }

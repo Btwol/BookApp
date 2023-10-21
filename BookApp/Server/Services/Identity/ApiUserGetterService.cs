@@ -1,6 +1,4 @@
-﻿using BookApp.Server.Services.Interfaces.Identity;
-using BookApp.Shared.Models.Identity;
-using BookApp.Shared.Models.Services;
+﻿using BookApp.Shared.Models.Identity;
 
 namespace BookApp.Server.Services.Identity
 {

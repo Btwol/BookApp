@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace BookApp.Server.Repositories
+﻿namespace BookApp.Server.Repositories
 {
     public class HighlightRepository : BaseRepository<Highlight>, IHighlightRepository
     {

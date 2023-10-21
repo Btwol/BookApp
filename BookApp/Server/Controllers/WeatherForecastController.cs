@@ -1,5 +1,4 @@
 using BookApp.Shared;
-using Microsoft.AspNetCore.Mvc;
 
 namespace BookApp.Server.Controllers
 {

@@ -4,7 +4,7 @@
     {
         public BookAnalysisRepository(DataContext context) : base(context)
         {
-           
+
         }
 
         public override IQueryable<BookAnalysis> QueryWithIncludes(DbSet<BookAnalysis> querry)

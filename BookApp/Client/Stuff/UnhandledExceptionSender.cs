@@ -32,7 +32,7 @@
 
     public class UnhandledExceptionProvider : ILoggerProvider
     {
-        UnhandledExceptionSender _unhandledExceptionSender;
+        private UnhandledExceptionSender _unhandledExceptionSender;
 
 
         public UnhandledExceptionProvider(UnhandledExceptionSender unhandledExceptionSender)

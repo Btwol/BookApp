@@ -2,7 +2,6 @@
 using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services
 {
@@ -15,7 +14,10 @@ namespace BookApp.Client.Services
                 await TriggerServiceResponseError(response);
                 return null;
             }
-            else return await ReadServiceResponse<T>(response);
+            else
+            {
+                return await ReadServiceResponse<T>(response);
+            }
         }
 
         public static async Task<ServiceResponse> HandleResponse(HttpResponseMessage response)
@@ -25,12 +27,15 @@ namespace BookApp.Client.Services
                 await TriggerServiceResponseError(response);
                 return null;
             }
-            else return await ReadServiceResponse(response);
+            else
+            {
+                return await ReadServiceResponse(response);
+            }
         }
 
         public static async Task<T> ReadServiceResponse<T>(HttpResponseMessage response) where T : class
         {
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 var responseErrorMessage = (await response.Content.ReadFromJsonAsync<ServiceResponse>()).Message;
                 throw new Exception(responseErrorMessage);
@@ -40,7 +45,7 @@ namespace BookApp.Client.Services
 
         public static async Task<ServiceResponse> ReadServiceResponse(HttpResponseMessage response)
         {
-            return (await response.Content.ReadFromJsonAsync<ServiceResponse>());
+            return await response.Content.ReadFromJsonAsync<ServiceResponse>();
         }
 
         public static async Task TriggerServiceResponseError(HttpResponseMessage response)

@@ -1,7 +1,4 @@
-﻿using BookApp.Server.Models.Identity;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace BookApp.Server.Models.Auditables
+﻿namespace BookApp.Server.Models.Auditables
 {
     public class Creatable : ICreatable
     {

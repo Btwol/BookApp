@@ -1,7 +1,6 @@
 ﻿using BookApp.Server.Repositories.Interfaces.Notes;
 using BookApp.Server.Repositories.Notes;
 using BookApp.Server.Services.Identity;
-using BookApp.Server.Services.MapperServices.Mappings;
 using BookApp.Server.Services.Notes;
 using Microsoft.OpenApi.Models;
 

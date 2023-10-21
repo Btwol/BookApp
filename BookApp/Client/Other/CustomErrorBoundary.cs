@@ -11,7 +11,7 @@ namespace BookApp.Client.Other
 
         protected override Task OnErrorAsync(Exception exception)
         {
-            if(Environment.IsProduction())
+            if (Environment.IsProduction())
             {
                 return base.OnErrorAsync(exception);
             }

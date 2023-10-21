@@ -1,10 +1,8 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.ClientModels.Notes;
 using BookApp.Shared.Models.Services;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services
 {

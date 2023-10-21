@@ -37,12 +37,12 @@
         public async Task<ServiceResponse> DeleteBookAnalysis(int analysisId)
         {
             var analysisToDelete = await _bookAnalysisRepository.FindByConditionsFirstOrDefault(ba => ba.Id == analysisId);
-            if(analysisToDelete is null)
+            if (analysisToDelete is null)
             {
-                return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);   
+                return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);
             }
 
-            if(!await CurrentUserIsMemberTypeOfAnalysis(analysisId, MemberType.Administrator))
+            if (!await CurrentUserIsMemberTypeOfAnalysis(analysisId, MemberType.Administrator))
             {
                 return ServiceResponse.Error("Only the analysis administrator can delete it.", HttpStatusCode.Forbidden);
             }

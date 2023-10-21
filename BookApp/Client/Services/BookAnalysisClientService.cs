@@ -1,11 +1,7 @@
 ﻿using BookApp.Client.Services.Interfaces;
-using BookApp.Shared.Interfaces.Model;
 using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
 using Microsoft.JSInterop;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using static BookApp.Client.Services.BookAnalysisClientService;
 
 namespace BookApp.Client.Services
 {

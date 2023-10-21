@@ -1,7 +1,4 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Services.Interfaces
+﻿namespace BookApp.Server.Services.Interfaces
 {
     public interface IBookAnalysisServerService
     {

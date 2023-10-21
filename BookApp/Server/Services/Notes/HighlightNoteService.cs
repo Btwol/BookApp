@@ -1,5 +1,4 @@
 ﻿using BookApp.Server.Repositories.Interfaces.Notes;
-using BookApp.Server.Repositories.Notes;
 
 namespace BookApp.Server.Services.Notes
 {
@@ -15,9 +14,9 @@ namespace BookApp.Server.Services.Notes
         }
 
 
-        protected async override Task<ServiceResponse> ValidateNoteRequest<T>(int bookAnalysisId, T noteModel)
+        protected override async Task<ServiceResponse> ValidateNoteRequest<T>(int bookAnalysisId, T noteModel)
         {
-            if(noteModel is HighlightNoteModel highlightNoteModel)
+            if (noteModel is HighlightNoteModel highlightNoteModel)
             {
                 if (!await _highlightRepository.CheckIfExists(h => h.Id == highlightNoteModel.HighlightId))
                 {
@@ -34,11 +33,11 @@ namespace BookApp.Server.Services.Notes
             return await base.ValidateNoteRequest(bookAnalysisId, noteModel);
         }
 
-        protected async override Task<ServiceResponse> SaveNote(HighlightNoteModel noteModel)
+        protected override async Task<ServiceResponse> SaveNote(HighlightNoteModel noteModel)
         {
             var mappedNote = _noteMapper.MapToDbModel(noteModel);
             var savedNoteId = (await _noteRepository.Create(mappedNote)).Id;
-            var createdNote = _noteMapper.MapToClientModel((HighlightNote)(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId)));
+            var createdNote = _noteMapper.MapToClientModel(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId));
 
             return ServiceResponse<HighlightNoteModel>.Success(createdNote, "Note added.");
         }

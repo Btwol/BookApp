@@ -23,7 +23,7 @@ namespace BookApp.Server.Services
             var tag = await _tagRepository.FindByConditionsFirstOrDefault(t => t.Id == tagId);
 
             var validationResult = ValidateTagRequest(taggedItem, tag);
-            if(!validationResult.SuccessStatus)
+            if (!validationResult.SuccessStatus)
             {
                 return validationResult;
             }
@@ -105,7 +105,7 @@ namespace BookApp.Server.Services
             }
 
             var validationResult = await ValidateTagRequest(tagToRemove.BookAnalysisId);
-            if(!validationResult.SuccessStatus)
+            if (!validationResult.SuccessStatus)
             {
                 return validationResult;
             }

@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Models.ClientModels;
-
-namespace BookApp.Server.Services.MapperServices
+﻿namespace BookApp.Server.Services.MapperServices
 {
     public class HighlightMapperService : MapperService<Highlight, HighlightModel>, IHighlightMapperService
     {
