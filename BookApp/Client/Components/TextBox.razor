@@ -158,7 +158,6 @@ else
 
 <div class="text-box-bar">
     <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
-    <button class="button-action" @onclick="AddNote">Add Note</button>
     <button class="button-action" @onclick="Refresh">Refresh</button>
 
     <div class="row">
@@ -304,11 +303,7 @@ else
 
 
 
-    async Task AddNote()
-    {
-        await jsRuntime.InvokeVoidAsync("addNote");
-        //await notesService.CreateNote();
-    }
+
 
     async Task ReApplyHighlight(MouseEventArgs e)
     {
@@ -355,7 +350,6 @@ else
             //else 
             highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
         }
-        //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
     }
 
     private async Task CreatePermanentHighlight()

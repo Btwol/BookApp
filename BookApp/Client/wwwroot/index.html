@@ -24,225 +24,16 @@
 
     <script src="js/JavaScript.js"></script>
     <script src ="_content/Blazored.Modal/blazored.modal.js"></script>
-    <script>
 
-        function getLocation(elementId, startOffset, endOffset, textNodeNumber) {
-            var element = document.getElementById(elementId);
-            var textNode = getTextNodes(element)[textNodeNumber];
-
-            var range = document.createRange();
-            range.setStart(textNode, startOffset);
-            range.setEnd(textNode, endOffset);
-            var rect = range.getBoundingClientRect();
-
-            return {
-                left: rect.left,
-                top: rect.top,
-                width: rect.width,
-                height: rect.height
-            };
-        }
-
-
-        window.highlightText = {
-            init: function (element) {
-                const textContainer = element;
-                const overlay = document.getElementById('overlay');
-
-                function updateOverlayPosition() {
-                    console.log("hit2");
-                    const selection = window.getSelection();
-                    const selectedText = selection.toString();
-                    const range = selection.getRangeAt(0);
-                    const rect = range.getBoundingClientRect();
-
-                    if (selectedText !== '') {
-                        const overlayStyle = overlay.style;
-                        overlayStyle.display = 'block';
-                        overlayStyle.width = rect.width + 'px';
-                        overlayStyle.height = rect.height + 'px';
-                        overlayStyle.top = rect.top + window.pageYOffset + 'px';
-                        overlayStyle.left = rect.left + window.pageXOffset + 'px';
-                    } else {
-                        overlay.style.display = 'none';
-                    }
-                }
-
-                textContainer.addEventListener('mouseup', updateOverlayPosition);
-                window.addEventListener('resize', updateOverlayPosition);
-            },
-
-            createPermanentHighlight: function () {
-                const selection = window.getSelection();
-                const range = selection.getRangeAt(0);
-                const span = document.createElement('span');
-                span.style.background = 'yellow';
-                span.appendChild(range.extractContents());
-                range.insertNode(span);
-            }
-        };
-
-    </script>
 
     <script>
 
 
-        function getTextLocation(elementId) {
-            var element = document.getElementById(elementId);
-            var startOffset = 0, endOffset = 0;
-            if (typeof window.getSelection != "undefined") {
-                var range = window.getSelection().getRangeAt(0);
-                var preCaretRange = range.cloneRange();
-                preCaretRange.selectNodeContents(element);
-                preCaretRange.setEnd(range.startContainer, range.startOffset);
-                startOffset = preCaretRange.toString().length;
-                endOffset = startOffset + range.toString().length;
-            } else if (typeof document.selection != "undefined" &&
-                document.selection.type != "Control") {
-                var textRange = document.selection.createRange();
-                var preCaretTextRange = document.body.createTextRange();
-                preCaretTextRange.moveToElementText(element);
-                preCaretTextRange.setEndPoint("EndToStart", textRange);
-                startOffset = preCaretTextRange.text.length;
-                endOffset = startOffset + textRange.text.length;
-            }
-
-            var location = {
-                startOffset: startOffset,
-                endOffset: endOffset
-            };
-
-            anotherScript(elementId, location);
-
-            return { start: startOffset, end: endOffset };
-        }
-        function createHighlightedText(elementId, startOffset, endOffset) {
-            var element = document.getElementById(elementId);
-            var text = element.textContent;
-
-            var highlightedText = text.substring(startOffset, endOffset);
-            var beforeText = text.substring(0, startOffset);
-            var afterText = text.substring(endOffset);
-
-            var wrapperDiv = document.createElement('div');
-            wrapperDiv.style.position = 'relative';
-            wrapperDiv.style.display = 'inline-block';
-
-            var highlightDiv = document.createElement('div');
-            highlightDiv.style.position = 'absolute';
-            highlightDiv.style.background = 'rgba(255, 0, 0, 0.3)';
-            highlightDiv.style.width = element.getBoundingClientRect().width + 'px';
-            highlightDiv.style.height = element.getBoundingClientRect().height + 'px';
-
-            var textDiv = document.createElement('div');
-            textDiv.style.position = 'relative';
-            textDiv.textContent = highlightedText;
-
-            wrapperDiv.appendChild(textDiv);
-            wrapperDiv.appendChild(highlightDiv);
-
-            element.innerHTML = '';
-            element.appendChild(wrapperDiv);
-
-            var updateHighlightPosition = function () {
-                console.log("hit1");
-                highlightDiv.style.width = element.getBoundingClientRect().width + 'px';
-                highlightDiv.style.height = element.getBoundingClientRect().height + 'px';
-            };
-
-            window.addEventListener('resize', updateHighlightPosition);
-        }
 
 
 
 
-        function anotherScript(elementId, location) {
-            var element = document.getElementById(elementId);
-            var text = element.textContent;
 
-            // Find the specific text using the location values
-            var selectedText = text.substring(location.startOffset, location.endOffset);
-
-            // Do something with the selected text, e.g., display or manipulate it
-            console.log("Start position: ", location.startOffset);
-            console.log("End position: ", location.endOffset);
-            console.log("Selected text:", selectedText);
-            // Perform other operations with the selected text as needed
-        }
-
-        function createHighlight(elementId, startOffset, endOffset) {
-            var element = document.getElementById(elementId);
-            var textNode = getTextNodes(element)[6]; // Get the first text node within the element
-            var text = textNode.textContent;
-
-            //for (let i = 0; i < 100; i++) {
-            //    console.log(getTextNodes(element)[i].textContent.length);
-            //}
-            startOffset = 1;
-            endOffset = 15;
-            // Check if startOffset is out of bounds
-            if (startOffset < 0 || startOffset >= text.length) {
-                console.error("Invalid startOffset value");
-                console.log(text.length);
-                return;
-            }
-
-            // Check if endOffset is out of bounds
-            if (endOffset <= startOffset || endOffset > text.length) {
-                console.error("Invalid endOffset value");
-                return;
-            }
-
-            // Find the specific text using the location values
-            var selectedText = text.substring(startOffset, endOffset);
-
-            // Create a span element to represent the highlight
-            var highlight = document.createElement("div");
-            highlight.className = "highlight";
-            highlight.id = "newHighlight";
-            //highlight.textContent = selectedText;
-
-            // Get the position and dimensions of the specified text within the element
-            var range = document.createRange();
-            range.setStart(textNode, startOffset);
-            range.setEnd(textNode, endOffset);
-            var rect = range.getBoundingClientRect();
-
-            // Position the highlight element on top of the specified text
-            highlight.style.left = rect.left + "px";
-            highlight.style.top = rect.top + "px";
-            highlight.style.width = rect.width + "px";
-            highlight.style.height = rect.height + "px";
-
-            // Append the highlight element to the highlight container
-            var highlightContainer = document.getElementById("highlightContainer");
-            highlightContainer.appendChild(highlight);
-
-            // Perform other operations with the selected text as needed
-            console.log("Start position: ", startOffset);
-            console.log("End position: ", endOffset);
-            console.log("Selected text:", selectedText);
-
-
-            var handleWindowResize = function () {
-                console.log("hit");
-                var element1 = document.getElementById("newHighlight");
-
-                highlight.style.width = element1.getBoundingClientRect().width + 'px';
-                highlight.style.height = element1.getBoundingClientRect().height + 'px';
-            };
-
-            window.addEventListener('resize', handleWindowResize);
-        }
-
-        //    // Event handler for window resize
-        //function handleWindowResize() {
-        //        var element = document.getElementById("newHighlight");
-        //        var rect = element.getBoundingClientRect();
-        //        element.style.width = rect.width + "px";
-        //        element.style.height = rect.height + "px";
-
-        //}
 
         // Helper function to get text nodes within an element
         function getTextNodes(element) {
@@ -257,21 +48,7 @@
             return textNodes;
         }
 
-    </script>
 
-    <script>
-        function Test(highlight) {
-            console.log(highlight);
-
-            var testElement = document.createElement(highlight.elementType);
-            highlight.reference = testElement;
-            testElement.id = "1";
-            console.log(highlight);
-            return highlight;
-        }
-    </script>
-
-    <script>
         window.deleteElementById = function (elementId) {
             var element = document.getElementById(elementId);
             if (element) {
@@ -315,9 +92,7 @@
 
             return;
         }
-    </script>
 
-    <script>
 
         function getSelectedTextNodeIndex(element) {
             var selectedText = window.getSelection().toString();
@@ -444,10 +219,7 @@
             return textNodes;
         }
 
-    </script>
 
-
-    <script>
         let placeholderString = "a";
         //FirstNodeIndex, FirstNodeCharIndex, LastNodeIndex, LastNodeCharIndex, RawArray
         function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, dotNetHelper, highlightId) {
@@ -593,9 +365,7 @@
             var highlightContainer = document.getElementById("highlightContainer");
             highlightContainer.appendChild(highlight);
         }
-    </script>
 
-    <script>
         //Clears highlight child divs after changing page
         function clearDiv(elementId) {
             const div = document.getElementById(elementId);
@@ -631,9 +401,7 @@
             });
         }
 
-    </script>
 
-    <script>
         //Script to determine which text node was clicked
         let lastSelectedNodeIndex = -1;
         let lastSelectedNode;
@@ -668,8 +436,6 @@
 
         // Attach event listener to the parent div
         let parentDiv;
-        //= document.getElementById('textContainer');
-        //parentDiv.addEventListener('click', getTextNodeNumber);
 
         let dotNet;
         function setupEvent(elementId, dotNetInit) {
@@ -700,48 +466,12 @@
             dotNetHelper.invokeMethodAsync("GetClickedNodeIndex", lastSelectedNodeIndex);
         }
 
-        function addNote() {
-            console.log("Adding Note...");
-            var note = document.createElement("div");
-            note.className = "highlight";
-            note.id = "newNote";
-            //highlight.onclick = function () { { dotNetHelper.invokeMethodAsync("onPernamentHighlightClick", highlightId); } };
+        
 
-            console.log(lastSelectedNode);
+        //window.attachHandlers = () => {
+        //    document.getElementById("textContainer").addEventListener('click', getTextNodeNumber);
+        //};
 
-            //// Get the position and dimensions of the specified text within the element
-            //var range = document.createRange();
-            //range.setStart(textNode, startOffset);
-            //range.setEnd(textNode, endOffset);
-            //var rect = range.getBoundingClientRect();
-
-            var element = document.getElementById('textContainer');
-            var textNode = getTextNodes(element)[lastSelectedNodeIndex]; // Get the first text node within the element
-            console.log(element);
-            var range = document.createRange();
-            range.setStart(textNode, 0);
-            range.setEnd(textNode, 0);
-            var rect = range.getBoundingClientRect();
-
-            // Position the highlight element on top of the specified text
-            note.style.left = rect.left - 50 + "px";
-            note.style.top = rect.top + "px";
-            note.style.width = 100 + "px";
-            note.style.height = rect.height + "px";
-
-            // Append the highlight element to the highlight container
-            var highlightContainer = document.getElementById("noteContainer");
-            highlightContainer.appendChild(note);
-        }
-    </script>
-
-    <script>
-        window.attachHandlers = () => {
-            document.getElementById("textContainer").addEventListener('click', getTextNodeNumber);
-        };
-    </script>
-
-    <script>
         window.localStorageFunctions = {
             setItem: function (key, value) {
                 localStorage.setItem(key, value);
@@ -763,8 +493,5 @@
         };
     </script>
 </body>
-
-
-
 </html>
 
