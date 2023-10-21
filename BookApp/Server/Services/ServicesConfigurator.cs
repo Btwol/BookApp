@@ -1,5 +1,8 @@
-﻿using BookApp.Server.Models.Identity;
+﻿using BookApp.Server.Repositories.Interfaces.Notes;
+using BookApp.Server.Repositories.Notes;
 using BookApp.Server.Services.Identity;
+using BookApp.Server.Services.MapperServices.Mappings;
+using BookApp.Server.Services.Notes;
 using Microsoft.OpenApi.Models;
 
 namespace BookApp.Server.Services
@@ -79,9 +82,24 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IHighlightMapperService), typeof(HighlightMapperService));
             services.AddScoped(typeof(IHighlightRepository), typeof(HighlightRepository));
 
-            services.AddScoped(typeof(ITagServerService), typeof(TagServerService));
+            services.AddScoped(typeof(ITagServerService<>), typeof(TagServerService<>));
             services.AddScoped(typeof(ITagMapperService), typeof(TagMapperService));
             services.AddScoped(typeof(ITagRepository), typeof(TagRepository));
+
+            services.AddScoped(typeof(IHighlightNoteService), typeof(HighlightNoteService));
+            services.AddScoped(typeof(IHighlightNoteMapperService), typeof(HighlightNoteMapperService));
+            services.AddScoped(typeof(IHighlightNoteRepository), typeof(HighlightNoteRepository));
+
+            services.AddScoped(typeof(IParagraphNoteService), typeof(ParagraphNoteService));
+            services.AddScoped(typeof(IParagraphNoteMapperService), typeof(ParagraphNoteMapperService));
+
+            services.AddScoped(typeof(IAnalysisNoteService), typeof(AnalysisNoteService));
+            services.AddScoped(typeof(IAnalysisNoteMapperService), typeof(AnalysisNoteMapperService));
+
+            services.AddScoped(typeof(IChapterNoteService), typeof(ChapterNoteService));
+            services.AddScoped(typeof(IChapterNoteMapperService), typeof(ChapterNoteMapperService));
+
+            services.AddScoped(typeof(INoteRepository<>), typeof(NoteRepository<>));
 
             services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 

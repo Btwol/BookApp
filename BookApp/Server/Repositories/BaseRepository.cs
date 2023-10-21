@@ -34,6 +34,12 @@
             await _context.SaveChangesAsync();
         }
 
+        public virtual async Task DeleteById(int id)
+        {
+            _context.Remove(await FindByConditionsFirstOrDefault(t => t.Id == id));
+            await _context.SaveChangesAsync();
+        }
+
         public virtual async Task Edit(T model)
         {
             _context.Update(model);
@@ -42,17 +48,22 @@
 
         public virtual async Task<IEnumerable<T>> FindAll()
         {
-            return await _context.Set<T>().ToListAsync();
+            return await QueryWithIncludes(_context.Set<T>()).ToListAsync();
         }
 
         public virtual async Task<IEnumerable<T>> FindByConditions(Expression<Func<T, bool>> expresion)
         {
-            return await _context.Set<T>().Where(expresion).ToListAsync();
+            return await QueryWithIncludes(_context.Set<T>()).Where(expresion).ToListAsync();
         }
 
         public virtual async Task<T> FindByConditionsFirstOrDefault(Expression<Func<T, bool>> expresion)
         {
-            return await _context.Set<T>().Where(expresion).FirstOrDefaultAsync();
+            return await QueryWithIncludes(_context.Set<T>()).Where(expresion).FirstOrDefaultAsync();
+        }
+
+        public virtual IQueryable<T> QueryWithIncludes(DbSet<T> querry)
+        {
+            return querry;
         }
     }
 }

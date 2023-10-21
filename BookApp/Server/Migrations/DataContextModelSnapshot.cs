@@ -22,6 +22,21 @@ namespace BookApp.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("AnalysisNoteTag", b =>
+                {
+                    b.Property<int>("AnalysisNotesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnalysisNotesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("AnalysisNoteTag");
+                });
+
             modelBuilder.Entity("BookApp.Server.Models.BookAnalysis", b =>
                 {
                     b.Property<int>("Id")
@@ -146,14 +161,14 @@ namespace BookApp.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "52546e9c-fe6a-4103-851a-f8e2a19568fd",
+                            ConcurrencyStamp = "6ebd6854-b117-4549-b093-c5b57ad57bb5",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "439c9e60-73b6-42b3-a172-cdaf12ad6a49",
+                            ConcurrencyStamp = "ac565a91-bb4f-4d74-bee4-ee037178b891",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -231,7 +246,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d62d7874-3166-4b28-b590-c0195cd3cfd9",
+                            ConcurrencyStamp = "db251ed6-341d-4de8-9a55-d7b329f28580",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -242,13 +257,110 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d2f4bdf8-7da5-45f0-a518-c73fccd28255",
+                            ConcurrencyStamp = "e21dd91e-60f6-4238-8595-e71ac10ed199",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "PlaceholderUser"
                         });
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.AnalysisNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookAnalysisId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookAnalysisId");
+
+                    b.ToTable("AnalysisNotes");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.ChapterNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookAnalysisId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChapterNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookAnalysisId");
+
+                    b.ToTable("ChapterNotes");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.HighlightNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HighlightId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HighlightId");
+
+                    b.ToTable("HighlightNotes");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.ParagraphNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookAnalysisId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PageNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TextNodeNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookAnalysisId");
+
+                    b.ToTable("ParagraphNotes");
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Tag", b =>
@@ -271,6 +383,36 @@ namespace BookApp.Server.Migrations
                     b.HasIndex("BookAnalysisId");
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("ChapterNoteTag", b =>
+                {
+                    b.Property<int>("ChapterNotesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChapterNotesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("ChapterNoteTag");
+                });
+
+            modelBuilder.Entity("HighlightNoteTag", b =>
+                {
+                    b.Property<int>("HighlightNotesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HighlightNotesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("HighlightNoteTag");
                 });
 
             modelBuilder.Entity("HighlightTag", b =>
@@ -403,6 +545,36 @@ namespace BookApp.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ParagraphNoteTag", b =>
+                {
+                    b.Property<int>("ParagraphNotesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ParagraphNotesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("ParagraphNoteTag");
+                });
+
+            modelBuilder.Entity("AnalysisNoteTag", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.Notes.AnalysisNote", null)
+                        .WithMany()
+                        .HasForeignKey("AnalysisNotesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookApp.Server.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BookApp.Server.Models.BookAnalysisUser", b =>
                 {
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
@@ -427,8 +599,48 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
                         .WithMany("Highlights")
                         .HasForeignKey("BookAnalysisId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("BookAnalysis");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.AnalysisNote", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
+                        .WithMany("AnalysisNotes")
+                        .HasForeignKey("BookAnalysisId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("BookAnalysis");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.ChapterNote", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
+                        .WithMany("ChapterNotes")
+                        .HasForeignKey("BookAnalysisId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("BookAnalysis");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.HighlightNote", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.Highlight", "Highlight")
+                        .WithMany("HighlightNotes")
+                        .HasForeignKey("HighlightId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Highlight");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Notes.ParagraphNote", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
+                        .WithMany("ParagraphNotes")
+                        .HasForeignKey("BookAnalysisId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("BookAnalysis");
                 });
@@ -438,10 +650,39 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
                         .WithMany("Tags")
                         .HasForeignKey("BookAnalysisId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("BookAnalysis");
+                });
+
+            modelBuilder.Entity("ChapterNoteTag", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.Notes.ChapterNote", null)
+                        .WithMany()
+                        .HasForeignKey("ChapterNotesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BookAnalysis");
+                    b.HasOne("BookApp.Server.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HighlightNoteTag", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.Notes.HighlightNote", null)
+                        .WithMany()
+                        .HasForeignKey("HighlightNotesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookApp.Server.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HighlightTag", b =>
@@ -510,11 +751,37 @@ namespace BookApp.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ParagraphNoteTag", b =>
+                {
+                    b.HasOne("BookApp.Server.Models.Notes.ParagraphNote", null)
+                        .WithMany()
+                        .HasForeignKey("ParagraphNotesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookApp.Server.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BookApp.Server.Models.BookAnalysis", b =>
                 {
+                    b.Navigation("AnalysisNotes");
+
+                    b.Navigation("ChapterNotes");
+
                     b.Navigation("Highlights");
 
+                    b.Navigation("ParagraphNotes");
+
                     b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
+                {
+                    b.Navigation("HighlightNotes");
                 });
 #pragma warning restore 612, 618
         }

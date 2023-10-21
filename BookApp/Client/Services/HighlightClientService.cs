@@ -1,6 +1,8 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
+using BookApp.Shared.Models.ClientModels.Notes;
 using BookApp.Shared.Models.Services;
+using Microsoft.JSInterop;
 using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
 
@@ -10,9 +12,10 @@ namespace BookApp.Client.Services
     {
         private readonly HttpClient Http;
 
-        public HighlightClientService(HttpClient http)
+        public HighlightClientService(HttpClient http, IJSRuntime jsRuntime)
         {
             Http = http;
+            HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
         public async Task<HttpResponseMessage> AddHighlight(HighlightModel newHighlight)
@@ -28,6 +31,16 @@ namespace BookApp.Client.Services
         public Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<HttpResponseMessage> AddTag(int highlightId, int tagId)
+        {
+            return await Http.PostAsync($"Highlight/AddTag/{highlightId}/{tagId}", null);
+        }
+
+        public async Task<HttpResponseMessage> RemoveTag(int highlightId, int tagId)
+        {
+            return await Http.DeleteAsync($"Highlight/RemoveTag/{highlightId}/{tagId}");
         }
     }
 }

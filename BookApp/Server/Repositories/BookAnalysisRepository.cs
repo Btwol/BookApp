@@ -6,13 +6,15 @@
         {
            
         }
-        public virtual async Task<IEnumerable<BookAnalysis>> FindByConditions(Expression<Func<BookAnalysis, bool>> expresion)
+
+        public override IQueryable<BookAnalysis> QueryWithIncludes(DbSet<BookAnalysis> querry)
         {
-            return await _context.Set<BookAnalysis>()
-                .Where(expresion)
-                .Include(b => b.Highlights).ThenInclude(h => h.Tags)
+            return querry.Include(b => b.Highlights).ThenInclude(h => h.Tags)
+                .Include(b => b.Highlights).ThenInclude(h => h.HighlightNotes).ThenInclude(n => n.Tags)
                 .Include(b => b.Tags)
-                .ToListAsync();
+                .Include(b => b.ParagraphNotes).ThenInclude(n => n.Tags)
+                .Include(b => b.ChapterNotes).ThenInclude(n => n.Tags)
+                .Include(b => b.AnalysisNotes).ThenInclude(n => n.Tags);
         }
     }
 }

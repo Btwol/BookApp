@@ -457,10 +457,7 @@
             //SINGLE NODE
             if (nodeCount == 1) {
                 var element = document.getElementById(elementId);
-                console.log("THE ELEMENT: ");
-                console.log(element);
                 var textNode = getTextNodes(element)[firstNodeIndex];
-                console.log("AFTER READ");
                 var text = textNode.textContent;
 
                 startOffset = firstNodeCharIndex;
@@ -480,6 +477,7 @@
                 range.setStart(textNode, startOffset);
                 range.setEnd(textNode, endOffset);
                 var rect = range.getBoundingClientRect();
+                
 
                 // Position the highlight element on top of the specified text
                 highlight.style.left = rect.left + "px";
@@ -620,12 +618,13 @@
             var contextMenu = document.getElementById("contextMenu");
             contextMenu.style.display = "block";
             const rect = contextMenu.getBoundingClientRect();
-            contextMenu.style.left = rect.left + 'px';
-            contextMenu.style.top = rect.top + 'px';
+            //contextMenu.style.left = rect.left + 'px';
+            //contextMenu.style.top = rect.top + 'px';
             document.addEventListener('click', (event) => {
                 const clickedOutside = !contextMenu.contains(event.target);
+                const clickedOnNotes = document.getElementById("noteContainer").contains(event.target); //Notes container
                 let highlightClicked = event.target.id.startsWith("pernamentHighlight_");
-                if (clickedOutside && !highlightClicked) {
+                if (clickedOutside && !highlightClicked && !clickedOnNotes) {
                     contextMenu.style.display = "none";
                     dotNetHelper.invokeMethodAsync("onPernamentHighlightClickOff");
                 }
@@ -655,6 +654,16 @@
             console.log("Fisrt Node: " + firstNode);
             lastSelectedNode = event.target;
             lastSelectedNodeIndex = firstNode;
+
+            //retrieve position of clicked text node
+            var element = document.getElementById('textContainer');
+            var textNode = getTextNodes(element)[lastSelectedNodeIndex + i]; // Get the first text node within the element
+            var range = document.createRange();
+            range.setStart(textNode, 0);
+            range.setEnd(textNode, 0);
+            var rect = range.getBoundingClientRect();
+
+            dotNet.invokeMethodAsync("onTextNodeClick", lastSelectedNodeIndex, rect.left, rect.top);
         }
 
         // Attach event listener to the parent div
@@ -662,13 +671,22 @@
         //= document.getElementById('textContainer');
         //parentDiv.addEventListener('click', getTextNodeNumber);
 
-        function setupEvent(elementId) {
+        let dotNet;
+        function setupEvent(elementId, dotNetInit) {
             console.log("Element Id: " + elementId);
             parentDiv = document.getElementById(elementId);
             console.log(parentDiv);
             parentDiv.addEventListener('click', getTextNodeNumber);
+            dotNet = dotNetInit;
+            document.addEventListener('scroll', function (e) { dotNet.invokeMethodAsync("ReRender"); }, true);
         }
 
+        function setAddParagraphNotePosition(left, top, elementId) {
+            element = document.getElementById(elementId);
+            element.style.left = left-100 + 'px';
+            element.style.top = top + 'px';
+            element.style.display = 'block';
+        }
 
         function getNodeIndex(node) {
             let index = 0;

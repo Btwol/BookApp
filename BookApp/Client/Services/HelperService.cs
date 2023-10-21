@@ -1,4 +1,6 @@
 ﻿using BookApp.Shared.Models.Services;
+using Microsoft.JSInterop;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
 
@@ -45,6 +47,12 @@ namespace BookApp.Client.Services
         {
             var responseMessage = (await response.Content.ReadFromJsonAsync<ServiceResponse>()).Message;
             throw new Exception(responseMessage);
+        }
+
+        public static async Task AddTokenToRequest(HttpClient Http, IJSRuntime jsRuntime)
+        {
+            var token = await jsRuntime.InvokeAsync<string>("localStorageFunctions.getItem", "currentUserToken");
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

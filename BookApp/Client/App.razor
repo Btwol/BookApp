@@ -1,4 +1,193 @@
-﻿<Blazored.Modal.CascadingBlazoredModal>
+﻿<Blazored.Modal.CascadingBlazoredModal DisableBackgroundCancel="true">
+<style>
+        .button-action {
+            color: #fff;
+            background-color: #1b6ec2;
+            border-color: #1861ac;
+        }
+
+        .left-arrow-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .left-arrow-button::before {
+                content: "";
+                display: inline-block;
+                width: 0;
+                height: 0;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                border-right: 8px solid white;
+                position: absolute;
+                left: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+        .right-arrow-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .right-arrow-button::before {
+                content: "";
+                display: inline-block;
+                width: 0;
+                height: 0;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                border-left: 8px solid white;
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+        .book-analysis-listing {
+            width: 50%;
+            padding: 20px;
+            border: 4px solid darkblue;
+            background: #bfe2f0;
+        }
+
+        .text-box-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0%;
+            width: 20%;
+            height: 20%;
+
+            
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            /*transform: translateX(-50%);
+            z-index: 100; /* Ensure it's above other content */*/
+        }
+
+            /* Adjust the styling as needed */
+            .text-box-bar ul {
+                list-style: none;
+                padding: 0;
+            }
+
+                .text-box-bar ul li {
+                    display: inline;
+                    margin: 0 20px;
+                }
+
+                    .text-box-bar ul li a {
+                        text-decoration: none;
+                        color: #fff;
+                    }
+
+        .context-Menu {
+            z-index: 999;
+            display: none;
+            position: fixed;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 5px;
+            list-style-type: none;
+            bottom: 0px;
+            left: 0px;
+            width: auto; /* 20% width of the entire page width */
+            height:auto;
+        }
+
+            .context-Menu ul {
+                list-style: none;
+                padding: 0;
+            }
+
+                .context-Menu ul li {
+                    display: inline;
+                    margin: 0 20px;
+                }
+
+                    .context-Menu ul li a {
+                        text-decoration: none;
+                        color: #fff;
+                    }
+
+        .tag-item {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-paragraph-note {
+            position: absolute;
+            display: none;
+            z-index: 9999;
+            width: 40px; /* Adjust the width and height as needed */
+            height: 40px;
+            background-color: #007bff; /* Change the background color to your desired color */
+            color: #fff; /* Change the text color to your desired color */
+            text-align: center;
+            line-height: 40px; /* Vertically center the text */
+            font-size: 24px; /* Adjust the font size as needed */
+            cursor: pointer;
+            border: none;
+        }
+
+            .add-paragraph-note:hover {
+                background-color: #0056b3; /* Change the background color on hover */
+            }
+
+        .vertical-bar {
+            position: fixed;
+            top: 0;
+            right: 0%;
+            width: 20%;
+            height: 80%;
+            background-color: #0056b3;
+            color: #fff;
+            overflow-y: auto; /* Make the vertical bar scrollable when content exceeds height */
+        }
+
+        .vertical-bar-2 {
+            position: fixed; /* Fixed position to keep it on the screen */
+            top: 0; /* Align it to the top of the screen */
+            right: 11%; /* 10px margin from the right */
+            width: 10%; /* 20% width of the entire page width */
+            height: 100%; /* Full height of the screen */
+            background-color: #0056b3; /* Background color for the vertical bar */
+            color: #fff;
+        }
+
+        .note-holder {
+        width: 100%;
+            height: auto;
+            max-height: 20%;
+            padding: 5px;
+            margin: 0 auto;
+            background-color: #FFFFE0;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 5px;
+            overflow-y: auto;
+            overflow-x: clip;
+            word-wrap: break-word;
+}
+
+</style>
+
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />

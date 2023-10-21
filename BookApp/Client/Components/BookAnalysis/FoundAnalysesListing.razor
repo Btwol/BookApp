@@ -46,18 +46,8 @@
     private async Task ShowEditAnalysisModal(BookAnalysisModel bookAnalysis)
     {
         var parameters = new ModalParameters().Add(nameof(EditAnalysis.analysisToEdit), bookAnalysis);
-        var options = new ModalOptions() { DisableBackgroundCancel = true };
-        var modal = Modal.Show<EditAnalysis>("Edit Analysis", parameters, options);
-        var result = await modal.Result;
-
-        if (result.Cancelled)
-        {
-            Console.WriteLine("Modal was cancelled");
-        }
-        else if (result.Confirmed)
-        {
-            Console.WriteLine("Modal was closed");
-        }
+        var modal = Modal.Show<EditAnalysis>("Edit Analysis", parameters);
+        await modal.Result;
     }
 
     private async Task DeleteAnalysis(BookAnalysisModel analysisToDelete)

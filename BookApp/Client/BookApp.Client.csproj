@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Shared\BookApp.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middlewares\" />
+  </ItemGroup>
+
 </Project>

@@ -4,6 +4,9 @@
 @using BookApp.Shared.Models.Services
 @using EpubSharp
 @using System.Security.Cryptography
+@using BookApp.Client.Components.ErrorHandler
+@using BookApp.Client.Components.BookAnalysis
+@using BookApp.Client.Components
 @inject IBookAnalysisClientService _bookAnalysisClientService
 
 @if (bookAnalysis is null)
@@ -40,25 +43,25 @@
         if (showCreateAnalysisForm)
         {
             <button class="button-action" @onclick="() => showCreateAnalysisForm = false">Hide create new analysis form</button>
-            <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Create new analysys">
-                <ChildContent><BookApp.Client.Components.BookAnalysis.CreateNewAnalysis loadedBookHash="@loadedBookHash" book="book" @bind-foundBookAnalyses="foundBookAnalyses" /></ChildContent>
-            </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+            <ErrorHandlerComponent ChildComponentName="Create new analysys">
+                <ChildContent><CreateNewAnalysis loadedBookHash="@loadedBookHash" book="book" @bind-foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+            </ErrorHandlerComponent>
         }
         else
         {
             <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
         }
 
-        <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Book Analyses Listing">
-            <ChildContent><BookApp.Client.Components.BookAnalysis.FoundAnalysesListing @bind-selectedBookAnalysis="bookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
-        </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+        <ErrorHandlerComponent ChildComponentName="Book Analyses Listing">
+            <ChildContent><FoundAnalysesListing @bind-selectedBookAnalysis="bookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+        </ErrorHandlerComponent>
         }
     }
 else
 {
-    <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Text Box">
-        <ChildContent><BookApp.Client.Components.TextBox bookAnalysis="bookAnalysis" book="book" /></ChildContent>
-    </BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+    <ErrorHandlerComponent ChildComponentName="Text Box">
+        <ChildContent><TextBox bookAnalysis="bookAnalysis" book="book" /></ChildContent>
+    </ErrorHandlerComponent>
 }
 
 

@@ -12,43 +12,32 @@ namespace BookApp.Client.Services
     public class BookAnalysisClientService : IBookAnalysisClientService
     {
         private readonly HttpClient Http;
-        private readonly IJSRuntime jsRuntime;
 
-        public BookAnalysisClientService(HttpClient http, IJSRuntime jSRuntime)
+        public BookAnalysisClientService(HttpClient http, IJSRuntime jsRuntime)
         {
             Http = http;
-            this.jsRuntime = jSRuntime;
+            HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
         public async Task<HttpResponseMessage> CreateBookAnalysis(BookAnalysisModel newBookAnalysis)
         {
-            await AddTokenToRequest();
             return await Http.PostAsJsonAsync<BookAnalysisModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
         }
 
         public async Task<HttpResponseMessage> DeleteBookAnalysis(int bookAnalysisId)
         {
-            await AddTokenToRequest();
             return await Http.DeleteAsync($"BookAnalysis/DeleteBookAnalysis/{bookAnalysisId}");
         }
 
         public async Task<HttpResponseMessage> EditBookAnalysis(BookAnalysisModel updatedBookAnalysis)
         {
-            await AddTokenToRequest();
             return await Http.PutAsJsonAsync<BookAnalysisModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
         }
 
         public async Task<HttpResponseMessage> GetAnalysisByHash(string bookHash)
         {
-            await AddTokenToRequest();
+            //await AddTokenToRequest();
             return await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
-        }
-
-
-        private async Task AddTokenToRequest()
-        {
-            var token = await jsRuntime.InvokeAsync<string>("localStorageFunctions.getItem", "currentUserToken");
-            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

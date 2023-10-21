@@ -1,9 +1,4 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-using Microsoft.AspNetCore.Identity;
-using System.Reflection;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class BookAnalysisServerService : IBookAnalysisServerService
     {
@@ -109,7 +104,7 @@ namespace BookApp.Server.Services
             return ServiceResponse.Success("Analysis updated.");
         }
 
-        private async Task<bool> CurrentUserIsMemberTypeOfAnalysis(int analysisId, params MemberType[] memberType)
+        public async Task<bool> CurrentUserIsMemberTypeOfAnalysis(int analysisId, params MemberType[] memberType)
         {
             var memberTypes = memberType.ToList();
             return await _bookAnalysisUserRepository.CheckIfExists(bau =>

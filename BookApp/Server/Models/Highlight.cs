@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Update.Internal;
-
-namespace BookApp.Server.Models
+﻿namespace BookApp.Server.Models
 {
-    public class Highlight : IDbModel
+    public class Highlight : ITaggable
     {
         [Key]
         public int Id { get; set; }
@@ -26,7 +24,7 @@ namespace BookApp.Server.Models
         public int BookAnalysisId { get; set; }
         public virtual BookAnalysis BookAnalysis { get; set; }
 
-        public virtual List<Tag> Tags { get; set; }
-        //public virtual List<Note> Notes { get; set; }
+        public virtual List<Tag>? Tags { get; set; } = new();
+        public virtual List<HighlightNote>? HighlightNotes { get; set; }
     }
 }

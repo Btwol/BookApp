@@ -1,7 +1,11 @@
-﻿@using BookApp.Client.Services
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Components.Notes
+@using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared
 @using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
 @using BookApp.Shared.Models.Services
 @using EpubSharp
 @using System.Web
@@ -10,36 +14,56 @@
 @using Microsoft.AspNetCore.Html
 @using Newtonsoft.Json
 @using BookApp.Client.Components
+@using BookApp.Client.Components.ErrorHandler
 
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
+@inject IModalService Modal
 
 <style>
-    .highlight {
-    position: absolute;
-    background-color: rgba(1, 1, 255, 0.8);
-    z-index:9999;
-    transition: zoom 0.2s;
+    .highlight-container
+    {
+        position:absolute;
+    }
+
+        .highlight {
+    position: fixed;
+    background-color: rgba(1, 1, 255, 0.3);
+    z-index:998;
 }
 
-    .small-window-2 {
-            position:absolute;
-              /*margin-top: 5%;
-              margin-bottom: 5%;*/
-             /* margin-right: 5%;
-              margin-left: 5%;*/
-              background-color:ghostwhite;
-              width: 50%;
-              margin: 0 auto;
+    .highlight:hover {
+                        background-color: rgba(100, 100, 255, 0.3);
+                }
+
+.texbox-wrapper
+{
+
+}
+
+.highlight-textbox-wrapper
+{
+        position:relative;
+        height:100%;
+        width:70%;
+        top:0;
+        left:0;                       
+}
+
+    .text-box {
+            position:absolute;   
+            height:100%;
+            width:100%;
+                                    padding: 5px;
     }
 
         .highlight-window-2 {
             position:absolute;
 
       background-color: rgba(255, 1, 0, 0.8);
-      z-index:9999
+      z-index:997
     }
 
         .note-container {
@@ -47,6 +71,8 @@
       left: 0;
       top: 0;
     }
+
+
 
     @if (css != null)
     {
@@ -58,14 +84,38 @@
 
 </style>
 
+
+<div class="highlight-textbox-wrapper">
+    <div id="highlightContainer" class="highlight-container"></div>
+    <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
+        @if (html is not null)
+        {
+            @((MarkupString)html[currentCount].TextContent)
+        }
+    </div>
+</div>
+
+
+    <ErrorHandlerComponent ChildComponentName="Notes component">
+    <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
+                        @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id"
+                        Tags="bookAnalysis.Tags "/>
+    </ChildContent>
+    </ErrorHandlerComponent>
+
+<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
+
+
 @if (isLoading)
 {
     <p>Uploading...</p>
 }
 else
 {
-<ul id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-            @if (currentHighlight != null)
+
+<div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
+            @if (currentHighlight.Id != 0)
             {
                 <p>Current Highlight Id: @currentHighlight.Id</p>
             }
@@ -74,11 +124,10 @@ else
                 <p>currentHighlightId: @currentHighlightId</p>
             }
             <hr />
-            <li @onclick="DeleteHighlight">Delete</li>
-            <li @onclick="ReApplyHighlight">Reapply Highlight</li>
-            <li @onclick="AttachNoteToHighlight">Attach Note ToHighlight</li>
+            <button class="button-action" @onclick="DeleteHighlight">Delete</button>
+            <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
             <hr />
-            @if (currentHighlight != null)
+            @if (currentHighlight.Id != 0)
             {
                 <p>Current Tags: </p>
                 @foreach (var tag in currentHighlight.Tags)
@@ -94,6 +143,7 @@ else
                 <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
             }
 <hr />
+
 <p>Create new tag:</p>
 <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
     <DataAnnotationsValidator />
@@ -102,41 +152,30 @@ else
     <button type="submit">Submit</button>
 </EditForm>
 
-</ul>
-
-<div id="highlightContainer"></div>
-
-<div id="noteContainer" class="note-container"></div>
-
-<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
+</div>
 }
 
-<div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
-    @if(html is not null)
-    {
-        @((MarkupString)html[currentCount].TextContent)
-    }
-</div>
 
 <div class="text-box-bar">
-    <!-- Your navigation bar content goes here -->
-<button class="button-action" @onclick="CreatePermanentHighlight">CreatePermanentHighlight</button>
-<button class="button-action" @onclick="AddNote">Add Note</button>
+    <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
+    <button class="button-action" @onclick="AddNote">Add Note</button>
+    <button class="button-action" @onclick="Refresh">Refresh</button>
 
-<div class="row">
-    <div class="col">
-        <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+    <div class="row">
+        <div class="col">
+            <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+        </div>
+        <div class="col">
+            <p role="status">Current count: @currentCount</p>
+        </div>
+        <div class="col">
+            <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
+        </div>
     </div>
-    <div class="col">
-        <p role="status">Current count: @currentCount</p>
-    </div>
-    <div class="col">
-        <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
-    </div>
-</div>
 </div>
 
 @code{
+
     public TagModel? NewTag { get; set; } = new();
     private List<TagModel> Tags = new();
     private List<IBrowserFile> loadedFiles = new();
@@ -160,8 +199,9 @@ else
     private ElementReference overlayElementRef;
     private ElementReference highlightContainerRef;
 
+
     public string currentHighlightId = string.Empty;
-    private HighlightModel? currentHighlight = null;
+    private HighlightModel currentHighlight = new HighlightModel();
 
     public string text;
     List<EpubTextFile> html;
@@ -173,10 +213,14 @@ else
 
     HighlightModel highlight;
 
-    private int currentCount = 2;
+    private int currentCount =7;
 
     public List<string> overlays = new();
 
+    public int lastClickedTextNodeIndex = -1;
+
+
+    #region Tags
     private string tagSearchKeyword = "";
     private List<TagModel> filteredTags = new();
     private void FilterTags(ChangeEventArgs e)
@@ -228,7 +272,7 @@ else
             return;
         }
 
-        var resposne = await _tagService.AddTag(tagId, HighlightModel.GetElementId(currentHighlightId));
+        var resposne = await _highlightClientService.AddTag(currentHighlight.Id,tagId);
         if(resposne.IsSuccessStatusCode)
         {
             var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
@@ -245,16 +289,20 @@ else
         var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse<List<TagModel>>>();
         Tags = serviceResponse.Content;
     }
+    #endregion
 
-    async Task AttachNoteToHighlight()
+    [JSInvokableAttribute("ReRender")]
+    public async void ReRender()
     {
-        //HighlightModel highlight = HighlightStorage.selectionRanges.FirstOrDefault(h => h.GetElementId() == currentHighlightId);
-        if(highlight is not null)
-        {
-            NoteModel newNote = new NoteModel(highlight);
-            //highlight.Notes.Add(newNote);
-        }
+        Refresh();
     }
+
+    void Refresh()
+    {
+        StateHasChanged();
+    }
+
+
 
     async Task AddNote()
     {
@@ -289,6 +337,7 @@ else
     {
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
         string items = selectionRange.ToString();
+
 
         if (items != "-1")
         {
@@ -327,10 +376,12 @@ else
         }
     }
 
-    [JSInvokableAttribute("GetClickedNodeIndex")]
-    public async void GetClickedNodeIndex(int clickedNodeIndex)
+    [JSInvokableAttribute("onTextNodeClick")]
+    public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-        Console.WriteLine();
+        lastClickedTextNodeIndex = lastSelectedNodeIndex;
+        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
+        StateHasChanged();
     }
 
     [JSInvokableAttribute("onPernamentHighlightClick")]
@@ -346,7 +397,7 @@ else
     public async void onPernamentHighlightClickOff()
     {
         currentHighlightId = string.Empty;
-        currentHighlight = null;
+        currentHighlight = new HighlightModel();
         StateHasChanged();
         //currentHighlightId = idToString;
         //currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
@@ -364,7 +415,7 @@ else
     {
         if(firstRender)
         {
-            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer");
+            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
 
             if (book is not null)
             {   
@@ -378,12 +429,54 @@ else
                 isLoading = false;
                 StateHasChanged();
             }
+
+            foreach(EpubByteFile im in images)
+            {
+                //SaveImages(im.Content, im.ContentType.ToString());
+                //Console.WriteLine("image data:");
+                //Console.WriteLine(im.FileName);
+                //Console.WriteLine(im.ContentType);
+                //Console.WriteLine(im.MimeType);
+                //Console.WriteLine(im.Content);
+            }
         }
 
-        foreach(HighlightModel highlight in bookAnalysis.Highlights)
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+
+        List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
+
+        foreach (HighlightModel highlight in currentHighlights)
         {
             if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+            {
                 await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
+            }
+        }
+    }
+
+    //img upload test
+    public void SaveImages(byte[] imageData, string extension)
+    {
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+        Console.WriteLine(basePath);
+        string imageDirectory = System.IO.Path.Combine(basePath, "wwwroot");
+        Console.WriteLine(imageDirectory);
+        //var imagePath = "images"; // Create a directory under "wwwroot" to store images
+        //var imageDirectory = Path.Combine(webRootPath, imagePath);
+
+        if (!Directory.Exists(imageDirectory))
+        {
+            return;
+            //Directory.CreateDirectory(imageDirectory);
+        }
+
+        var uniqueFileName = $"{Guid.NewGuid()}.{extension}";
+        var filePath = Path.Combine(imageDirectory, uniqueFileName);
+
+        using (var imageStream = new MemoryStream(imageData))
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            imageStream.CopyTo(fileStream);
         }
     }
 
@@ -391,5 +484,6 @@ else
     {
         dotNetRef = DotNetObjectReference.Create(this);
         filteredTags = bookAnalysis.Tags;
+
     }
 }

@@ -1,0 +1,84 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@using BookApp.Client.Components.Notes.AnalysisNotes
+@using BookApp.Client.Components.Notes.ChapterNotes
+@using BookApp.Client.Components.Notes.HighlightNotes
+@using BookApp.Client.Components.Notes.ParagraphNotes
+@using BookApp.Client.Components.ErrorHandler
+
+<div id="noteContainer" class="vertical-bar">
+
+    <ErrorHandlerComponent ChildComponentName="Highlight Notes">
+        <ChildContent>
+            <HighlightNoteComponent @bind-HighlightNotes="HighlightNotes" bookAnalysisId="bookAnalysisId" currentHighlightId="currentHighlightId" Tags="Tags" />
+        </ChildContent>
+    </ErrorHandlerComponent>
+
+    <hr />
+
+    <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+        <ChildContent>
+            <ParagraphNoteComponent @bind-ParagraphNotes="ParagraphNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount"
+                                    lastClickedTextNodeIndex="lastClickedTextNodeIndex" Tags="Tags" />
+        </ChildContent>
+    </ErrorHandlerComponent>
+
+    <hr />
+
+    <ErrorHandlerComponent ChildComponentName="Chapter Notes">
+        <ChildContent>
+            <ChapterNoteComponent @bind-ChapterNotes="ChapterNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount" Tags="Tags" />
+        </ChildContent>
+    </ErrorHandlerComponent>
+
+    <hr />
+
+    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+        <ChildContent>
+            <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags"/>
+        </ChildContent>
+    </ErrorHandlerComponent>
+
+</div>
+
+@code {
+    [Parameter]
+    public List<AnalysisNoteModel> AnalysisNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<AnalysisNoteModel>> AnalysisNotesChanged { get; set; }
+
+    [Parameter]
+    public List<ChapterNoteModel> ChapterNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<ChapterNoteModel>> ChapterNotesChanged { get; set; }
+
+    [Parameter]
+    public List<ParagraphNoteModel> ParagraphNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<ParagraphNoteModel>> ParagraphNotesChanged { get; set; }
+
+    [Parameter]
+    public List<HighlightNoteModel> HighlightNotes { get; set; }
+    [Parameter]
+    public EventCallback<List<HighlightNoteModel>> HighlightNotesChanged { get; set; }
+    
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
+
+    [Parameter]
+    public int currentHighlightId { get; set; }
+
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+
+    [Parameter]
+    public int currentCount { get; set; }
+
+    [Parameter]
+    public int lastClickedTextNodeIndex { get; set; }
+}

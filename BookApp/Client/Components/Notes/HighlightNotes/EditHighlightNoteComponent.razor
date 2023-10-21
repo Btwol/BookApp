@@ -1,0 +1,61 @@
+﻿@using Blazored.Modal
+@using BookApp.Client.Services
+@using BookApp.Client.Services.Interfaces.Notes
+@using BookApp.Shared.Models.ClientModels
+@using BookApp.Shared.Models.ClientModels.Notes
+@inject IHighlightNoteClientService _highlightNoteClientService
+
+<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit highlight">
+    <ChildContent>
+        <EditForm Model="@currentHighlightNote" OnValidSubmit="@EditNote" class="form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+
+            <div class="form-group">
+                <label for="HighlightTitle">Note content:</label>
+                <InputText @bind-Value="currentHighlightNote!.Content" class="form-control" />
+            </div>
+
+            @if (awaitingResponse)
+            {
+                <p>Editing note...</p>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary">Submit</button>
+            }
+        </EditForm>
+    </ChildContent>
+</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+
+<button @onclick="Close">Close</button>
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public HighlightNoteModel HighlightNote { get; set; }
+
+    private bool awaitingResponse = false;
+
+    private HighlightNoteModel currentHighlightNote { get; set; } = new();
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
+    public async Task EditNote()
+    {
+        awaitingResponse = true;
+
+        var response = await _highlightNoteClientService.EditNote(currentHighlightNote);
+        var editedNote = await HelperService.HandleResponse<HighlightNoteModel>(response);
+        HighlightNote = editedNote;
+
+        await Close();
+    }
+
+    protected override void OnInitialized()
+    {
+        currentHighlightNote = HighlightNote;
+    }
+}

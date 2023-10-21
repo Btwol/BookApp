@@ -1,14 +1,11 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Services.Interfaces
+﻿namespace BookApp.Server.Services.Interfaces
 {
-    public interface ITagServerService
+    public interface ITagServerService<T> where T : ITaggable
     {
         public Task<ServiceResponse> GetTags(int bookAnalysisId);
-        public Task<ServiceResponse> AddTag(int highlightId, int tagId);
+        public Task<ServiceResponse> AddTag(int taggedId, int tagId);
         public Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId);
-        public Task<ServiceResponse> RemoveTag(int highlightId, int tagId);
-
+        public Task<ServiceResponse> RemoveTag(int taggedId, int tagId);
+        public Task<ServiceResponse> DeleteTag(int tagId);
     }
 }
