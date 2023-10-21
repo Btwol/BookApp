@@ -2,10 +2,8 @@
 
 namespace BookApp.Server.Services.Interfaces.MapperServices
 {
-    public interface IHighlightMapperService
+    public interface IHighlightMapperService : IMapperService<Highlight, HighlightModel>
     {
-        public Highlight MapToHighlight(HighlightModel highlightModel);
-        public HighlightModel MapToHighlightModel(Highlight highlight);
         public void MapEditHighlight(Highlight highlightToUpdate, HighlightModel updatedHighlightModel);
     }
 }

@@ -2,13 +2,10 @@
 
 namespace BookApp.Server.Services.MapperServices
 {
-    public class HighlightMapperService : IHighlightMapperService
+    public class HighlightMapperService : MapperService<Highlight, HighlightModel>, IHighlightMapperService
     {
-        private readonly IMapper _mapper;
-
-        public HighlightMapperService(IMapper mapper)
+        public HighlightMapperService(IMapper mapper) : base(mapper)
         {
-            _mapper = mapper;
         }
 
         public void MapEditHighlight(Highlight highlightToUpdate, HighlightModel updatedHighlightModel)
@@ -18,16 +15,6 @@ namespace BookApp.Server.Services.MapperServices
             highlightToUpdate.PageNumber = updatedHighlightModel.PageNumber;
             highlightToUpdate.FirstNodeIndex = updatedHighlightModel.FirstNodeIndex;
             highlightToUpdate.LastNodeIndex = updatedHighlightModel.LastNodeIndex;
-        }
-
-        public Highlight MapToHighlight(HighlightModel highlightModel)
-        {
-            return _mapper.Map<Highlight>(highlightModel);
-        }
-
-        public HighlightModel MapToHighlightModel(Highlight highlight)
-        {
-            return _mapper.Map<HighlightModel>(highlight);
         }
     }
 }

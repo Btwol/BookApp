@@ -2,13 +2,13 @@
 {
     public class BookAnalysisServerService : IBookAnalysisServerService
     {
-        private readonly IBookAnalysisMapper _bookAnalysisMapper;
+        private readonly IBookAnalysisMapperService _bookAnalysisMapper;
         private readonly IBookAnalysisRepository _bookAnalysisRepository;
         private readonly IAppUserService _userService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IBaseRepository<BookAnalysisUser> _bookAnalysisUserRepository;
 
-        public BookAnalysisServerService(IBookAnalysisMapper bookAnalysisMapper,
+        public BookAnalysisServerService(IBookAnalysisMapperService bookAnalysisMapper,
             IBookAnalysisRepository bookAnalysisRepository,
             IAppUserService userService,
             UserManager<AppUser> userManager,
@@ -23,13 +23,13 @@
 
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newAnalysisModel)
         {
-            var newAnalysis = _bookAnalysisMapper.MapToBookAnalysis(newAnalysisModel);
+            var newAnalysis = _bookAnalysisMapper.MapToDbModel(newAnalysisModel);
 
             var creator = await _userManager.FindByIdAsync(_userService.GetCurrentUserId().ToString());
             newAnalysis.Users.Add(creator);
 
             newAnalysis = await _bookAnalysisRepository.Create(newAnalysis);
-            newAnalysisModel = _bookAnalysisMapper.MapToBookAnalysisModel(newAnalysis);
+            newAnalysisModel = _bookAnalysisMapper.MapToClientModel(newAnalysis);
 
             return ServiceResponse<BookAnalysisModel>.Success(newAnalysisModel, "Analysis created.");
         }
@@ -62,7 +62,7 @@
                 List<BookAnalysisModel> mappedAnalyses = new();
                 foreach (var analysis in foundAnalyses)
                 {
-                    mappedAnalyses.Add(_bookAnalysisMapper.MapToBookAnalysisModel(analysis));
+                    mappedAnalyses.Add(_bookAnalysisMapper.MapToClientModel(analysis));
                 }
 
                 return ServiceResponse<List<BookAnalysisModel>>.Success(mappedAnalyses, "Analyses retrieved.");
@@ -81,7 +81,7 @@
                 return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);
             }
 
-            var mappedAnalysis = _bookAnalysisMapper.MapToBookAnalysisModel(analysis);
+            var mappedAnalysis = _bookAnalysisMapper.MapToClientModel(analysis);
             return ServiceResponse<BookAnalysisModel>.Success(mappedAnalysis, "Analysis retrieved.");
         }
 

@@ -1,7 +1,4 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class HighlightServerService : IHighlightServerService
     {
@@ -18,9 +15,9 @@ namespace BookApp.Server.Services
         {
             try
             {
-                var mappedHighlight = _highlightMapperService.MapToHighlight(newHighlight);
+                var mappedHighlight = _highlightMapperService.MapToDbModel(newHighlight);
                 var addedHighlight = await _highlightRepository.Create(mappedHighlight);
-                var mappedHighlightModel = _highlightMapperService.MapToHighlightModel(addedHighlight);
+                var mappedHighlightModel = _highlightMapperService.MapToClientModel(addedHighlight);
                 return ServiceResponse<HighlightModel>.Success(mappedHighlightModel, "Highlight created.");
             }
             catch (Exception ex)
@@ -45,7 +42,7 @@ namespace BookApp.Server.Services
                 List<HighlightModel> mappedHighlights = new();
                 foreach (Highlight highlight in highlights)
                 {
-                    mappedHighlights.Add(_highlightMapperService.MapToHighlightModel(highlight));
+                    mappedHighlights.Add(_highlightMapperService.MapToClientModel(highlight));
                 }
 
                 return ServiceResponse<List<HighlightModel>>.Success(mappedHighlights, "Highlights retrieved.");
