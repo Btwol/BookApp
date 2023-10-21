@@ -26,16 +26,17 @@
     .highlight-container
     {
         position:absolute;
-        left: 0;
-      top: 0;
     }
 
         .highlight {
     position: fixed;
-    background-color: rgba(1, 1, 255, 0.8);
+    background-color: rgba(1, 1, 255, 0.3);
     z-index:998;
-    transition: zoom 0.2s;
 }
+
+    .highlight:hover {
+                        background-color: rgba(100, 100, 255, 0.3);
+                }
 
 .texbox-wrapper
 {
@@ -44,18 +45,18 @@
 
 .highlight-textbox-wrapper
 {
-
+        position:relative;
+        height:100%;
+        width:70%;
+        top:0;
+        left:0;                       
 }
 
-    .small-window-2 {
-            position:absolute;
-              /*margin-top: 5%;
-              margin-bottom: 5%;*/
-             /* margin-right: 5%;
-              margin-left: 5%;*/
-              background-color:ghostwhite;
-              width: 50%;
-              margin: 0 auto;
+    .text-box {
+            position:absolute;   
+            height:100%;
+            width:100%;
+                                    padding: 5px;
     }
 
         .highlight-window-2 {
@@ -85,14 +86,12 @@
 
 
 <div class="highlight-textbox-wrapper">
-    <div class="texbox-wrapper">
-        <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="small-window-2">
-            @if (html is not null)
-            {
-                @((MarkupString)html[currentCount].TextContent)
-            }
-            <div id="highlightContainer" class="highlight-container"></div>
-        </div>
+    <div id="highlightContainer" class="highlight-container"></div>
+    <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
+        @if (html is not null)
+        {
+            @((MarkupString)html[currentCount].TextContent)
+        }
     </div>
 </div>
 
@@ -430,25 +429,54 @@ else
                 isLoading = false;
                 StateHasChanged();
             }
+
+            foreach(EpubByteFile im in images)
+            {
+                //SaveImages(im.Content, im.ContentType.ToString());
+                //Console.WriteLine("image data:");
+                //Console.WriteLine(im.FileName);
+                //Console.WriteLine(im.ContentType);
+                //Console.WriteLine(im.MimeType);
+                //Console.WriteLine(im.Content);
+            }
         }
 
-        Console.WriteLine("ReRender...");
-        //await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
         List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
 
         foreach (HighlightModel highlight in currentHighlights)
         {
-            if (await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
-            {
-                await jsRuntime.InvokeVoidAsync("deleteElementById", highlight.GetElementId() + "_s");
-            }
-
             if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
             {
-                //await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
                 await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
             }
+        }
+    }
+
+    //img upload test
+    public void SaveImages(byte[] imageData, string extension)
+    {
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+        Console.WriteLine(basePath);
+        string imageDirectory = System.IO.Path.Combine(basePath, "wwwroot");
+        Console.WriteLine(imageDirectory);
+        //var imagePath = "images"; // Create a directory under "wwwroot" to store images
+        //var imageDirectory = Path.Combine(webRootPath, imagePath);
+
+        if (!Directory.Exists(imageDirectory))
+        {
+            return;
+            //Directory.CreateDirectory(imageDirectory);
+        }
+
+        var uniqueFileName = $"{Guid.NewGuid()}.{extension}";
+        var filePath = Path.Combine(imageDirectory, uniqueFileName);
+
+        using (var imageStream = new MemoryStream(imageData))
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            imageStream.CopyTo(fileStream);
         }
     }
 
@@ -456,5 +484,6 @@ else
     {
         dotNetRef = DotNetObjectReference.Create(this);
         filteredTags = bookAnalysis.Tags;
+
     }
 }

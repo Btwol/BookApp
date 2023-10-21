@@ -448,14 +448,6 @@
 
 
     <script>
-        function getOffset(el) {
-            const rect = el.getBoundingClientRect();
-            return {
-                left: rect.left + window.scrollX,
-                top: rect.top + window.scrollY
-            };
-        }
-
         let placeholderString = "a";
         //FirstNodeIndex, FirstNodeCharIndex, LastNodeIndex, LastNodeCharIndex, RawArray
         function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, dotNetHelper, highlightId) {
@@ -494,18 +486,8 @@
                 highlight.style.height = rect.height + "px";
 
                 // Append the highlight element to the highlight container
-                var highlightContainer = document.getElementById("textContainer");
+                var highlightContainer = document.getElementById("highlightContainer");
                 highlightContainer.appendChild(highlight);
-
-                var aaa = getOffset(highlight);
-                console.log("H top: " + rect.top);
-                console.log("H left: " + rect.left);
-                console.log("ITEM top: " + aaa.top);
-                console.log("ITEM left: " + aaa.left);
-
-                var textboxOffset = getOffset(element);
-                console.log("textboxOffset top: " + textboxOffset.top);
-                console.log("textboxOffset left: " + textboxOffset.left);
 
                 return;
             }
