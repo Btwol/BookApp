@@ -53,24 +53,14 @@
 
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
         {
-            try
+            var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
+            List<BookAnalysisModel> mappedAnalyses = new();
+            foreach (var analysis in foundAnalyses)
             {
-                //int zero = 0;
-                //int a = 10 / zero;
-
-                var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
-                List<BookAnalysisModel> mappedAnalyses = new();
-                foreach (var analysis in foundAnalyses)
-                {
-                    mappedAnalyses.Add(_bookAnalysisMapper.MapToClientModel(analysis));
-                }
-
-                return ServiceResponse<List<BookAnalysisModel>>.Success(mappedAnalyses, "Analyses retrieved.");
+                mappedAnalyses.Add(_bookAnalysisMapper.MapToClientModel(analysis));
             }
-            catch
-            {
-                return ServiceResponse.Error("An error occured while attempting to get analyses by hash.");
-            }
+
+            return ServiceResponse<List<BookAnalysisModel>>.Success(mappedAnalyses, "Analyses retrieved.");
         }
 
         public async Task<ServiceResponse> GetBookAnalysis(int analysisId)

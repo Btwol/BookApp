@@ -1,6 +1,7 @@
 ﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
+    [JwtAuthorize("User")]
     [Route("[controller]")]
     public class TagController : ControllerBase
     {
