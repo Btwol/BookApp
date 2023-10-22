@@ -74,29 +74,29 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
             services.AddScoped(typeof(IBookAnalysisServerService), typeof(BookAnalysisServerService));
-            services.AddScoped(typeof(IBookAnalysisMapperService), typeof(BookAnalysisMapperService));
+            services.AddScoped(typeof(IBookAnalysisMapperService), typeof(BookAnalysisMapper));
             services.AddScoped(typeof(IBookAnalysisRepository), typeof(BookAnalysisRepository));
 
             services.AddScoped(typeof(IHighlightServerService), typeof(HighlightServerService));
-            services.AddScoped(typeof(IHighlightMapperService), typeof(HighlightMapperService));
+            services.AddScoped(typeof(IHighlightMapper), typeof(HighlightMapper));
             services.AddScoped(typeof(IHighlightRepository), typeof(HighlightRepository));
 
             services.AddScoped(typeof(ITagServerService<>), typeof(TagServerService<>));
-            services.AddScoped(typeof(ITagMapperService), typeof(TagMapperService));
+            services.AddScoped(typeof(ITagMapper), typeof(TagMapper));
             services.AddScoped(typeof(ITagRepository), typeof(TagRepository));
 
-            services.AddScoped(typeof(IHighlightNoteService), typeof(HighlightNoteService));
-            services.AddScoped(typeof(IHighlightNoteMapperService), typeof(HighlightNoteMapperService));
+            services.AddScoped(typeof(IHighlightNoteServerService), typeof(HighlightNoteServerService));
+            services.AddScoped(typeof(IHighlightNoteMapper), typeof(HighlightNoteMapper));
             services.AddScoped(typeof(IHighlightNoteRepository), typeof(HighlightNoteRepository));
 
-            services.AddScoped(typeof(IParagraphNoteService), typeof(ParagraphNoteService));
-            services.AddScoped(typeof(IParagraphNoteMapperService), typeof(ParagraphNoteMapperService));
+            services.AddScoped(typeof(IParagraphNoteServerService), typeof(ParagraphNoteServerService));
+            services.AddScoped(typeof(IParagraphNoteMapper), typeof(ParagraphNoteMapper));
 
-            services.AddScoped(typeof(IAnalysisNoteService), typeof(AnalysisNoteService));
-            services.AddScoped(typeof(IAnalysisNoteMapperService), typeof(AnalysisNoteMapperService));
+            services.AddScoped(typeof(IAnalysisNoteServerService), typeof(AnalysisNoteServerService));
+            services.AddScoped(typeof(IAnalysisNoteMapper), typeof(AnalysisNoteMapper));
 
-            services.AddScoped(typeof(IChapterNoteService), typeof(ChapterNoteService));
-            services.AddScoped(typeof(IChapterNoteMapperService), typeof(ChapterNoteMapperService));
+            services.AddScoped(typeof(IChapterNoteServerService), typeof(ChapterNoteServerService));
+            services.AddScoped(typeof(IChapterNoteMapper), typeof(ChapterNoteMapper));
 
             services.AddScoped(typeof(INoteRepository<>), typeof(NoteRepository<>));
 

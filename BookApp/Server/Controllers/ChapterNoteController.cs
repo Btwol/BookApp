@@ -5,10 +5,10 @@
     [Route("[controller]")]
     public class ChapterNoteController : ControllerBase
     {
-        private readonly IChapterNoteService _chapterNoteService;
+        private readonly IChapterNoteServerService _chapterNoteService;
         private readonly ITagServerService<ChapterNote> _tagService;
 
-        public ChapterNoteController(IChapterNoteService chapterNoteService, ITagServerService<ChapterNote> tagService)
+        public ChapterNoteController(IChapterNoteServerService chapterNoteService, ITagServerService<ChapterNote> tagService)
         {
             _chapterNoteService = chapterNoteService;
             _tagService = tagService;

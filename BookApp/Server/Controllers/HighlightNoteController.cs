@@ -5,10 +5,10 @@
     [Route("[controller]")]
     public class HighlightNoteController : ControllerBase
     {
-        private readonly IHighlightNoteService _highlightNoteService;
+        private readonly IHighlightNoteServerService _highlightNoteService;
         private readonly ITagServerService<HighlightNote> _tagService;
 
-        public HighlightNoteController(IHighlightNoteService highlightNoteService, ITagServerService<HighlightNote> tagService)
+        public HighlightNoteController(IHighlightNoteServerService highlightNoteService, ITagServerService<HighlightNote> tagService)
         {
             _highlightNoteService = highlightNoteService;
             _tagService = tagService;

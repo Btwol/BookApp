@@ -1,8 +1,8 @@
 ﻿namespace BookApp.Server.Services.MapperServices
 {
-    public class BookAnalysisMapperService : MapperService<BookAnalysis, BookAnalysisModel>, IBookAnalysisMapperService
+    public class BookAnalysisMapper : MapperService<BookAnalysis, BookAnalysisModel>, IBookAnalysisMapperService
     {
-        public BookAnalysisMapperService(IMapper mapper) : base(mapper)
+        public BookAnalysisMapper(IMapper mapper) : base(mapper)
         {
         }
 

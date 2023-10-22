@@ -3,9 +3,9 @@
     public class HighlightServerService : IHighlightServerService
     {
         private readonly IHighlightRepository _highlightRepository;
-        private readonly IHighlightMapperService _highlightMapperService;
+        private readonly IHighlightMapper _highlightMapperService;
 
-        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapperService highlightMapperService)
+        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapper highlightMapperService)
         {
             _highlightRepository = highlightRepository;
             _highlightMapperService = highlightMapperService;

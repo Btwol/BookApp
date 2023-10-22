@@ -4,11 +4,11 @@ namespace BookApp.Server.Services
     public class TagServerService<T> : ITagServerService<T> where T : ITaggable
     {
         private readonly ITagRepository _tagRepository;
-        private readonly ITagMapperService _tagMapperService;
+        private readonly ITagMapper _tagMapperService;
         private readonly IBaseRepository<T> _taggedRepository;
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
 
-        public TagServerService(IBaseRepository<T> taggedRepository, ITagMapperService tagMapperService, ITagRepository tagRepository,
+        public TagServerService(IBaseRepository<T> taggedRepository, ITagMapper tagMapperService, ITagRepository tagRepository,
             IBookAnalysisServerService bookAnalysisServerService)
         {
             _taggedRepository = taggedRepository;

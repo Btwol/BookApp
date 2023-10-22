@@ -2,14 +2,14 @@
 
 namespace BookApp.Server.Services.Notes
 {
-    public abstract class NoteService<D, C> : INoteService<D, C> where D : INoteDBModel where C : INoteClientModel
+    public abstract class NoteServerService<D, C> : INoteServerService<D, C> where D : INoteDBModel where C : INoteClientModel
     {
         protected readonly INoteRepository<D> _noteRepository;
         protected readonly IBookAnalysisRepository _bookAnalysisRepository;
         protected readonly IBookAnalysisServerService _bookAnalysisServerService;
-        protected readonly INoteMapperService<D, C> _noteMapper;
+        protected readonly INoteMapper<D, C> _noteMapper;
 
-        protected NoteService(INoteMapperService<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
+        protected NoteServerService(INoteMapper<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
             INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
         {
             _noteMapper = noteMapper;

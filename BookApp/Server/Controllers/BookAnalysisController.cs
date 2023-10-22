@@ -38,6 +38,8 @@
         [HttpGet("GetAnalysisByHash/{bookHash}")]
         public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
         {
+            var a = 1;
+            Console.WriteLine(a / 0);
             return await _bookAnalysisService.GetAnalysisByHash(bookHash);
         }
 

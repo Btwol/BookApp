@@ -2,9 +2,9 @@
 
 namespace BookApp.Server.Services.Notes
 {
-    public class ChapterNoteService : NoteService<ChapterNote, ChapterNoteModel>, IChapterNoteService
+    public class ChapterNoteServerService : NoteServerService<ChapterNote, ChapterNoteModel>, IChapterNoteServerService
     {
-        public ChapterNoteService(IChapterNoteMapperService chapterNoteMapperService, IBookAnalysisRepository bookAnalysisRepository,
+        public ChapterNoteServerService(IChapterNoteMapper chapterNoteMapperService, IBookAnalysisRepository bookAnalysisRepository,
             INoteRepository<ChapterNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
             : base(chapterNoteMapperService, bookAnalysisRepository, noteRepository, bookAnalysisServerService)
         {

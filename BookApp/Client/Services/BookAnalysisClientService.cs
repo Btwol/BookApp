@@ -32,8 +32,9 @@ namespace BookApp.Client.Services
 
         public async Task<HttpResponseMessage> GetAnalysisByHash(string bookHash)
         {
-            //await AddTokenToRequest();
-            return await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
+            var response = await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
+            await HelperService.HandleResponse<List<BookAnalysisModel>>(response);
+            return response;
         }
     }
 }

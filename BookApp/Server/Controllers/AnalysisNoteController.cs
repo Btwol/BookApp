@@ -5,10 +5,10 @@
     [Route("[controller]")]
     public class AnalysisNoteController : ControllerBase
     {
-        private readonly IAnalysisNoteService _analysisNoteService;
+        private readonly IAnalysisNoteServerService _analysisNoteService;
         private readonly ITagServerService<AnalysisNote> _tagService;
 
-        public AnalysisNoteController(IAnalysisNoteService analysisNoteService, ITagServerService<AnalysisNote> tagService)
+        public AnalysisNoteController(IAnalysisNoteServerService analysisNoteService, ITagServerService<AnalysisNote> tagService)
         {
             _analysisNoteService = analysisNoteService;
             _tagService = tagService;

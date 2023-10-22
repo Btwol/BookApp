@@ -108,7 +108,7 @@ else
         showLoadingAnalysis = true;
 
         var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
-        foundBookAnalyses = await HelperService.HandleResponse<List<BookAnalysisModel>>(response);
+        foundBookAnalyses = null;//await HelperService.HandleResponse<List<BookAnalysisModel>>(response);
 
         showLoadingAnalysis = false;
     }

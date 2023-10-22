@@ -1,8 +1,8 @@
 ﻿namespace BookApp.Server.Services.MapperServices
 {
-    public class HighlightMapperService : MapperService<Highlight, HighlightModel>, IHighlightMapperService
+    public class HighlightMapper : MapperService<Highlight, HighlightModel>, IHighlightMapper
     {
-        public HighlightMapperService(IMapper mapper) : base(mapper)
+        public HighlightMapper(IMapper mapper) : base(mapper)
         {
         }
 
