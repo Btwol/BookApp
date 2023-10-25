@@ -16,24 +16,21 @@ namespace BookApp.Client.Services
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddTag(int tagId, int highlightId, TaggedType taggedType)
+        public async Task<TagModel> CreateNewTag(TagModel newTag, int bookAnalysisId)
         {
-            return await Http.PostAsync($"Tag/AddTag/{highlightId}/{tagId}/{taggedType}", null);
+            var response = await Http.PostAsJsonAsync<TagModel>($"Tag/CreateNewTag/{bookAnalysisId}", newTag);
+            return await HelperService.HandleResponse<TagModel>(response);
         }
 
-        public async Task<HttpResponseMessage> CreateNewTag(TagModel newTag, int bookAnalysisId)
+        public Task DeleteTag(int tagId)
         {
-            return await Http.PostAsJsonAsync<TagModel>($"Tag/CreateNewTag/{bookAnalysisId}", newTag);
+            throw new NotImplementedException();
         }
 
-        public async Task<HttpResponseMessage> GetTags(int bookAnalysisId)
+        public async Task<List<TagModel>> GetTags(int bookAnalysisId)
         {
-            return await Http.GetAsync($"Tag/GetTags/{bookAnalysisId}");
-        }
-
-        public async Task<HttpResponseMessage> RemoveTag(int tagId, int highlightId)
-        {
-            return await Http.DeleteAsync($"Tag/RemoveTag/{highlightId}/{tagId}");
+            var response = await Http.GetAsync($"Tag/GetTags/{bookAnalysisId}");
+            return await HelperService.HandleResponse<List<TagModel>>(response);
         }
     }
 }

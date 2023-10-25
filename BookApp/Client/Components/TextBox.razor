@@ -235,13 +235,9 @@ else
     {
         if(NewTag is not null)
         {
-            var response = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
-            if(response.IsSuccessStatusCode)
-            {
-                var newTag = await HelperService.ReadServiceResponse<TagModel>(response);
-                bookAnalysis.Tags.Add(newTag);
-                NewTag = new();
-            }
+            var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
+            bookAnalysis.Tags.Add(newTag);
+            NewTag = new();
         }
     }
 
@@ -252,15 +248,12 @@ else
             return;
         }
 
-        var resposne = await _tagService.RemoveTag(tagId, HighlightModel.GetElementId(currentHighlightId));
-        if(resposne.IsSuccessStatusCode)
+        await _highlightClientService.RemoveTag(tagId, HighlightModel.GetElementId(currentHighlightId));
+        var tagToRemove = currentHighlight.Tags.FirstOrDefault(t => t.Id == tagId);
+        if(tagToRemove is not null)
         {
-            var tagToRemove = currentHighlight.Tags.FirstOrDefault(t => t.Id == tagId);
-            if(tagToRemove is not null)
-            {
-                currentHighlight.Tags.Remove(tagToRemove);
-                StateHasChanged();
-            }
+            currentHighlight.Tags.Remove(tagToRemove);
+            StateHasChanged();
         }
     }
 
@@ -271,22 +264,17 @@ else
             return;
         }
 
-        var resposne = await _highlightClientService.AddTag(currentHighlight.Id,tagId);
-        if(resposne.IsSuccessStatusCode)
+        await _highlightClientService.AddTag(currentHighlight.Id,tagId);
+        var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+        if(tagToAdd is not null)
         {
-            var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
-            if(tagToAdd is not null)
-            {
-                currentHighlight.Tags.Add(tagToAdd);
-            }
+            currentHighlight.Tags.Add(tagToAdd);
         }
     }
 
     async Task LoadTags()
     {
-        var response = await _tagService.GetTags(bookAnalysis.Id);
-        var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse<List<TagModel>>>();
-        Tags = serviceResponse.Content;
+        Tags = bookAnalysis.Tags;
     }
     #endregion
 
@@ -319,12 +307,9 @@ else
         var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlightId);
         if (highlightToRemove is not null)
         {
-            var response = await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
-            if (true)
-            {
-                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
-                bookAnalysis.Highlights.Remove(highlightToRemove);
-            }
+            await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
+            await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
+            bookAnalysis.Highlights.Remove(highlightToRemove);    
         }
     }
 
@@ -360,13 +345,8 @@ else
             await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
 
-            var response = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
-            if(response.IsSuccessStatusCode)
-            {
-                var newHighlight = await HelperService.ReadServiceResponse<HighlightModel>(response);
-                bookAnalysis.Highlights.Add(newHighlight);
-            }
-
+            var newHighlight = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
+            bookAnalysis.Highlights.Add(newHighlight);
         }
     }
 

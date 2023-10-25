@@ -21,11 +21,6 @@
     {
         <button type="submit" class="btn btn-primary">Submit</button>
     }
-
-    @if (!bookAnalysisCreationSuccessful)
-    {
-        <div class="alert bg-danger text-white alert-dismissible">@bookAnalysisCreationResponseMessage</div>
-    }
 </EditForm> 
 
 @code {
@@ -42,26 +37,26 @@
     public EventCallback<List<BookAnalysisModel>> foundBookAnalysesChanged { get; set; }
 
     private bool awaitingResponse = false;
-    private string bookAnalysisCreationResponseMessage = "";
-    private bool bookAnalysisCreationSuccessful = true;
 
     private BookAnalysisModel newAnalysis { get; set; } = new();
 
     public async Task CreateAnalysis()
     {
         awaitingResponse = true;
+        try
+        {
+            newAnalysis.BookHash = loadedBookHash;
+            newAnalysis.Authors = book.Authors.ToList();
+            newAnalysis.BookTitle = book.Title;
 
-        newAnalysis.BookHash = loadedBookHash;
-        newAnalysis.Authors = book.Authors.ToList();
-        newAnalysis.BookTitle = book.Title;
+            var newlyCreatedAnalysis = await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
 
-        var response = await _bookAnalysisClientService.CreateBookAnalysis(newAnalysis);
-        var newlyCreatedAnalysis = await HelperService.HandleResponse<BookAnalysisModel>(response);
-        bookAnalysisCreationSuccessful = true;
-        foundBookAnalyses.Insert(0, newlyCreatedAnalysis);
-
-        await foundBookAnalysesChanged.InvokeAsync(foundBookAnalyses);
-
-        awaitingResponse = false;
+            foundBookAnalyses.Insert(0, newlyCreatedAnalysis);
+            await foundBookAnalysesChanged.InvokeAsync(foundBookAnalyses);
+        }
+        finally
+        {
+            awaitingResponse = false;
+        }
     }
 }

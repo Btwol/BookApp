@@ -42,7 +42,7 @@
 
         if (response.IsSuccessStatusCode)
         {
-            var user = await HelperService.ReadServiceResponse<LoginResponse>(response);
+            var user = await HelperService.HandleResponse<LoginResponse>(response);
             await SetUserInLocalStorage(user);
             Navigation.NavigateTo("/redirect");
             await JSRuntime.InvokeVoidAsync("reloadPage");
@@ -50,7 +50,7 @@
         else
         {
             loginSuccessful = false;
-            var responseMessage = await HelperService.ReadServiceResponse(response);
+            var responseMessage = await HelperService.HandleResponse(response);
             loginRequestResponseMessage = responseMessage.Message;
         }
 

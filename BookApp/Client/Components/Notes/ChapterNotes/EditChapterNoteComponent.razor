@@ -47,8 +47,7 @@
     {
         awaitingResponse = true;
 
-        var response = await _chapterNoteClientService.EditNote(currentChapterNote);
-        var editedNote = await HelperService.HandleResponse<ChapterNoteModel>(response);
+        var editedNote = await _chapterNoteClientService.EditNote(currentChapterNote);
         ChapterNote = editedNote;
 
         await Close();

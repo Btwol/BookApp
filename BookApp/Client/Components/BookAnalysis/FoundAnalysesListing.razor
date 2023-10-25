@@ -41,8 +41,6 @@
     [Parameter]
     public BookAnalysisModel selectedBookAnalysis { get; set; }
 
-    bool showEditAnalysisForm = false;
-
     private async Task ShowEditAnalysisModal(BookAnalysisModel bookAnalysis)
     {
         var parameters = new ModalParameters().Add(nameof(EditAnalysis.analysisToEdit), bookAnalysis);
@@ -52,11 +50,10 @@
 
     private async Task DeleteAnalysis(BookAnalysisModel analysisToDelete)
     {
-        var response = await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
-        await HelperService.HandleResponse(response);
+        await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
 
         foundBookAnalyses.Remove(analysisToDelete);
-        StateHasChanged();    
+        StateHasChanged();
     }
 
     private async Task LoadAnalysis(BookAnalysisModel selectedBookAnalysis)

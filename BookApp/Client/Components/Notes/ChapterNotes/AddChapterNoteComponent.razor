@@ -56,8 +56,7 @@
         newChapterNote.BookAnalysisId = bookAnalysisId;
         newChapterNote.ChapterNumber = pageNumber;
 
-        var response = await _chapterNoteClientService.AddNote(newChapterNote);
-        var newNote = await HelperService.HandleResponse<ChapterNoteModel>(response);
+        var newNote = await _chapterNoteClientService.AddNote(newChapterNote);
         ChapterNotes.Add(newNote);
 
         await Close();

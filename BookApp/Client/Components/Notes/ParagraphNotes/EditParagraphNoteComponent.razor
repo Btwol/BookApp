@@ -47,8 +47,7 @@
     {
         awaitingResponse = true;
 
-        var response = await _paragraphNoteClientService.EditNote(currentParagraphNote);
-        var editedNote = await HelperService.HandleResponse<ParagraphNoteModel>(response);
+        var editedNote = await _paragraphNoteClientService.EditNote(currentParagraphNote);
         ParagraphNote = editedNote;
 
         await Close();

@@ -47,7 +47,7 @@
     {
         awaitingResponse = true;
         var response = await Http.PostAsJsonAsync<RegisterRequest>($"Account/Register", newUser);
-        var serviceResponse = await HelperService.ReadServiceResponse(response);
+        var serviceResponse = await HelperService.HandleResponse(response);
         if (response.IsSuccessStatusCode)
         {
             Navigation.NavigateTo("/login");

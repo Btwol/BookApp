@@ -4,9 +4,11 @@
 @using BookApp.Client.Services.Interfaces.Notes
 @using BookApp.Shared.Models.ClientModels
 @using BookApp.Shared.Models.ClientModels.Notes
+@using BookApp.Client.Components.ErrorHandler
 
-<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Manage tags">
+<ErrorHandlerComponent ChildComponentName="Manage tags">
     <ChildContent>
+        <EditForm Model="@Tags" OnValidSubmit="@Submit" class="form">
         @if (!awaitingResponse)
         {
             <h3>Current Tags:</h3>
@@ -30,9 +32,9 @@
         {
             <h3>Awaiting response...</h3>
         }
-        
+        </EditForm>
     </ChildContent>
-</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+</ErrorHandlerComponent>
 
 <button class="button-action" @onclick="Close">Close</button>
 
@@ -51,27 +53,44 @@
 
     private bool awaitingResponse = false;
 
+    private List<int> tagsToAdd = new();
+    private List<int> tagsToRemove = new();
+    private int selectedTagId = 0;
+    private bool addTag = true;
     private async Task Close() => await BlazoredModal.CloseAsync();
+
+    async Task Submit()
+    {
+        awaitingResponse = true;
+        try
+        {
+            if(addTag)
+            {
+                await tagManagerClientService.AddTag(taggedItem.Id, selectedTagId);
+                taggedItem.Tags.Add(Tags.FirstOrDefault(t => t.Id == selectedTagId));
+            }
+            else
+            {
+                await tagManagerClientService.RemoveTag(taggedItem.Id, selectedTagId);
+                taggedItem.Tags.Remove(taggedItem.Tags.FirstOrDefault(t => t.Id == selectedTagId));
+            }
+        }
+        finally
+        {
+            awaitingResponse = false;
+            selectedTagId = 0;
+        }
+    }
 
     public async Task AddTag(int tagId)
     {
-        awaitingResponse = true;
-
-        var response = await tagManagerClientService.AddTag(taggedItem.Id, tagId);
-        await HelperService.HandleResponse(response);
-        taggedItem.Tags.Add(Tags.FirstOrDefault(t => t.Id == tagId));
-
-        awaitingResponse = false;
+        selectedTagId = tagId;
+        addTag = true;
     }
 
     public async Task RemoveTag(int tagId)
     {
-        awaitingResponse = true;
-
-        var response = await tagManagerClientService.RemoveTag(taggedItem.Id, tagId);
-        await HelperService.HandleResponse(response);
-        taggedItem.Tags.Remove(taggedItem.Tags.FirstOrDefault(t => t.Id == tagId));
-
-        awaitingResponse = false;
+        selectedTagId = tagId;
+        addTag = false;
     }
 }

@@ -15,29 +15,35 @@ namespace BookApp.Client.Services.Notes
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddNote(HighlightNoteModel highlightNoteModel)
+        public async Task<HighlightNoteModel> AddNote(HighlightNoteModel highlightNoteModel)
         {
-            return await Http.PostAsJsonAsync($"HighlightNote/AddHighlightNote", highlightNoteModel);
+            var response = await Http.PostAsJsonAsync($"HighlightNote/AddHighlightNote", highlightNoteModel);
+            return await HelperService.HandleResponse<HighlightNoteModel>(response);
         }
 
-        public async Task<HttpResponseMessage> DeleteNote(int noteId)
+        public async Task DeleteNote(int noteId, int bookAnalysisId)
         {
-            return await Http.DeleteAsync($"HighlightNote/DeleteHighlightNote/{noteId}");
+            var response = await Http.DeleteAsync($"HighlightNote/DeleteHighlightNote/{noteId}/{bookAnalysisId}");
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> EditNote(HighlightNoteModel highlightNoteModel)
+        public async Task<HighlightNoteModel> EditNote(HighlightNoteModel highlightNoteModel)
         {
-            return await Http.PutAsJsonAsync($"HighlightNote/EditHighlightNote", highlightNoteModel);
+            var response = await Http.PutAsJsonAsync($"HighlightNote/EditHighlightNote", highlightNoteModel);
+            return await HelperService.HandleResponse<HighlightNoteModel>(response);
         }
 
-        public async Task<HttpResponseMessage> AddTag(int highlightNoteId, int tagId)
+        public async Task AddTag(int highlightNoteId, int tagId)
         {
-            return await Http.PostAsync($"HighlightNote/AddTag/{highlightNoteId}/{tagId}", null);
+            var response = await Http.PostAsync($"HighlightNote/AddTag/{highlightNoteId}/{tagId}", null);
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> RemoveTag(int highlightNoteId, int tagId)
+        public async Task RemoveTag(int highlightNoteId, int tagId)
         {
-            return await Http.DeleteAsync($"HighlightNote/RemoveTag/{highlightNoteId}/{tagId}");
+            var response = await Http.DeleteAsync($"HighlightNote/RemoveTag/{highlightNoteId}/{tagId}");
+            await HelperService.HandleResponse(response);
         }
     }
+
 }

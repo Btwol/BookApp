@@ -62,9 +62,7 @@
 
     private async Task DeleteAnalysisNote(int noteId)
     {
-        var response = await _analysisNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
+        await _analysisNoteClientService.DeleteNote(noteId, bookAnalysisId);
         var noteToRemove = AnalysisNotes.FirstOrDefault(n => n.Id == noteId);
         AnalysisNotes.Remove(noteToRemove);
     }

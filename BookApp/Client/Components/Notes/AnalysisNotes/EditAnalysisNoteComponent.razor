@@ -47,8 +47,7 @@
     {
         awaitingResponse = true;
 
-        var response = await _analysisNoteClientService.EditNote(currentAnalysisNote);
-        var editedNote = await HelperService.HandleResponse<AnalysisNoteModel>(response);
+        var editedNote = await _analysisNoteClientService.EditNote(currentAnalysisNote);
         AnalysisNote = editedNote;
 
         await Close();

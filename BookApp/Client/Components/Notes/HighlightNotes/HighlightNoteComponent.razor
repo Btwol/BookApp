@@ -53,8 +53,7 @@
             NewHighlightNote.HighlightId = currentHighlightId;
             NewHighlightNote.BookAnalysisId = bookAnalysisId;
 
-            var response = await _highlightNoteClientService.AddNote(NewHighlightNote);
-            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
+            var newNote = await _highlightNoteClientService.AddNote(NewHighlightNote);
             HighlightNotes.Add(newNote);
         }
     }
@@ -68,8 +67,7 @@
 
     private async Task DeleteHighlightNote(int noteId)
     {
-        var response = await _highlightNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
+        await _highlightNoteClientService.DeleteNote(noteId, bookAnalysisId);
 
         var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
         HighlightNotes.Remove(noteToRemove);

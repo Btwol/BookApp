@@ -4,8 +4,8 @@ namespace BookApp.Client.Services.Interfaces.Notes
 {
     public interface INoteClientService<T> : ITagManagerClientService where T : INoteClientModel
     {
-        public Task<HttpResponseMessage> AddNote(T noteModel);
-        public Task<HttpResponseMessage> EditNote(T noteModel);
-        public Task<HttpResponseMessage> DeleteNote(int noteId);
+        public Task<T> AddNote(T noteModel);
+        public Task<T> EditNote(T noteModel);
+        public Task DeleteNote(int noteId, int bookAnalysisId);
     }
 }

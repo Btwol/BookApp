@@ -15,29 +15,35 @@ namespace BookApp.Client.Services.Notes
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddNote(ChapterNoteModel chapterNoteModel)
+        public async Task<ChapterNoteModel> AddNote(ChapterNoteModel chapterNoteModel)
         {
-            return await Http.PostAsJsonAsync<ChapterNoteModel>($"ChapterNote/AddChapterNote", chapterNoteModel);
+            var response = await Http.PostAsJsonAsync($"ChapterNote/AddChapterNote", chapterNoteModel);
+            return await HelperService.HandleResponse<ChapterNoteModel>(response);
         }
 
-        public async Task<HttpResponseMessage> DeleteNote(int noteId)
+        public async Task DeleteNote(int noteId, int bookAnalysisId)
         {
-            return await Http.DeleteAsync($"ChapterNote/DeleteChapterNote/{noteId}");
+            var response = await Http.DeleteAsync($"ChapterNote/DeleteChapterNote/{noteId}/{bookAnalysisId}");
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> EditNote(ChapterNoteModel chapterNoteModel)
+        public async Task<ChapterNoteModel> EditNote(ChapterNoteModel chapterNoteModel)
         {
-            return await Http.PutAsJsonAsync($"ChapterNote/EditChapterNote", chapterNoteModel);
+            var response = await Http.PutAsJsonAsync($"ChapterNote/EditChapterNote", chapterNoteModel);
+            return await HelperService.HandleResponse<ChapterNoteModel>(response);
         }
 
-        public async Task<HttpResponseMessage> AddTag(int chapterNoteId, int tagId)
+        public async Task AddTag(int chapterNoteId, int tagId)
         {
-            return await Http.PostAsync($"ChapterNote/AddTag/{chapterNoteId}/{tagId}", null);
+            var response = await Http.PostAsync($"ChapterNote/AddTag/{chapterNoteId}/{tagId}", null);
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> RemoveTag(int chapterNoteId, int tagId)
+        public async Task RemoveTag(int chapterNoteId, int tagId)
         {
-            return await Http.DeleteAsync($"ChapterNote/RemoveTag/{chapterNoteId}/{tagId}");
+            var response = await Http.DeleteAsync($"ChapterNote/RemoveTag/{chapterNoteId}/{tagId}");
+            await HelperService.HandleResponse(response);
         }
     }
+
 }

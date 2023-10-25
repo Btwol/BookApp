@@ -16,14 +16,16 @@ namespace BookApp.Client.Services
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddHighlight(HighlightModel newHighlight)
+        public async Task<HighlightModel> AddHighlight(HighlightModel newHighlight)
         {
-            return await Http.PostAsJsonAsync($"Highlight/AddHighlight", newHighlight);
+            var response = await Http.PostAsJsonAsync($"Highlight/AddHighlight", newHighlight);
+            return await HelperService.HandleResponse<HighlightModel>(response);
         }
 
-        public async Task<HttpResponseMessage> DeleteHighlight(int highlightId)
+        public async Task DeleteHighlight(int highlightId)
         {
-            return await Http.DeleteAsync($"Highlight/DeleteHighlight/{highlightId}");
+            var response = await Http.DeleteAsync($"Highlight/DeleteHighlight/{highlightId}");
+            await HelperService.HandleResponse(response);
         }
 
         public Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
@@ -31,14 +33,16 @@ namespace BookApp.Client.Services
             throw new NotImplementedException();
         }
 
-        public async Task<HttpResponseMessage> AddTag(int highlightId, int tagId)
+        public async Task AddTag(int highlightId, int tagId)
         {
-            return await Http.PostAsync($"Highlight/AddTag/{highlightId}/{tagId}", null);
+            var response = await Http.PostAsync($"Highlight/AddTag/{highlightId}/{tagId}", null);
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> RemoveTag(int highlightId, int tagId)
+        public async Task RemoveTag(int highlightId, int tagId)
         {
-            return await Http.DeleteAsync($"Highlight/RemoveTag/{highlightId}/{tagId}");
+            var response = await Http.DeleteAsync($"Highlight/RemoveTag/{highlightId}/{tagId}");
+            await HelperService.HandleResponse(response);
         }
     }
 }

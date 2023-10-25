@@ -106,11 +106,14 @@ else
     private async Task LoadAnalysesFromServer(string loadedBookHash)
     {
         showLoadingAnalysis = true;
-
-        var response = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
-        foundBookAnalyses = null;//await HelperService.HandleResponse<List<BookAnalysisModel>>(response);
-
-        showLoadingAnalysis = false;
+        try
+        {
+            foundBookAnalyses = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
+        }
+        finally
+        {
+            showLoadingAnalysis = false;
+        }
     }
 
     private async Task<byte[]> ReadFully(Stream input)

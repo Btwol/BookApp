@@ -54,9 +54,7 @@
 
     private async Task DeleteChapterNote(int noteId)
     {
-        var response = await _chapterNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
+        await _chapterNoteClientService.DeleteNote(noteId, bookAnalysisId);
         var noteToRemove = ChapterNotes.FirstOrDefault(n => n.Id == noteId);
         ChapterNotes.Remove(noteToRemove);
     }

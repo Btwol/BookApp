@@ -2,6 +2,7 @@
 using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
+using System.Net.WebSockets;
 
 namespace BookApp.Client.Services.Notes
 {
@@ -15,29 +16,34 @@ namespace BookApp.Client.Services.Notes
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<HttpResponseMessage> AddNote(AnalysisNoteModel analysisNoteModel)
+        public async Task<AnalysisNoteModel> AddNote(AnalysisNoteModel analysisNoteModel)
         {
-            return await Http.PostAsJsonAsync($"AnalysisNote/AddAnalysisNote", analysisNoteModel);
+            var response = await Http.PostAsJsonAsync($"AnalysisNote/AddAnalysisNote", analysisNoteModel);
+            return await HelperService.HandleResponse<AnalysisNoteModel>(response);
         }
 
-        public async Task<HttpResponseMessage> DeleteNote(int noteId)
+        public async Task DeleteNote(int noteId, int bookAnalysisId)
         {
-            return await Http.DeleteAsync($"AnalysisNote/DeleteAnalysisNote/{noteId}");
+            var response = await Http.DeleteAsync($"AnalysisNote/DeleteAnalysisNote/{noteId}/{bookAnalysisId}");
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> EditNote(AnalysisNoteModel analysisNoteModel)
+        public async Task<AnalysisNoteModel> EditNote(AnalysisNoteModel analysisNoteModel)
         {
-            return await Http.PutAsJsonAsync($"AnalysisNote/EditAnalysisNote", analysisNoteModel);
+            var response = await Http.PutAsJsonAsync($"AnalysisNote/EditAnalysisNote", analysisNoteModel);
+            return await HelperService.HandleResponse<AnalysisNoteModel>(response);
         }
 
-        public async Task<HttpResponseMessage> AddTag(int analysisNoteId, int tagId)
+        public async Task AddTag(int analysisNoteId, int tagId)
         {
-            return await Http.PostAsync($"AnalysisNote/AddTag/{analysisNoteId}/{tagId}", null);
+            var response = await Http.PostAsync($"AnalysisNote/AddTag/{analysisNoteId}/{tagId}", null);
+            await HelperService.HandleResponse(response);
         }
 
-        public async Task<HttpResponseMessage> RemoveTag(int analysisNoteId, int tagId)
+        public async Task RemoveTag(int analysisNoteId, int tagId)
         {
-            return await Http.DeleteAsync($"AnalysisNote/RemoveTag/{analysisNoteId}/{tagId}");
+            var response = await Http.DeleteAsync($"AnalysisNote/RemoveTag/{analysisNoteId}/{tagId}");
+            await HelperService.HandleResponse(response);
         }
     }
 }

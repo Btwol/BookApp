@@ -2,7 +2,7 @@
 {
     public interface ITagManagerClientService
     {
-        public Task<HttpResponseMessage> AddTag(int taggedItemId, int tagId);
-        public Task<HttpResponseMessage> RemoveTag(int taggedItemId, int tagId);
+        public Task AddTag(int taggedItemId, int tagId);
+        public Task RemoveTag(int taggedItemId, int tagId);
     }
 }

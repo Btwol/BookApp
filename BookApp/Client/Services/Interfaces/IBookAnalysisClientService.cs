@@ -4,10 +4,9 @@ namespace BookApp.Client.Services.Interfaces
 {
     public interface IBookAnalysisClientService
     {
-        //public Task<ServiceResponse> GetBookAnalysis(int analysisId);
-        public Task<HttpResponseMessage> CreateBookAnalysis(BookAnalysisModel newBookAnalysis);
-        public Task<HttpResponseMessage> EditBookAnalysis(BookAnalysisModel updatedBookAnalysis);
-        public Task<HttpResponseMessage> DeleteBookAnalysis(int bookAnalysisId);
-        public Task<HttpResponseMessage> GetAnalysisByHash(string bookHash);
+        public Task<BookAnalysisModel> CreateBookAnalysis(BookAnalysisModel newBookAnalysis);
+        public Task EditBookAnalysis(BookAnalysisModel updatedBookAnalysis);
+        public Task DeleteBookAnalysis(int bookAnalysisId);
+        public Task<List<BookAnalysisModel>> GetAnalysisByHash(string bookHash);
     }
 }

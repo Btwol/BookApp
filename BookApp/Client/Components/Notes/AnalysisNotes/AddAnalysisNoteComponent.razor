@@ -52,8 +52,7 @@
 
         newAnalysisNote.BookAnalysisId = bookAnalysisId;
         
-        var response = await _analysisNoteClientService.AddNote(newAnalysisNote);
-        var newNote = await HelperService.HandleResponse<AnalysisNoteModel>(response);
+        var newNote = await _analysisNoteClientService.AddNote(newAnalysisNote);
         AnalysisNotes.Add(newNote);
         await Close();
     }

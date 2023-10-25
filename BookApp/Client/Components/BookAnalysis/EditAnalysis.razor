@@ -23,13 +23,13 @@
     }
     else
     {
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="button-action">Submit</button>
     }
 </EditForm>
 </ChildContent>
 </ErrorHandlerComponent>
 
-<button @onclick="Close">Close</button>
+<button class="button-action" @onclick="Close">Close</button>
 
 @code {
     [CascadingParameter] 
@@ -46,12 +46,16 @@
     public async Task EditAnalysisSubmit()
     {
         awaitingResponse = true;
+        try
+        {
+            await _bookAnalysisClientService.EditBookAnalysis(analysisFormModel);
+        }
+        finally
+        {
+            awaitingResponse = false;
+        }
 
-        var response = await _bookAnalysisClientService.EditBookAnalysis(analysisToEdit);
-        awaitingResponse = false;
-        await HelperService.HandleResponse(response);
         analysisToEdit = new BookAnalysisModel(analysisFormModel);
-
         await Close();
     }
 
