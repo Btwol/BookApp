@@ -152,6 +152,29 @@ else
     <button type="submit">Submit</button>
 </EditForm>
 
+<p>Edit tag:</p>
+            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
+            @foreach (var tag in filteredTags)
+            {
+                <li class="tag-item" @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</li>
+            }
+    @if (showEditTagForm)
+    {
+        <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputText @bind-Value="TagToEdit!.Name" />
+            <button class="button-action" type="submit">Submit</button>
+        </EditForm>
+    }
+
+    <p>Delete tag:</p>
+            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
+            @foreach (var tag in filteredTags)
+            {
+                <li class="tag-item" @onclick="() => DeleteTag(tag.Id)">@tag.Name</li>
+            }
+
 </div>
 }
 
@@ -233,12 +256,25 @@ else
 
     async Task CreateNewTag()
     {
-        if(NewTag is not null)
-        {
-            var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
-            bookAnalysis.Tags.Add(newTag);
-            NewTag = new();
-        }
+        var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
+        bookAnalysis.Tags.Add(newTag);
+        NewTag = new();
+    }
+
+    public TagModel TagToEdit { get; set; }
+    bool showEditTagForm = false;
+    async Task EditTag()
+    {
+        await _tagService.EditTag(TagToEdit);
+        bookAnalysis.Tags.Remove(bookAnalysis.Tags.FirstOrDefault(t => t.Id == TagToEdit.Id));
+        bookAnalysis.Tags.Add(TagToEdit);
+        TagToEdit = new();
+        showEditTagForm = false;
+    }
+
+    async Task DeleteTag(int tagId)
+    {
+        await _tagService.DeleteTag(tagId);
     }
 
     async Task RemoveTag(int tagId)

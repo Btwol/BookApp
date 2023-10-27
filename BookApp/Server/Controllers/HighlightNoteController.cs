@@ -6,9 +6,9 @@
     public class HighlightNoteController : ControllerBase
     {
         private readonly IHighlightNoteServerService _highlightNoteService;
-        private readonly ITagServerService<HighlightNote> _tagService;
+        private readonly ITagManagerServerService<HighlightNote> _tagService;
 
-        public HighlightNoteController(IHighlightNoteServerService highlightNoteService, ITagServerService<HighlightNote> tagService)
+        public HighlightNoteController(IHighlightNoteServerService highlightNoteService, ITagManagerServerService<HighlightNote> tagService)
         {
             _highlightNoteService = highlightNoteService;
             _tagService = tagService;

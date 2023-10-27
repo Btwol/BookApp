@@ -6,9 +6,9 @@
     public class ChapterNoteController : ControllerBase
     {
         private readonly IChapterNoteServerService _chapterNoteService;
-        private readonly ITagServerService<ChapterNote> _tagService;
+        private readonly ITagManagerServerService<ChapterNote> _tagService;
 
-        public ChapterNoteController(IChapterNoteServerService chapterNoteService, ITagServerService<ChapterNote> tagService)
+        public ChapterNoteController(IChapterNoteServerService chapterNoteService, ITagManagerServerService<ChapterNote> tagService)
         {
             _chapterNoteService = chapterNoteService;
             _tagService = tagService;

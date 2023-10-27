@@ -6,8 +6,8 @@
     public class ParagraphNoteController : ControllerBase
     {
         private readonly IParagraphNoteServerService _paragraphNoteService;
-        private readonly ITagServerService<ParagraphNote> _tagService;
-        public ParagraphNoteController(IParagraphNoteServerService paragraphNoteService, ITagServerService<ParagraphNote> tagService)
+        private readonly ITagManagerServerService<ParagraphNote> _tagService;
+        public ParagraphNoteController(IParagraphNoteServerService paragraphNoteService, ITagManagerServerService<ParagraphNote> tagService)
         {
             _paragraphNoteService = paragraphNoteService;
             _tagService = tagService;

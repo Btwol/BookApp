@@ -5,17 +5,11 @@
     [Route("[controller]")]
     public class TagController : ControllerBase
     {
-        private readonly ITagServerService<Highlight> _tagService;  //change this
+        private readonly ITagServerService _tagService;
 
-        public TagController(ITagServerService<Highlight> tagService)
+        public TagController(ITagServerService tagService)
         {
             _tagService = tagService;
-        }
-
-        [HttpGet("GetTags/{bookAnalysisId}")]
-        public async Task<ServiceResponse> GetTags(int bookAnalysisId)
-        {
-            return await _tagService.GetTags(bookAnalysisId);
         }
 
         [HttpDelete("DeleteTag/{tagId}")]
@@ -28,6 +22,12 @@
         public async Task<ServiceResponse> CreateNewTag([FromBody] TagModel newTag, int bookAnalysisId)
         {
             return await _tagService.CreateNewTag(newTag, bookAnalysisId);
+        }
+
+        [HttpPut("EditTag")]
+        public async Task<ServiceResponse> EditTag([FromBody] TagModel tagToEdit)
+        {
+            return await _tagService.EditTag(tagToEdit);
         }
     }
 }

@@ -6,9 +6,9 @@
     public class AnalysisNoteController : ControllerBase
     {
         private readonly IAnalysisNoteServerService _analysisNoteService;
-        private readonly ITagServerService<AnalysisNote> _tagService;
+        private readonly ITagManagerServerService<AnalysisNote> _tagService;
 
-        public AnalysisNoteController(IAnalysisNoteServerService analysisNoteService, ITagServerService<AnalysisNote> tagService)
+        public AnalysisNoteController(IAnalysisNoteServerService analysisNoteService, ITagManagerServerService<AnalysisNote> tagService)
         {
             _analysisNoteService = analysisNoteService;
             _tagService = tagService;

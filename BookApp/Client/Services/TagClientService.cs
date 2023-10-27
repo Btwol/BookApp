@@ -22,9 +22,16 @@ namespace BookApp.Client.Services
             return await HelperService.HandleResponse<TagModel>(response);
         }
 
-        public Task DeleteTag(int tagId)
+        public async Task DeleteTag(int tagId)
         {
-            throw new NotImplementedException();
+            var response = await Http.DeleteAsync($"Tag/DeleteTag/{tagId}");
+            await HelperService.HandleResponse(response);
+        }
+
+        public async Task EditTag(TagModel tagToEdit)
+        {
+            var response = await Http.PutAsJsonAsync<TagModel>($"Tag/EditTag", tagToEdit);
+            await HelperService.HandleResponse(response);
         }
 
         public async Task<List<TagModel>> GetTags(int bookAnalysisId)

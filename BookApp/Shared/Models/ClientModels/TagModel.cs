@@ -10,5 +10,16 @@ namespace BookApp.Shared.Models.ClientModels
         [Required]
         [StringLength(30, ErrorMessage = "Tag name is too long.")]
         public string Name { get; set; }
+
+        public TagModel()
+        {
+
+        }
+
+        public TagModel(TagModel tagModel)
+        {
+            this.Id = tagModel.Id;
+            this.Name = tagModel.Name;
+        }
     }
 }
