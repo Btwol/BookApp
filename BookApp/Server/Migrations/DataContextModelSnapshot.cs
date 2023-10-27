@@ -161,14 +161,14 @@ namespace BookApp.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "6ebd6854-b117-4549-b093-c5b57ad57bb5",
+                            ConcurrencyStamp = "cc20bee5-8ef8-4620-a67c-d4926c58ea04",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "ac565a91-bb4f-4d74-bee4-ee037178b891",
+                            ConcurrencyStamp = "ef55a670-5588-48ae-bdad-e6c93c041e0e",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -246,7 +246,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "db251ed6-341d-4de8-9a55-d7b329f28580",
+                            ConcurrencyStamp = "d22a273e-4094-4f8a-a5fb-d92f60217890",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -257,7 +257,7 @@ namespace BookApp.Server.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e21dd91e-60f6-4238-8595-e71ac10ed199",
+                            ConcurrencyStamp = "f2232ee9-63b7-457e-95a6-ce0f249b0353",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
@@ -400,7 +400,7 @@ namespace BookApp.Server.Migrations
                     b.ToTable("ChapterNoteTag");
                 });
 
-            modelBuilder.Entity("HighlightNoteTag", b =>
+            modelBuilder.Entity("HighlightNoteTags", b =>
                 {
                     b.Property<int>("HighlightNotesId")
                         .HasColumnType("int");
@@ -412,7 +412,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("HighlightNoteTag");
+                    b.ToTable("HighlightNoteTags");
                 });
 
             modelBuilder.Entity("HighlightTag", b =>
@@ -565,13 +565,13 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.Notes.AnalysisNote", null)
                         .WithMany()
                         .HasForeignKey("AnalysisNotesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BookApp.Server.Models.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -609,7 +609,7 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
                         .WithMany("AnalysisNotes")
                         .HasForeignKey("BookAnalysisId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("BookAnalysis");
                 });
@@ -619,7 +619,7 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
                         .WithMany("ChapterNotes")
                         .HasForeignKey("BookAnalysisId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("BookAnalysis");
                 });
@@ -640,7 +640,7 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.BookAnalysis", "BookAnalysis")
                         .WithMany("ParagraphNotes")
                         .HasForeignKey("BookAnalysisId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("BookAnalysis");
                 });
@@ -660,28 +660,28 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.Notes.ChapterNote", null)
                         .WithMany()
                         .HasForeignKey("ChapterNotesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BookApp.Server.Models.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HighlightNoteTag", b =>
+            modelBuilder.Entity("HighlightNoteTags", b =>
                 {
                     b.HasOne("BookApp.Server.Models.Notes.HighlightNote", null)
                         .WithMany()
                         .HasForeignKey("HighlightNotesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BookApp.Server.Models.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -690,13 +690,13 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.Highlight", null)
                         .WithMany()
                         .HasForeignKey("HighlightsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BookApp.Server.Models.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -756,13 +756,13 @@ namespace BookApp.Server.Migrations
                     b.HasOne("BookApp.Server.Models.Notes.ParagraphNote", null)
                         .WithMany()
                         .HasForeignKey("ParagraphNotesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BookApp.Server.Models.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

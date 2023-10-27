@@ -51,7 +51,38 @@ namespace BookApp.Server.Database
                 );
 
             ////Database Configuration
+
+            modelBuilder.Entity<Highlight>().HasKey(b => b.Id);
+
+            //modelBuilder.Entity<Highlight>()
+            //    .HasMany(b => b.Tags)
+            //    .WithMany(u => u.Highlights)
+            //    .UsingEntity<HighlightTag>();
+
+            modelBuilder.Entity<Highlight>()
+                .HasMany(h => h.Tags)
+                .WithMany(t => t.Highlights)
+                .UsingEntity<Dictionary<string, object>>(
+            "HighlightTag",
+            x => x.HasOne<Tag>().WithMany().OnDelete(DeleteBehavior.NoAction),
+            x => x.HasOne<Highlight>().WithMany().OnDelete(DeleteBehavior.NoAction)
+        );
+
+            modelBuilder.Entity<Tag>().HasKey(b => b.Id);
+
             modelBuilder.Entity<BookAnalysis>().HasKey(b => b.Id);
+
+            modelBuilder.Entity<BookAnalysis>()
+                .HasMany(b => b.Users)
+                .WithMany(u => u.BookAnalyses)
+                .UsingEntity<BookAnalysisUser>();
+
+            modelBuilder.Entity<BookAnalysis>()
+    .HasMany(b => b.Tags)
+    .WithOne(n => n.BookAnalysis)
+    .HasForeignKey(n => n.BookAnalysisId)
+    .OnDelete(DeleteBehavior.Cascade)
+    .IsRequired(false);
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.Highlights)
@@ -60,18 +91,41 @@ namespace BookApp.Server.Database
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
-            modelBuilder.Entity<Highlight>().HasKey(b => b.Id);
 
-            modelBuilder.Entity<Highlight>()
+            modelBuilder.Entity<AnalysisNote>()
                 .HasMany(h => h.Tags)
-                .WithMany(t => t.Highlights);
+                .WithMany(t => t.AnalysisNotes)
+                .UsingEntity<Dictionary<string, object>>(
+            "AnalysisNoteTag",
+            x => x.HasOne<Tag>().WithMany().OnDelete(DeleteBehavior.NoAction),
+            x => x.HasOne<AnalysisNote>().WithMany().OnDelete(DeleteBehavior.NoAction)
+        );
+            modelBuilder.Entity<ChapterNote>()
+                .HasMany(h => h.Tags)
+                .WithMany(t => t.ChapterNotes)
+                .UsingEntity<Dictionary<string, object>>(
+            "ChapterNoteTag",
+            x => x.HasOne<Tag>().WithMany().OnDelete(DeleteBehavior.NoAction),
+            x => x.HasOne<ChapterNote>().WithMany().OnDelete(DeleteBehavior.NoAction)
+        );
 
+            modelBuilder.Entity<ParagraphNote>()
+                .HasMany(h => h.Tags)
+                .WithMany(t => t.ParagraphNotes)
+                .UsingEntity<Dictionary<string, object>>(
+            "ParagraphNoteTag",
+            x => x.HasOne<Tag>().WithMany().OnDelete(DeleteBehavior.NoAction),
+            x => x.HasOne<ParagraphNote>().WithMany().OnDelete(DeleteBehavior.NoAction)
+        );
 
-
-            modelBuilder.Entity<BookAnalysis>()
-                .HasMany(b => b.Users)
-                .WithMany(u => u.BookAnalyses)
-                .UsingEntity<BookAnalysisUser>();
+            modelBuilder.Entity<HighlightNote>()
+                .HasMany(h => h.Tags)
+                .WithMany(t => t.HighlightNotes)
+                .UsingEntity<Dictionary<string, object>>(
+            "HighlightNoteTags",
+            x => x.HasOne<Tag>().WithMany().OnDelete(DeleteBehavior.NoAction),
+            x => x.HasOne<HighlightNote>().WithMany().OnDelete(DeleteBehavior.NoAction)
+        );
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.ParagraphNotes)
@@ -94,24 +148,11 @@ namespace BookApp.Server.Database
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
-            modelBuilder.Entity<BookAnalysis>()
-                .HasMany(b => b.Tags)
-                .WithOne(n => n.BookAnalysis)
-                .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
-
-            modelBuilder.Entity<BookAnalysis>()
-                .HasKey(b => b.Id);
-
-            modelBuilder.Entity<Tag>()
-                .HasKey(b => b.Id);
-
-            //modelBuilder.Entity<Highlight>()
-            //    .HasMany(h => h.HighlightNotes)
-            //    .WithOne(n => n.Highlight)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Highlight>()
+                .HasMany(h => h.HighlightNotes)
+                .WithOne(n => n.Highlight)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<HighlightNote>()
                 .HasOne(n => n.Highlight)
@@ -119,40 +160,6 @@ namespace BookApp.Server.Database
                 .HasForeignKey(n => n.HighlightId)
                 .IsRequired(true)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<HighlightNote>()
-                .HasMany(h => h.Tags)
-                .WithMany(t => t.HighlightNotes);
-
-            modelBuilder.Entity<ParagraphNote>()
-                .HasOne(n => n.BookAnalysis)
-                .WithMany(h => h.ParagraphNotes)
-                .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<ParagraphNote>()
-                .HasMany(p => p.Tags)
-                .WithMany(t => t.ParagraphNotes);
-
-            modelBuilder.Entity<AnalysisNote>()
-                .HasOne(n => n.BookAnalysis)
-                .WithMany(h => h.AnalysisNotes)
-                .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<AnalysisNote>()
-                .HasMany(a => a.Tags)
-                .WithMany(t => t.AnalysisNotes);
-
-            modelBuilder.Entity<ChapterNote>()
-                .HasOne(n => n.BookAnalysis)
-                .WithMany(h => h.ChapterNotes)
-                .HasForeignKey(n => n.BookAnalysisId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<ChapterNote>()
-                .HasMany(c => c.Tags)
-                .WithMany(t => t.ChapterNotes);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
