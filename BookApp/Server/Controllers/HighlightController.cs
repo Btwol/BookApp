@@ -38,10 +38,10 @@
             return await _tagService.AddTag(highlightId, tagId);
         }
 
-        [HttpDelete("RemoveTag/{highlightId}")]
+        [HttpDelete("RemoveTag/{highlightId}/{tagId}")]
         public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
         {
-            return await _tagService.AddTag(highlightId, tagId);
+            return await _tagService.RemoveTag(highlightId, tagId);
         }
     }
 }

@@ -6,37 +6,73 @@
 @using BookApp.Shared.Models.ClientModels.Notes
 @using BookApp.Client.Components.ErrorHandler
 
+@inject ITagClientService _tagService
+
 <ErrorHandlerComponent ChildComponentName="Manage tags">
     <ChildContent>
         <EditForm Model="@Tags" OnValidSubmit="@Submit" class="form">
-        @if (!awaitingResponse)
-        {
-            <h3>Current Tags:</h3>
-            @foreach (TagModel tag in taggedItem.Tags)
-            {
-                <button class="button-action" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-            }
-
-            <hr />
-
-            <h3>Add Tags</h3>
-            @foreach (TagModel tag in Tags)
-            {
-                @if(!taggedItem.Tags.Any(t => t.Id == tag.Id))
+            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
+                <h3>Current Tags:</h3>
+                @foreach (TagModel tag in filteredTags.Where(t => taggedItem.Tags.Any(_t => _t.Id == t.Id)))
                 {
-                    <button class="button-action" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+                <button class="tag-item" style=@buttonToggle @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
                 }
-            }
-        }
-        else
-        {
-            <h3>Awaiting response...</h3>
-        }
+
+                <hr />
+
+                <h3>Add Tags</h3>
+                @foreach (TagModel tag in filteredTags)
+                {
+                    @if (!taggedItem.Tags.Any(t => t.Id == tag.Id))
+                    {
+                    <button class="tag-item" style=@buttonToggle @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+                    }
+                }
         </EditForm>
+        
+        <hr />
+
+        <p>Create new tag:</p>
+        <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputText @bind-Value="NewTag!.Name" />
+            <button class="button-action" type="submit">Submit</button>
+        </EditForm>
+
+        <hr />
+
+        <p>Edit tag:</p>
+        @foreach (var tag in filteredTags)
+        {
+            <li class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</li>
+        }
+        @if (showEditTagForm)
+        {
+            <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <p>Tag name:</p>
+                <InputText @bind-Value="TagToEdit!.Name" />
+                <button class="button-action" type="submit">Submit</button>
+            </EditForm>
+        }
+
+        <hr />
+
+        <p>Delete tag:</p>
+        @foreach (var tag in filteredTags)
+        {
+            <li class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</li>
+        }
+
+        <hr />
+
+        <button class="button-action" @onclick="Close">Close</button>
     </ChildContent>
 </ErrorHandlerComponent>
 
-<button class="button-action" @onclick="Close">Close</button>
+
 
 @code {
     [CascadingParameter]
@@ -46,22 +82,79 @@
     public List<TagModel> Tags { get; set; }
 
     [Parameter]
+    public int bookAnalysisId { get; set; }
+
+    [Parameter]
     public ITagableItemModel taggedItem { get; set; }
 
     [Parameter]
     public ITagManagerClientService tagManagerClientService { get; set; }
 
-    private bool awaitingResponse = false;
+    public TagModel TagToEdit { get; set; }
+    public TagModel? NewTag { get; set; } = new();
 
+    private string buttonToggle = "";
+    private string disabledButtonStyle = "pointer-events: none; background-color: gray";
+    bool showEditTagForm = false;
     private List<int> tagsToAdd = new();
     private List<int> tagsToRemove = new();
     private int selectedTagId = 0;
     private bool addTag = true;
+    private string tagSearchKeyword = "";
+    private List<TagModel> filteredTags = new();
+
     private async Task Close() => await BlazoredModal.CloseAsync();
+
+    async Task CreateNewTag()
+    {
+        ToggleButtons();
+        try
+        {
+            var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysisId);
+            Tags.Add(newTag);
+            NewTag = new();
+        }
+        finally
+        {
+            ToggleButtons();
+        }
+    }
+
+    async Task EditTag()
+    {
+        ToggleButtons();
+        try
+        {
+            await _tagService.EditTag(TagToEdit);
+            Tags.Remove(Tags.FirstOrDefault(t => t.Id == TagToEdit.Id));
+            Tags.Add(TagToEdit);
+            TagToEdit = new();
+        }
+        finally
+        {
+            showEditTagForm = false;
+            ToggleButtons();
+        }
+    }
+
+    async Task DeleteTag(int tagId)
+    {
+        ToggleButtons();
+        try
+        {
+            await _tagService.DeleteTag(tagId);
+            var deletedTag = Tags.FirstOrDefault(t => t.Id == tagId);
+            Tags.Remove(deletedTag);
+        }
+        finally
+        {
+            ToggleButtons();
+        }
+    }
 
     async Task Submit()
     {
-        awaitingResponse = true;
+        ToggleButtons();
         try
         {
             if(addTag)
@@ -77,7 +170,7 @@
         }
         finally
         {
-            awaitingResponse = false;
+            ToggleButtons();
             selectedTagId = 0;
         }
     }
@@ -92,5 +185,31 @@
     {
         selectedTagId = tagId;
         addTag = false;
+    }
+
+    private void FilterTags(ChangeEventArgs e)
+    {
+        tagSearchKeyword = e.Value.ToString();
+        Console.WriteLine("current: " + e.Value);
+        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
+            ? Tags
+            : Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    protected override void OnInitialized()
+    {
+        filteredTags = Tags;
+    }
+
+    private void ToggleButtons()
+    {
+        if (buttonToggle == disabledButtonStyle)
+        {
+            buttonToggle = "";
+        }
+        else
+        {
+            buttonToggle = disabledButtonStyle;
+        }
     }
 }

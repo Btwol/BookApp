@@ -72,6 +72,7 @@
     private async Task ShowManageTagsModal(ParagraphNoteModel note)
     {
         var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysisId)
         .Add(nameof(ManageTagsComponent.Tags), Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), note)
         .Add(nameof(ManageTagsComponent.tagManagerClientService), _paragraphNoteClientService);

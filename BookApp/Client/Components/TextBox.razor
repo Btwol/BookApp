@@ -1,6 +1,7 @@
 ﻿@using Blazored.Modal
 @using Blazored.Modal.Services
 @using BookApp.Client.Components.Notes
+@using BookApp.Client.Components.Tags
 @using BookApp.Client.Services
 @using BookApp.Client.Services.Interfaces
 @using BookApp.Shared
@@ -100,7 +101,7 @@
     <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
                         @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
                         bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id"
-                        Tags="bookAnalysis.Tags "/>
+                        Tags="bookAnalysis.Tags"/>
     </ChildContent>
     </ErrorHandlerComponent>
 
@@ -126,55 +127,8 @@ else
             <hr />
             <button class="button-action" @onclick="DeleteHighlight">Delete</button>
             <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
-            <hr />
-            @if (currentHighlight.Id != 0)
-            {
-                <p>Current Tags: </p>
-                @foreach (var tag in currentHighlight.Tags)
-                {
-                    <li class="tag-item" @onclick="() => RemoveTag(tag.Id)">@tag.Name</li>
-                }
-            }
-            <hr />
-            <p>Add Tag: </p>
-            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
-            @foreach (var tag in filteredTags)
-            {
-                <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
-            }
 <hr />
-
-<p>Create new tag:</p>
-<EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <InputText @bind-Value="NewTag!.Name" />
-    <button type="submit">Submit</button>
-</EditForm>
-
-<p>Edit tag:</p>
-            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
-            @foreach (var tag in filteredTags)
-            {
-                <li class="tag-item" @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</li>
-            }
-    @if (showEditTagForm)
-    {
-        <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <InputText @bind-Value="TagToEdit!.Name" />
-            <button class="button-action" type="submit">Submit</button>
-        </EditForm>
-    }
-
-    <p>Delete tag:</p>
-            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
-            @foreach (var tag in filteredTags)
-            {
-                <li class="tag-item" @onclick="() => DeleteTag(tag.Id)">@tag.Name</li>
-            }
-
+<button class="button-action" @onclick="() => ShowManageTagsModal(currentHighlight)">Manage Tags</button>
 </div>
 }
 
@@ -198,8 +152,6 @@ else
 
 @code{
 
-    public TagModel? NewTag { get; set; } = new();
-    private List<TagModel> Tags = new();
     private List<IBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 32;
     private int maxAllowedFiles = 3;
@@ -242,77 +194,7 @@ else
     public int lastClickedTextNodeIndex = -1;
 
 
-    #region Tags
-    private string tagSearchKeyword = "";
-    private List<TagModel> filteredTags = new();
-    private void FilterTags(ChangeEventArgs e)
-    {
-        tagSearchKeyword = e.Value.ToString();
-        Console.WriteLine("current: " + e.Value);
-        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
-            ? bookAnalysis.Tags
-            : bookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
-    }
 
-    async Task CreateNewTag()
-    {
-        var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
-        bookAnalysis.Tags.Add(newTag);
-        NewTag = new();
-    }
-
-    public TagModel TagToEdit { get; set; }
-    bool showEditTagForm = false;
-    async Task EditTag()
-    {
-        await _tagService.EditTag(TagToEdit);
-        bookAnalysis.Tags.Remove(bookAnalysis.Tags.FirstOrDefault(t => t.Id == TagToEdit.Id));
-        bookAnalysis.Tags.Add(TagToEdit);
-        TagToEdit = new();
-        showEditTagForm = false;
-    }
-
-    async Task DeleteTag(int tagId)
-    {
-        await _tagService.DeleteTag(tagId);
-    }
-
-    async Task RemoveTag(int tagId)
-    {
-        if (!currentHighlight.Tags.Any(t => t.Id == tagId))
-        {
-            return;
-        }
-
-        await _highlightClientService.RemoveTag(tagId, HighlightModel.GetElementId(currentHighlightId));
-        var tagToRemove = currentHighlight.Tags.FirstOrDefault(t => t.Id == tagId);
-        if(tagToRemove is not null)
-        {
-            currentHighlight.Tags.Remove(tagToRemove);
-            StateHasChanged();
-        }
-    }
-
-    async Task AddTag(int tagId)
-    {
-        if (currentHighlight.Tags.Any(t => t.Id == tagId))
-        {
-            return;
-        }
-
-        await _highlightClientService.AddTag(currentHighlight.Id,tagId);
-        var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
-        if(tagToAdd is not null)
-        {
-            currentHighlight.Tags.Add(tagToAdd);
-        }
-    }
-
-    async Task LoadTags()
-    {
-        Tags = bookAnalysis.Tags;
-    }
-    #endregion
 
     [JSInvokableAttribute("ReRender")]
     public async void ReRender()
@@ -326,7 +208,17 @@ else
     }
 
 
+        private async Task ShowManageTagsModal(HighlightModel highlight)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), bookAnalysis.Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), highlight)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), _highlightClientService);
 
+        var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
+        await modal.Result;
+    }
 
 
     async Task ReApplyHighlight(MouseEventArgs e)
@@ -493,7 +385,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         dotNetRef = DotNetObjectReference.Create(this);
-        filteredTags = bookAnalysis.Tags;
 
     }
 }
