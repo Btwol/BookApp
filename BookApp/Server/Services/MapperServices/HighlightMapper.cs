@@ -10,7 +10,6 @@
         {
             highlightToUpdate.LastNodeCharIndex = updatedHighlightModel.LastNodeCharIndex;
             highlightToUpdate.FirstNodeCharIndex = updatedHighlightModel.FirstNodeCharIndex;
-            highlightToUpdate.PageNumber = updatedHighlightModel.PageNumber;
             highlightToUpdate.FirstNodeIndex = updatedHighlightModel.FirstNodeIndex;
             highlightToUpdate.LastNodeIndex = updatedHighlightModel.LastNodeIndex;
         }

@@ -17,7 +17,7 @@
         [HttpPut("UpdateHighlight")]
         public async Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
-            return null;// await _highlightService.UpdateHighlight(updatedHighlight);
+            return await _highlightService.UpdateHighlight(updatedHighlight);
         }
 
         [HttpPost("AddHighlight")]

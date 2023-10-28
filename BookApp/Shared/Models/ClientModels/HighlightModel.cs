@@ -38,6 +38,7 @@ namespace BookApp.Shared.Models.ClientModels
 
         public void Update(HighlightModel newSelectionRange)
         {
+            RawPositionString = newSelectionRange.RawPositionString;
             int[,] RawArray = JsonConvert.DeserializeObject<int[,]>(newSelectionRange.RawPositionString);
             FirstNodeIndex = RawArray[0, 0];
             FirstNodeCharIndex = RawArray[0, 1];

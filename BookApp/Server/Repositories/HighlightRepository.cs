@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Repositories
+﻿using BookApp.Server.Models;
+
+namespace BookApp.Server.Repositories
 {
     public class HighlightRepository : BaseRepository<Highlight>, IHighlightRepository
     {
@@ -11,6 +13,16 @@
             return querry
                 .Include(h => h.Tags)
                 .Include(h => h.HighlightNotes);
+        }
+
+        public async override Task Delete(Highlight model)
+        {
+            var highlightToDelete = await FindByConditionsFirstOrDefault(h => h.Id == model.Id);
+
+            highlightToDelete.Tags.Clear();
+
+            _context.Remove(highlightToDelete);
+            await _context.SaveChangesAsync();
         }
     }
 }

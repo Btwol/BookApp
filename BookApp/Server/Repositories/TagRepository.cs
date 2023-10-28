@@ -9,30 +9,12 @@
         public async override Task DeleteById(int id)
         {
             var tagToDelete = await FindByConditionsFirstOrDefault(t => t.Id == id);
-            foreach(var highlight in tagToDelete.Highlights)
-            {
-                highlight.Tags.Remove(tagToDelete);
-            }
 
-            foreach (var ChapterNotes in tagToDelete.ChapterNotes)
-            {
-                ChapterNotes.Tags.Remove(tagToDelete);
-            }
-
-            foreach (var AnalysisNotes in tagToDelete.AnalysisNotes)
-            {
-                AnalysisNotes.Tags.Remove(tagToDelete);
-            }
-
-            foreach (var ParagraphNotes in tagToDelete.ParagraphNotes)
-            {
-                ParagraphNotes.Tags.Remove(tagToDelete);
-            }
-
-            foreach (var HighlightNotes in tagToDelete.HighlightNotes)
-            {
-                HighlightNotes.Tags.Remove(tagToDelete);
-            }
+            tagToDelete.AnalysisNotes.Clear();
+            tagToDelete.ChapterNotes.Clear();
+            tagToDelete.ParagraphNotes.Clear();
+            tagToDelete.HighlightNotes.Clear();
+            tagToDelete.Highlights.Clear();
 
             _context.Remove(tagToDelete);
             await _context.SaveChangesAsync();

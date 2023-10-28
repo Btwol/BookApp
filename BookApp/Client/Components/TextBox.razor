@@ -23,6 +23,7 @@
 @inject ITagClientService _tagService
 @inject IModalService Modal
 
+
 <style>
     .highlight-container
     {
@@ -127,7 +128,6 @@ else
             <hr />
             <button class="button-action" @onclick="DeleteHighlight">Delete</button>
             <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
-<hr />
 <button class="button-action" @onclick="() => ShowManageTagsModal(currentHighlight)">Manage Tags</button>
 </div>
 }
@@ -149,6 +149,8 @@ else
         </div>
     </div>
 </div>
+
+
 
 @code{
 
@@ -224,7 +226,7 @@ else
     async Task ReApplyHighlight(MouseEventArgs e)
     {
         editFlag = true;
-        await GetSelectedText(e);
+        //await GetSelectedText(e);
 
         //await CreatePermanentHighlight();
         //await DeleteHighlight();
@@ -249,16 +251,16 @@ else
 
         if (items != "-1")
         {
-            //if (editFlag)
-            //{
-            //    editFlag = false;
-            //    var newSelection = new HighlightModel(items, currentCount);
-            //    var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
-            //    editedSelection.Update(newSelection);
-            //    _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
-            //    await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
-            //    //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
-            //}
+            if (editFlag)
+            {
+                editFlag = false;
+                var newSelection = new HighlightModel(bookAnalysis.Id, currentCount, items);
+                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
+                editedSelection.Update(newSelection);
+                await _highlightClientService.UpdateHighlight(editedSelection);
+                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
+            }
 
             //else 
             highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);

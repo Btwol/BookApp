@@ -28,9 +28,10 @@ namespace BookApp.Client.Services
             await HelperService.HandleResponse(response);
         }
 
-        public Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
+        public async Task UpdateHighlight(HighlightModel updatedHighlight)
         {
-            throw new NotImplementedException();
+            var response = await Http.PutAsJsonAsync($"Highlight/UpdateHighlight", updatedHighlight);
+            await HelperService.HandleResponse(response);
         }
 
         public async Task AddTag(int highlightId, int tagId)
