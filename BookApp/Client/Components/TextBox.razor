@@ -113,22 +113,12 @@ else
 </ErrorHandlerComponent>
 }
 
-<div class="text-box-bar">
-    <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
-    <button class="button-action" @onclick="Refresh">Refresh</button>
+<ErrorHandlerComponent ChildComponentName="Text Box Bar">
+    <ChildContent>
+        <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight"/>
+    </ChildContent>
+</ErrorHandlerComponent>
 
-    <div class="row">
-        <div class="col">
-            <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
-        </div>
-        <div class="col">
-            <p role="status">Current count: @currentCount</p>
-        </div>
-        <div class="col">
-            <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
-        </div>
-    </div>
-</div>
 
 
 @code{
@@ -188,18 +178,7 @@ else
         }
     }
 
-    private async Task CreatePermanentHighlight()
-    {
-        if (highlight is not null && highlight?.PageNumber == currentCount)
-        {
-            var elementId = highlight.GetElementId();
-            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
-
-            var newHighlight = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
-            bookAnalysis.Highlights.Add(newHighlight);
-        }
-    }
 
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
@@ -213,7 +192,7 @@ else
     public async void onPernamentHighlightClick(string idToString)
     {
         currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
-        jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
+        await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
         StateHasChanged();
     }
 
@@ -227,11 +206,7 @@ else
         //await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
 
-    private async void ChangePage(int page)
-    {
-        currentCount += page;
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
-    }
+
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
