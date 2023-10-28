@@ -16,12 +16,12 @@
 @using Newtonsoft.Json
 @using BookApp.Client.Components
 @using BookApp.Client.Components.ErrorHandler
+@using BookApp.Client.Components.BookAnalysis
 
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-@inject IModalService Modal
 
 
 <style>
@@ -33,7 +33,7 @@
         .highlight {
     position: fixed;
     background-color: rgba(1, 1, 255, 0.3);
-    z-index:998;
+    z-index:99;
 }
 
     .highlight:hover {
@@ -59,13 +59,6 @@
             height:100%;
             width:100%;
                                     padding: 5px;
-    }
-
-        .highlight-window-2 {
-            position:absolute;
-
-      background-color: rgba(255, 1, 0, 0.8);
-      z-index:997
     }
 
         .note-container {
@@ -106,8 +99,6 @@
     </ChildContent>
     </ErrorHandlerComponent>
 
-<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
-
 
 @if (isLoading)
 {
@@ -115,23 +106,12 @@
 }
 else
 {
-
-<div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-            @if (currentHighlight.Id != 0)
-            {
-                <p>Current Highlight Id: @currentHighlight.Id</p>
-            }
-            @if (currentHighlightId != null)
-            {
-                <p>currentHighlightId: @currentHighlightId</p>
-            }
-            <hr />
-            <button class="button-action" @onclick="DeleteHighlight">Delete</button>
-            <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
-<button class="button-action" @onclick="() => ShowManageTagsModal(currentHighlight)">Manage Tags</button>
-</div>
+<ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
+    <ChildContent>
+        <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag"/>
+    </ChildContent>
+</ErrorHandlerComponent>
 }
-
 
 <div class="text-box-bar">
     <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
@@ -151,51 +131,26 @@ else
 </div>
 
 
-
 @code{
-
-    private List<IBrowserFile> loadedFiles = new();
-    private long maxFileSize = 1024 * 32;
-    private int maxAllowedFiles = 3;
-    private bool isLoading = true;
-    private byte[] fileByteArray;
-    private bool loadingCurrentHighlight = true;
-
     [Parameter]
     public EpubBook book { get; set; }
 
     [Parameter]
     public BookAnalysisModel bookAnalysis { get; set; }
 
-
-
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
-    private ElementReference contextMenuRef;
-    private ElementReference overlayElementRef;
-    private ElementReference highlightContainerRef;
-
-
-    public string currentHighlightId = string.Empty;
     private HighlightModel currentHighlight = new HighlightModel();
-
-    public string text;
+    public bool editFlag;
     List<EpubTextFile> html;
     ICollection<EpubTextFile> css;
     ICollection<EpubByteFile> images;
     ICollection<EpubByteFile> fonts;
     public string selectedText = "none";
-    bool editFlag = false;
-
-    HighlightModel highlight;
-
-    private int currentCount =7;
-
-    public List<string> overlays = new();
-
+    private HighlightModel highlight;
+    private int currentCount = 7;
     public int lastClickedTextNodeIndex = -1;
-
-
+    private bool isLoading = true;
 
 
     [JSInvokableAttribute("ReRender")]
@@ -207,40 +162,6 @@ else
     void Refresh()
     {
         StateHasChanged();
-    }
-
-
-        private async Task ShowManageTagsModal(HighlightModel highlight)
-    {
-        var parameters = new ModalParameters()
-        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysis.Id)
-        .Add(nameof(ManageTagsComponent.Tags), bookAnalysis.Tags)
-        .Add(nameof(ManageTagsComponent.taggedItem), highlight)
-        .Add(nameof(ManageTagsComponent.tagManagerClientService), _highlightClientService);
-
-        var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
-        await modal.Result;
-    }
-
-
-    async Task ReApplyHighlight(MouseEventArgs e)
-    {
-        editFlag = true;
-        //await GetSelectedText(e);
-
-        //await CreatePermanentHighlight();
-        //await DeleteHighlight();
-    }
-
-    async Task DeleteHighlight()
-    {
-        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlightId);
-        if (highlightToRemove is not null)
-        {
-            await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
-            await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
-            bookAnalysis.Highlights.Remove(highlightToRemove);    
-        }
     }
 
     async Task GetSelectedText(MouseEventArgs e)
@@ -258,7 +179,7 @@ else
                 var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
                 editedSelection.Update(newSelection);
                 await _highlightClientService.UpdateHighlight(editedSelection);
-                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
+                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), editedSelection.NodeCount);
                 await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
             }
 
@@ -291,7 +212,6 @@ else
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlightId = idToString;
         currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
         jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
         StateHasChanged();
@@ -300,7 +220,6 @@ else
     [JSInvokableAttribute("onPernamentHighlightClickOff")]
     public async void onPernamentHighlightClickOff()
     {
-        currentHighlightId = string.Empty;
         currentHighlight = new HighlightModel();
         StateHasChanged();
         //currentHighlightId = idToString;
@@ -387,6 +306,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         dotNetRef = DotNetObjectReference.Create(this);
-
+        editFlag = false;
     }
 }
