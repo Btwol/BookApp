@@ -86,6 +86,7 @@ else
             await ReadBookHash();
             bookLoaded = true;
             loadingFile = false;
+            await LoadAnalysesFromServer(loadedBookHash);
         }
         catch (Exception ex)
         {

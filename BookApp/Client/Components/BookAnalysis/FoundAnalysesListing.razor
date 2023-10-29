@@ -56,4 +56,13 @@
         this.selectedBookAnalysis = selectedBookAnalysis;
         await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
     }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        var presetAnalysis = foundBookAnalyses.FirstOrDefault(a => a.AnalysisTitle == "presetAnalysis");
+        if(presetAnalysis is not null)
+        {
+            await LoadAnalysis(presetAnalysis);
+        }
+    }
 }

@@ -30,6 +30,13 @@ builder.Services.AddBlazoredModal();
 //builder.Logging.AddProvider(unhandledExceptionProvider);
 //builder.Services.AddSingleton<IUnhandledExceptionSender>(unhandledExceptionSender);
 
+clientConfiguration = builder.Configuration;
+
 var app = builder.Build();
 
 await app.RunAsync();
+
+public partial class Program
+{
+    public static IConfiguration clientConfiguration { get; private set; }
+}
