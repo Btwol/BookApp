@@ -1,8 +1,4 @@
-﻿@using BookApp.Client.Services;
-@using BookApp.Client.Services.Interfaces
-@using BookApp.Shared.Models.ClientModels
-@using EpubSharp
-@inject IBookAnalysisClientService _bookAnalysisClientService
+﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 
 <EditForm Model="@newAnalysis" OnValidSubmit="@CreateAnalysis" class="form">
     <DataAnnotationsValidator />

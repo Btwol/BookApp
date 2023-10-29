@@ -1,13 +1,4 @@
-﻿@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.Services
-@using EpubSharp
-@using System.Security.Cryptography
-@using BookApp.Client.Components.ErrorHandler
-@using BookApp.Client.Components.BookAnalysis
-@using BookApp.Client.Components
-@inject IBookAnalysisClientService _bookAnalysisClientService
+﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 
 @if (bookAnalysis is null)
 {
