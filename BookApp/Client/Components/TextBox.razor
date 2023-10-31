@@ -5,50 +5,6 @@
 
 
 <style>
-    .highlight-container
-    {
-        position:absolute;
-    }
-
-        .highlight {
-    position: fixed;
-    background-color: rgba(1, 1, 255, 0.3);
-    z-index:99;
-}
-
-    .highlight:hover {
-                        background-color: rgba(100, 100, 255, 0.3);
-                }
-
-.texbox-wrapper
-{
-
-}
-
-.highlight-textbox-wrapper
-{
-        position:relative;
-        height:100%;
-        width:70%;
-        top:0;
-        left:0;                       
-}
-
-    .text-box {
-            position:absolute;   
-            height:100%;
-            width:100%;
-                                    padding: 5px;
-    }
-
-        .note-container {
-          position: absolute;
-      left: 0;
-      top: 0;
-    }
-
-
-
     @if (css != null)
     {
         @foreach (EpubTextFile txt in css)
