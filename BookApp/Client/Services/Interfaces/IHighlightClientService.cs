@@ -5,8 +5,8 @@ namespace BookApp.Client.Services.Interfaces
 {
     public interface IHighlightClientService : ITagManagerClientService
     {
-        public Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight);
-        public Task<HttpResponseMessage> AddHighlight(HighlightModel newHighlight);
-        public Task<HttpResponseMessage> DeleteHighlight(int highlightId);
+        public Task UpdateHighlight(HighlightModel updatedHighlight);
+        public Task<HighlightModel> AddHighlight(HighlightModel newHighlight);
+        public Task DeleteHighlight(int highlightId);
     }
 }

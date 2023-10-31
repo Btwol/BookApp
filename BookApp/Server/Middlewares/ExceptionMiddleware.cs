@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Middlewares
+﻿namespace BookApp.Server.Middlewares
 {
     public class ExceptionMiddleware
     {
@@ -47,7 +45,9 @@ namespace BookApp.Server.Middlewares
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
 
-            context.Response.WriteAsJsonAsync(ServiceResponse.Error(exception.Message, (HttpStatusCode)context.Response.StatusCode)).Wait();
+            context.Response.WriteAsJsonAsync(ServiceResponse.Error(
+                $"Error ocurred at {context.GetRouteValue("controller")}, {context.GetRouteValue("action")}"
+                , (HttpStatusCode)context.Response.StatusCode)).Wait();
         }
     }
 }

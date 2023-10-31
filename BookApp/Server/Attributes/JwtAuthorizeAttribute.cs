@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 
 namespace BookApp.Server.Attributes
 {

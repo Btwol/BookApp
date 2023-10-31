@@ -1,12 +1,4 @@
-﻿@using Blazored.Modal
-@using Blazored.Modal.Services
-@using BookApp.Client.Components.Tags
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces
-@using BookApp.Client.Services.Interfaces.Notes
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.ClientModels.Notes
-@inject IModalService Modal
+﻿@inject IModalService Modal
 @inject IParagraphNoteClientService _paragraphNoteClientService
 
 <button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
@@ -64,9 +56,7 @@
 
     private async Task DeleteParagraphNote(int noteId)
     {
-        var response = await _paragraphNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
-
+        await _paragraphNoteClientService.DeleteNote(noteId, bookAnalysisId);
         var noteToRemove = ParagraphNotes.FirstOrDefault(n => n.Id == noteId);
         ParagraphNotes.Remove(noteToRemove);
     }
@@ -74,6 +64,7 @@
     private async Task ShowManageTagsModal(ParagraphNoteModel note)
     {
         var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysisId)
         .Add(nameof(ManageTagsComponent.Tags), Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), note)
         .Add(nameof(ManageTagsComponent.tagManagerClientService), _paragraphNoteClientService);

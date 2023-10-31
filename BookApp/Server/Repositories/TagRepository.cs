@@ -6,6 +6,19 @@
         {
         }
 
+        public async override Task DeleteById(int id)
+        {
+            var tagToDelete = await FindByConditionsFirstOrDefault(t => t.Id == id);
+
+            tagToDelete.AnalysisNotes.Clear();
+            tagToDelete.ChapterNotes.Clear();
+            tagToDelete.ParagraphNotes.Clear();
+            tagToDelete.HighlightNotes.Clear();
+            tagToDelete.Highlights.Clear();
+
+            _context.Remove(tagToDelete);
+            await _context.SaveChangesAsync();
+        }
 
         public override IQueryable<Tag> QueryWithIncludes(DbSet<Tag> querry)
         {

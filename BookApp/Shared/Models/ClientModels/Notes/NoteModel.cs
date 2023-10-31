@@ -1,5 +1,4 @@
-﻿using BookApp.Shared.Interfaces.Model;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BookApp.Shared.Models.ClientModels.Notes
 {

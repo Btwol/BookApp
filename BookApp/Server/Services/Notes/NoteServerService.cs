@@ -1,17 +1,15 @@
-﻿using BookApp.Server.Models;
-using BookApp.Server.Repositories.Interfaces.Notes;
-using BookApp.Shared.Models.ClientModels.Notes;
+﻿using BookApp.Server.Repositories.Interfaces.Notes;
 
 namespace BookApp.Server.Services.Notes
 {
-    public abstract class NoteService<D, C> : INoteService<D, C> where D : INoteDBModel where C : INoteClientModel 
+    public abstract class NoteServerService<D, C> : INoteServerService<D, C> where D : INoteDBModel where C : INoteClientModel
     {
         protected readonly INoteRepository<D> _noteRepository;
         protected readonly IBookAnalysisRepository _bookAnalysisRepository;
         protected readonly IBookAnalysisServerService _bookAnalysisServerService;
-        protected readonly INoteMapperService<D, C> _noteMapper;
+        protected readonly INoteMapper<D, C> _noteMapper;
 
-        protected NoteService(INoteMapperService<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
+        protected NoteServerService(INoteMapper<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
             INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
         {
             _noteMapper = noteMapper;
@@ -23,7 +21,7 @@ namespace BookApp.Server.Services.Notes
         public async Task<ServiceResponse> AddNote(C noteModel, int bookAnalysisId)
         {
             var validationResult = await ValidateNoteRequest(bookAnalysisId, noteModel);
-            if(!validationResult.SuccessStatus)
+            if (!validationResult.SuccessStatus)
             {
                 return validationResult;
             }
@@ -34,7 +32,7 @@ namespace BookApp.Server.Services.Notes
         public async Task<ServiceResponse> DeleteNote(int noteId, int bookAnalysisId)
         {
             var noteToDelete = await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == noteId);
-            if(noteToDelete is null)
+            if (noteToDelete is null)
             {
                 return ServiceResponse.Error("Note not found.");
             }
@@ -63,10 +61,10 @@ namespace BookApp.Server.Services.Notes
                 return ServiceResponse.Error("Note not found.");
             }
 
-            ModifyNote(noteModel, (D)noteToEdit);
+            ModifyNote(noteModel, noteToEdit);
 
             await _noteRepository.Edit(noteToEdit);
-            noteModel = _noteMapper.MapToClientModel((D)noteToEdit);
+            noteModel = _noteMapper.MapToClientModel(noteToEdit);
             return ServiceResponse<C>.Success(noteModel, "Note edited.");
         }
 
@@ -95,7 +93,7 @@ namespace BookApp.Server.Services.Notes
         {
             var mappedNote = _noteMapper.MapToDbModel(noteModel);
             var savedNote = await _noteRepository.Create(mappedNote);
-            var createdNote = _noteMapper.MapToClientModel((D)savedNote);
+            var createdNote = _noteMapper.MapToClientModel(savedNote);
 
             return ServiceResponse<C>.Success(createdNote, "Note added.");
         }

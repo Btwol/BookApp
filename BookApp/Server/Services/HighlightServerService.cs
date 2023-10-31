@@ -1,14 +1,11 @@
-﻿using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class HighlightServerService : IHighlightServerService
     {
         private readonly IHighlightRepository _highlightRepository;
-        private readonly IHighlightMapperService _highlightMapperService;
+        private readonly IHighlightMapper _highlightMapperService;
 
-        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapperService highlightMapperService)
+        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapper highlightMapperService)
         {
             _highlightRepository = highlightRepository;
             _highlightMapperService = highlightMapperService;
@@ -16,17 +13,10 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> AddHighlight(HighlightModel newHighlight)
         {
-            try
-            {
-                var mappedHighlight = _highlightMapperService.MapToHighlight(newHighlight);
-                var addedHighlight = await _highlightRepository.Create(mappedHighlight);
-                var mappedHighlightModel = _highlightMapperService.MapToHighlightModel(addedHighlight);
-                return ServiceResponse<HighlightModel>.Success(mappedHighlightModel, "Highlight created.");
-            }
-            catch (Exception ex)
-            {
-                return ServiceResponse<Exception>.Error(ex, "Create highlight failed. " + ex.Message);
-            }
+            var mappedHighlight = _highlightMapperService.MapToDbModel(newHighlight);
+            var addedHighlight = await _highlightRepository.Create(mappedHighlight);
+            var mappedHighlightModel = _highlightMapperService.MapToClientModel(addedHighlight);
+            return ServiceResponse<HighlightModel>.Success(mappedHighlightModel, "Highlight created.");
         }
 
         public async Task<ServiceResponse> DeleteHighlight(int highlightId)
@@ -39,42 +29,28 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> RetrieveHighlights(int bookAnalysisId)
         {
-            try
+            var highlights = await _highlightRepository.FindByConditions(h => h.BookAnalysisId == bookAnalysisId);
+            List<HighlightModel> mappedHighlights = new();
+            foreach (Highlight highlight in highlights)
             {
-                var highlights = await _highlightRepository.FindByConditions(h => h.BookAnalysisId == bookAnalysisId);
-                List<HighlightModel> mappedHighlights = new();
-                foreach (Highlight highlight in highlights)
-                {
-                    mappedHighlights.Add(_highlightMapperService.MapToHighlightModel(highlight));
-                }
+                mappedHighlights.Add(_highlightMapperService.MapToClientModel(highlight));
+            }
 
-                return ServiceResponse<List<HighlightModel>>.Success(mappedHighlights, "Highlights retrieved.");
-            }
-            catch (Exception ex)
-            {
-                return ServiceResponse<Exception>.Error(ex, "Retrieve highlights failed.");
-            }
+            return ServiceResponse<List<HighlightModel>>.Success(mappedHighlights, "Highlights retrieved.");
         }
 
         public async Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
-            try
+            var highlightToUpdate = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == updatedHighlight.Id);
+            if (highlightToUpdate is null)
             {
-                var highlightToUpdate = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == updatedHighlight.Id);
-                if (highlightToUpdate is null)
-                {
-                    return ServiceResponse.Error("Highlight not found");
-                }
-
-                _highlightMapperService.MapEditHighlight(highlightToUpdate, updatedHighlight);
-                await _highlightRepository.Edit(highlightToUpdate);
-
-                return ServiceResponse.Success("Highlight updated.");
+                return ServiceResponse.Error("Highlight not found");
             }
-            catch (Exception ex)
-            {
-                return ServiceResponse<Exception>.Error(ex, "Update highlight failed.");
-            }
+
+            _highlightMapperService.MapEditHighlight(highlightToUpdate, updatedHighlight);
+            await _highlightRepository.Edit(highlightToUpdate);
+
+            return ServiceResponse.Success("Highlight updated.");
         }
     }
 }

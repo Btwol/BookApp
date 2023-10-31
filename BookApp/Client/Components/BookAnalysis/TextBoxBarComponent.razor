@@ -1,0 +1,53 @@
+﻿@inject IJSRuntime jsRuntime
+@inject IHighlightClientService _highlightClientService
+
+<div class="text-box-bar">
+    <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
+
+    <div class="row">
+        <div class="col">
+            <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+        </div>
+        <div class="col">
+            <p role="status">Current count: @currentCount</p>
+        </div>
+        <div class="col">
+            <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int currentCount { get; set; }
+    [Parameter]
+    public EventCallback<int> currentCountChanged { get; set; }
+
+    [Parameter]
+    public HighlightModel highlight { get; set; }
+
+    [Parameter]
+    public BookAnalysisModel bookAnalysis { get; set; }
+    
+    [Parameter]
+    public DotNetObjectReference<TextBox> dotNetRef { get; set; }
+
+
+    private async Task CreatePermanentHighlight()
+    {
+        if (highlight?.PageNumber == currentCount)
+        {
+            var newHighlight = await _highlightClientService.AddHighlight(highlight);
+            var elementId = highlight.GetElementId();
+            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
+            bookAnalysis.Highlights.Add(newHighlight);
+        }
+    }
+
+    private async void ChangePage(int page)
+    {
+        currentCount += page;
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+        await currentCountChanged.InvokeAsync(currentCount);
+    }
+}

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using BookApp.Server.Models;
 
 namespace BookApp.Server.Repositories
 {
@@ -12,7 +12,22 @@ namespace BookApp.Server.Repositories
         {
             return querry
                 .Include(h => h.Tags)
-                .Include(h => h.HighlightNotes);
+                .Include(h => h.HighlightNotes).ThenInclude(n => n.Tags);
+        }
+
+        public async override Task Delete(Highlight model)
+        {
+            var highlightToDelete = await FindByConditionsFirstOrDefault(h => h.Id == model.Id);
+
+            highlightToDelete.Tags.Clear();
+            foreach(var highlightNote in highlightToDelete.HighlightNotes)
+            {
+                highlightNote.Tags.Clear();
+                _context.Remove(highlightNote);
+            }
+
+            _context.Remove(highlightToDelete);
+            await _context.SaveChangesAsync();
         }
     }
 }

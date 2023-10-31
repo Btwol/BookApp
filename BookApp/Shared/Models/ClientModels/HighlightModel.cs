@@ -21,7 +21,7 @@ namespace BookApp.Shared.Models.ClientModels
         public int LastNodeCharIndex { get; set; }
         public string? RawPositionString { get; set; }
         public List<TagModel> Tags { get; set; } = new();
-        public List<HighlightNoteModel> Notes { get; set; } = new();
+        public List<HighlightNoteModel> HighlightNotes { get; set; } = new();
 
         public HighlightModel()
         {
@@ -38,11 +38,12 @@ namespace BookApp.Shared.Models.ClientModels
 
         public void Update(HighlightModel newSelectionRange)
         {
+            RawPositionString = newSelectionRange.RawPositionString;
             int[,] RawArray = JsonConvert.DeserializeObject<int[,]>(newSelectionRange.RawPositionString);
             FirstNodeIndex = RawArray[0, 0];
             FirstNodeCharIndex = RawArray[0, 1];
-            LastNodeIndex = RawArray[RawArray.Length / 2 - 1, 0];
-            LastNodeCharIndex = RawArray[RawArray.Length / 2 - 1, 1];
+            LastNodeIndex = RawArray[(RawArray.Length / 2) - 1, 0];
+            LastNodeCharIndex = RawArray[(RawArray.Length / 2) - 1, 1];
         }
 
         public string GetElementId()

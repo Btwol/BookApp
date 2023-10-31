@@ -1,9 +1,10 @@
-﻿using BookApp.Shared.Models.ClientModels.Notes;
+﻿using BookApp.Shared.Interfaces.Model;
+using BookApp.Shared.Models.ClientModels.Notes;
 using System.ComponentModel.DataAnnotations;
 
 namespace BookApp.Shared.Models.ClientModels
 {
-    public class BookAnalysisModel
+    public class BookAnalysisModel : IClientModel
     {
         public int Id { get; set; }
 

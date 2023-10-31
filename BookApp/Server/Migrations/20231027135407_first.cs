@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookApp.Server.Migrations
 {
-    public partial class initial : Migration
+    public partial class first : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -188,7 +188,8 @@ namespace BookApp.Server.Migrations
                         name: "FK_AnalysisNotes_BookAnalyses_BookAnalysisId",
                         column: x => x.BookAnalysisId,
                         principalTable: "BookAnalyses",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -235,7 +236,8 @@ namespace BookApp.Server.Migrations
                         name: "FK_ChapterNotes_BookAnalyses_BookAnalysisId",
                         column: x => x.BookAnalysisId,
                         principalTable: "BookAnalyses",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -280,7 +282,8 @@ namespace BookApp.Server.Migrations
                         name: "FK_ParagraphNotes_BookAnalyses_BookAnalysisId",
                         column: x => x.BookAnalysisId,
                         principalTable: "BookAnalyses",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -337,14 +340,12 @@ namespace BookApp.Server.Migrations
                         name: "FK_AnalysisNoteTag_AnalysisNotes_AnalysisNotesId",
                         column: x => x.AnalysisNotesId,
                         principalTable: "AnalysisNotes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AnalysisNoteTag_Tags_TagsId",
                         column: x => x.TagsId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -361,14 +362,12 @@ namespace BookApp.Server.Migrations
                         name: "FK_ChapterNoteTag_ChapterNotes_ChapterNotesId",
                         column: x => x.ChapterNotesId,
                         principalTable: "ChapterNotes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ChapterNoteTag_Tags_TagsId",
                         column: x => x.TagsId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -385,14 +384,12 @@ namespace BookApp.Server.Migrations
                         name: "FK_HighlightTag_Highlights_HighlightsId",
                         column: x => x.HighlightsId,
                         principalTable: "Highlights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_HighlightTag_Tags_TagsId",
                         column: x => x.TagsId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -409,18 +406,16 @@ namespace BookApp.Server.Migrations
                         name: "FK_ParagraphNoteTag_ParagraphNotes_ParagraphNotesId",
                         column: x => x.ParagraphNotesId,
                         principalTable: "ParagraphNotes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ParagraphNoteTag_Tags_TagsId",
                         column: x => x.TagsId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "HighlightNoteTag",
+                name: "HighlightNoteTags",
                 columns: table => new
                 {
                     HighlightNotesId = table.Column<int>(type: "int", nullable: false),
@@ -428,19 +423,17 @@ namespace BookApp.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HighlightNoteTag", x => new { x.HighlightNotesId, x.TagsId });
+                    table.PrimaryKey("PK_HighlightNoteTags", x => new { x.HighlightNotesId, x.TagsId });
                     table.ForeignKey(
-                        name: "FK_HighlightNoteTag_HighlightNotes_HighlightNotesId",
+                        name: "FK_HighlightNoteTags_HighlightNotes_HighlightNotesId",
                         column: x => x.HighlightNotesId,
                         principalTable: "HighlightNotes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_HighlightNoteTag_Tags_TagsId",
+                        name: "FK_HighlightNoteTags_Tags_TagsId",
                         column: x => x.TagsId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -448,8 +441,8 @@ namespace BookApp.Server.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { 1, "6ebd6854-b117-4549-b093-c5b57ad57bb5", "Admin", "ADMIN" },
-                    { 2, "ac565a91-bb4f-4d74-bee4-ee037178b891", "User", "USER" }
+                    { 1, "cc20bee5-8ef8-4620-a67c-d4926c58ea04", "Admin", "ADMIN" },
+                    { 2, "ef55a670-5588-48ae-bdad-e6c93c041e0e", "User", "USER" }
                 });
 
             migrationBuilder.InsertData(
@@ -457,8 +450,8 @@ namespace BookApp.Server.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "db251ed6-341d-4de8-9a55-d7b329f28580", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderAdmin" },
-                    { 2, 0, "e21dd91e-60f6-4238-8595-e71ac10ed199", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderUser" }
+                    { 1, 0, "d22a273e-4094-4f8a-a5fb-d92f60217890", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderAdmin" },
+                    { 2, 0, "f2232ee9-63b7-457e-95a6-ce0f249b0353", null, false, false, null, null, null, null, null, false, null, false, "PlaceholderUser" }
                 });
 
             migrationBuilder.InsertData(
@@ -546,8 +539,8 @@ namespace BookApp.Server.Migrations
                 column: "HighlightId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HighlightNoteTag_TagsId",
-                table: "HighlightNoteTag",
+                name: "IX_HighlightNoteTags_TagsId",
+                table: "HighlightNoteTags",
                 column: "TagsId");
 
             migrationBuilder.CreateIndex(
@@ -603,7 +596,7 @@ namespace BookApp.Server.Migrations
                 name: "ChapterNoteTag");
 
             migrationBuilder.DropTable(
-                name: "HighlightNoteTag");
+                name: "HighlightNoteTags");
 
             migrationBuilder.DropTable(
                 name: "HighlightTag");

@@ -1,16 +1,14 @@
-﻿using BookApp.Shared.Models.ClientModels.Notes;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [JwtAuthorize("User")]
     [Route("[controller]")]
     public class ChapterNoteController : ControllerBase
     {
-        private readonly IChapterNoteService _chapterNoteService;
-        private readonly ITagServerService<ChapterNote> _tagService;
+        private readonly IChapterNoteServerService _chapterNoteService;
+        private readonly ITagManagerServerService<ChapterNote> _tagService;
 
-        public ChapterNoteController(IChapterNoteService chapterNoteService, ITagServerService<ChapterNote> tagService)
+        public ChapterNoteController(IChapterNoteServerService chapterNoteService, ITagManagerServerService<ChapterNote> tagService)
         {
             _chapterNoteService = chapterNoteService;
             _tagService = tagService;

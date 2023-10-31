@@ -1,10 +1,4 @@
-﻿@using Blazored.Modal
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces
-@using BookApp.Shared.Models.ClientModels
-@using EpubSharp
-@using BookApp.Client.Components.ErrorHandler
-@inject IBookAnalysisClientService _bookAnalysisClientService
+﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 
 <ErrorHandlerComponent ChildComponentName="Edit analysys">
 <ChildContent>
@@ -23,13 +17,13 @@
     }
     else
     {
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="button-action">Submit</button>
     }
 </EditForm>
 </ChildContent>
 </ErrorHandlerComponent>
 
-<button @onclick="Close">Close</button>
+<button class="button-action" @onclick="Close">Close</button>
 
 @code {
     [CascadingParameter] 
@@ -46,12 +40,16 @@
     public async Task EditAnalysisSubmit()
     {
         awaitingResponse = true;
+        try
+        {
+            await _bookAnalysisClientService.EditBookAnalysis(analysisFormModel);
+        }
+        finally
+        {
+            awaitingResponse = false;
+        }
 
-        var response = await _bookAnalysisClientService.EditBookAnalysis(analysisToEdit);
-        awaitingResponse = false;
-        await HelperService.HandleResponse(response);
         analysisToEdit = new BookAnalysisModel(analysisFormModel);
-
         await Close();
     }
 

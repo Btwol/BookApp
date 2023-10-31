@@ -1,12 +1,4 @@
-﻿@using Blazored.Modal
-@using Blazored.Modal.Services
-@using BookApp.Client.Components.Tags
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces
-@using BookApp.Client.Services.Interfaces.Notes
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.ClientModels.Notes
-@inject IModalService Modal
+﻿@inject IModalService Modal
 @inject IHighlightNoteClientService _highlightNoteClientService
 
 <h3>Current Highlight Notes:</h3>
@@ -53,8 +45,7 @@
             NewHighlightNote.HighlightId = currentHighlightId;
             NewHighlightNote.BookAnalysisId = bookAnalysisId;
 
-            var response = await _highlightNoteClientService.AddNote(NewHighlightNote);
-            var newNote = await HelperService.ReadServiceResponse<HighlightNoteModel>(response);
+            var newNote = await _highlightNoteClientService.AddNote(NewHighlightNote);
             HighlightNotes.Add(newNote);
         }
     }
@@ -68,8 +59,7 @@
 
     private async Task DeleteHighlightNote(int noteId)
     {
-        var response = await _highlightNoteClientService.DeleteNote(noteId);
-        await HelperService.ReadServiceResponse(response);
+        await _highlightNoteClientService.DeleteNote(noteId, bookAnalysisId);
 
         var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
         HighlightNotes.Remove(noteToRemove);
@@ -78,6 +68,7 @@
     private async Task ShowManageTagsModal(HighlightNoteModel note)
     {
         var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysisId)
         .Add(nameof(ManageTagsComponent.Tags), Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), note)
         .Add(nameof(ManageTagsComponent.tagManagerClientService), _highlightNoteClientService);

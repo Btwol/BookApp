@@ -5,9 +5,8 @@ namespace BookApp.Client.Services.Interfaces
 {
     public interface ITagClientService
     {
-        public Task<HttpResponseMessage> AddTag(int tagId, int highlightId, TaggedType taggedType);
-        public Task<HttpResponseMessage> RemoveTag(int tagId, int highlightId);
-        public Task<HttpResponseMessage> CreateNewTag(TagModel newTag, int bookAnalysisId);
-        public Task<HttpResponseMessage> GetTags(int bookAnalysisId);
+        public Task<TagModel> CreateNewTag(TagModel newTag, int bookAnalysisId);
+        public Task EditTag(TagModel tagToEdit);
+        public Task DeleteTag(int tagId);
     }
 }

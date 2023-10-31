@@ -1,16 +1,14 @@
-﻿using BookApp.Shared.Models.ClientModels.Notes;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [JwtAuthorize("User")]
     [Route("[controller]")]
     public class HighlightNoteController : ControllerBase
     {
-        private readonly IHighlightNoteService _highlightNoteService;
-        private readonly ITagServerService<HighlightNote> _tagService;
+        private readonly IHighlightNoteServerService _highlightNoteService;
+        private readonly ITagManagerServerService<HighlightNote> _tagService;
 
-        public HighlightNoteController(IHighlightNoteService highlightNoteService, ITagServerService<HighlightNote> tagService)
+        public HighlightNoteController(IHighlightNoteServerService highlightNoteService, ITagManagerServerService<HighlightNote> tagService)
         {
             _highlightNoteService = highlightNoteService;
             _tagService = tagService;

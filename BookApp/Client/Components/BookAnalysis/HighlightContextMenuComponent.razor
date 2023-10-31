@@ -1,0 +1,55 @@
+﻿@inject IHighlightClientService _highlightClientService
+@inject IJSRuntime jsRuntime
+@inject IModalService Modal
+
+
+<div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
+    <button class="button-action" @onclick="DeleteHighlight">Delete</button>
+    <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
+    <button class="button-action" @onclick="() => ShowManageTagsModal(currentHighlight)">Manage Tags</button>
+</div>
+
+@code {
+    [Parameter]
+    public HighlightModel currentHighlight { get; set; }
+
+    [Parameter]
+    public BookAnalysisModel bookAnalysis { get; set; }
+
+    [Parameter]
+    public bool editFlag { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> editFlagChanged { get; set; }
+
+    private ElementReference contextMenuRef;
+
+    private async Task ShowManageTagsModal(HighlightModel highlight)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), bookAnalysis.Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), highlight)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), _highlightClientService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
+        await modal.Result;
+    }
+
+    async Task ReApplyHighlight()
+    {
+        editFlag = true;
+        await editFlagChanged.InvokeAsync(editFlag);
+    }
+
+    async Task DeleteHighlight()
+    {
+        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlight.GetElementId());
+        if (highlightToRemove is not null)
+        {
+            await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
+            await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), highlightToRemove.NodeCount);
+            bookAnalysis.Highlights.Remove(highlightToRemove);
+        }
+    }
+}

@@ -5,39 +5,10 @@ using System.Net.Http.Json;
 
 namespace BookApp.Client.Services.Notes
 {
-    public class ChapterNoteClientService : IChapterNoteClientService
+    public class ChapterNoteClientService : NoteClientService<ChapterNoteModel>, IChapterNoteClientService
     {
-        private readonly HttpClient Http;
-
-        public ChapterNoteClientService(HttpClient http, IJSRuntime jsRuntime)
+        public ChapterNoteClientService(HttpClient http, IJSRuntime jsRuntime) : base(http, jsRuntime)
         {
-            Http = http;
-            HelperService.AddTokenToRequest(http, jsRuntime);
-        }
-
-        public async Task<HttpResponseMessage> AddNote(ChapterNoteModel chapterNoteModel)
-        {
-            return await Http.PostAsJsonAsync<ChapterNoteModel>($"ChapterNote/AddChapterNote", chapterNoteModel);
-        }
-
-        public async Task<HttpResponseMessage> DeleteNote(int noteId)
-        {
-            return await Http.DeleteAsync($"ChapterNote/DeleteChapterNote/{noteId}");
-        }
-
-        public async Task<HttpResponseMessage> EditNote(ChapterNoteModel chapterNoteModel)
-        {
-            return await Http.PutAsJsonAsync($"ChapterNote/EditChapterNote", chapterNoteModel);
-        }
-
-        public async Task<HttpResponseMessage> AddTag(int chapterNoteId, int tagId)
-        {
-            return await Http.PostAsync($"ChapterNote/AddTag/{chapterNoteId}/{tagId}", null);
-        }
-
-        public async Task<HttpResponseMessage> RemoveTag(int chapterNoteId, int tagId)
-        {
-            return await Http.DeleteAsync($"ChapterNote/RemoveTag/{chapterNoteId}/{tagId}");
         }
     }
 }

@@ -1,17 +1,14 @@
-﻿using BookApp.Server.Models;
-using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Services;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
+    [JwtAuthorize("User")]
     [Route("[controller]")]
     public class HighlightController : ControllerBase
     {
         private readonly IHighlightServerService _highlightService;
-        private readonly ITagServerService<Highlight> _tagService;
+        private readonly ITagManagerServerService<Highlight> _tagService;
 
-        public HighlightController(IHighlightServerService highlightService, ITagServerService<Highlight> tagService)
+        public HighlightController(IHighlightServerService highlightService, ITagManagerServerService<Highlight> tagService)
         {
             _highlightService = highlightService;
             _tagService = tagService;
@@ -20,7 +17,7 @@ namespace BookApp.Server.Controllers
         [HttpPut("UpdateHighlight")]
         public async Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
-            return null;// await _highlightService.UpdateHighlight(updatedHighlight);
+            return await _highlightService.UpdateHighlight(updatedHighlight);
         }
 
         [HttpPost("AddHighlight")]
@@ -41,10 +38,10 @@ namespace BookApp.Server.Controllers
             return await _tagService.AddTag(highlightId, tagId);
         }
 
-        [HttpDelete("RemoveTag/{highlightId}")]
+        [HttpDelete("RemoveTag/{highlightId}/{tagId}")]
         public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
         {
-            return await _tagService.AddTag(highlightId, tagId);
+            return await _tagService.RemoveTag(highlightId, tagId);
         }
     }
 }

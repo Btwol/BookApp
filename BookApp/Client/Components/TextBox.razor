@@ -1,26 +1,8 @@
-﻿@using Blazored.Modal
-@using Blazored.Modal.Services
-@using BookApp.Client.Components.Notes
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces
-@using BookApp.Shared
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.ClientModels.Notes
-@using BookApp.Shared.Models.Services
-@using EpubSharp
-@using System.Web
-@using System.Xml
-@using static System.Net.Mime.MediaTypeNames
-@using Microsoft.AspNetCore.Html
-@using Newtonsoft.Json
-@using BookApp.Client.Components
-@using BookApp.Client.Components.ErrorHandler
-
-@inject IBookAnalysisClientService _bookAnalysisClientService
+﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-@inject IModalService Modal
+
 
 <style>
     .highlight-container
@@ -31,7 +13,7 @@
         .highlight {
     position: fixed;
     background-color: rgba(1, 1, 255, 0.3);
-    z-index:998;
+    z-index:99;
 }
 
     .highlight:hover {
@@ -57,13 +39,6 @@
             height:100%;
             width:100%;
                                     padding: 5px;
-    }
-
-        .highlight-window-2 {
-            position:absolute;
-
-      background-color: rgba(255, 1, 0, 0.8);
-      z-index:997
     }
 
         .note-container {
@@ -99,12 +74,10 @@
     <ErrorHandlerComponent ChildComponentName="Notes component">
     <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
                         @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.Notes" currentHighlightId="currentHighlight.Id"
-                        Tags="bookAnalysis.Tags "/>
+                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
+                        Tags="bookAnalysis.Tags"/>
     </ChildContent>
     </ErrorHandlerComponent>
-
-<div id="overlay" @ref="overlayElementRef" class="highlight-window-2"></div>
 
 
 @if (isLoading)
@@ -113,183 +86,42 @@
 }
 else
 {
-
-<div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-            @if (currentHighlight.Id != 0)
-            {
-                <p>Current Highlight Id: @currentHighlight.Id</p>
-            }
-            @if (currentHighlightId != null)
-            {
-                <p>currentHighlightId: @currentHighlightId</p>
-            }
-            <hr />
-            <button class="button-action" @onclick="DeleteHighlight">Delete</button>
-            <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
-            <hr />
-            @if (currentHighlight.Id != 0)
-            {
-                <p>Current Tags: </p>
-                @foreach (var tag in currentHighlight.Tags)
-                {
-                    <li class="tag-item" @onclick="() => RemoveTag(tag.Id)">@tag.Name</li>
-                }
-            }
-            <hr />
-            <p>Add Tag: </p>
-            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
-            @foreach (var tag in filteredTags)
-            {
-                <li class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</li>
-            }
-<hr />
-
-<p>Create new tag:</p>
-<EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <InputText @bind-Value="NewTag!.Name" />
-    <button type="submit">Submit</button>
-</EditForm>
-
-</div>
+<ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
+    <ChildContent>
+        <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag"/>
+    </ChildContent>
+</ErrorHandlerComponent>
 }
 
+<ErrorHandlerComponent ChildComponentName="Text Box Bar">
+    <ChildContent>
+        <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight"/>
+    </ChildContent>
+</ErrorHandlerComponent>
 
-<div class="text-box-bar">
-    <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
-    <button class="button-action" @onclick="AddNote">Add Note</button>
-    <button class="button-action" @onclick="Refresh">Refresh</button>
 
-    <div class="row">
-        <div class="col">
-            <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
-        </div>
-        <div class="col">
-            <p role="status">Current count: @currentCount</p>
-        </div>
-        <div class="col">
-            <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
-        </div>
-    </div>
-</div>
 
 @code{
-
-    public TagModel? NewTag { get; set; } = new();
-    private List<TagModel> Tags = new();
-    private List<IBrowserFile> loadedFiles = new();
-    private long maxFileSize = 1024 * 32;
-    private int maxAllowedFiles = 3;
-    private bool isLoading = true;
-    private byte[] fileByteArray;
-    private bool loadingCurrentHighlight = true;
-
     [Parameter]
     public EpubBook book { get; set; }
 
     [Parameter]
     public BookAnalysisModel bookAnalysis { get; set; }
 
-
-
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
-    private ElementReference contextMenuRef;
-    private ElementReference overlayElementRef;
-    private ElementReference highlightContainerRef;
-
-
-    public string currentHighlightId = string.Empty;
     private HighlightModel currentHighlight = new HighlightModel();
-
-    public string text;
+    public bool editFlag;
     List<EpubTextFile> html;
     ICollection<EpubTextFile> css;
     ICollection<EpubByteFile> images;
     ICollection<EpubByteFile> fonts;
     public string selectedText = "none";
-    bool editFlag = false;
-
-    HighlightModel highlight;
-
-    private int currentCount =7;
-
-    public List<string> overlays = new();
-
+    private HighlightModel highlight;
+    private int currentCount = 7;
     public int lastClickedTextNodeIndex = -1;
+    private bool isLoading = true;
 
-
-    #region Tags
-    private string tagSearchKeyword = "";
-    private List<TagModel> filteredTags = new();
-    private void FilterTags(ChangeEventArgs e)
-    {
-        tagSearchKeyword = e.Value.ToString();
-        Console.WriteLine("current: " + e.Value);
-        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
-            ? bookAnalysis.Tags
-            : bookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
-    }
-
-    async Task CreateNewTag()
-    {
-        if(NewTag is not null)
-        {
-            var response = await _tagService.CreateNewTag(NewTag, bookAnalysis.Id);
-            if(response.IsSuccessStatusCode)
-            {
-                var newTag = await HelperService.ReadServiceResponse<TagModel>(response);
-                bookAnalysis.Tags.Add(newTag);
-                NewTag = new();
-            }
-        }
-    }
-
-    async Task RemoveTag(int tagId)
-    {
-        if (!currentHighlight.Tags.Any(t => t.Id == tagId))
-        {
-            return;
-        }
-
-        var resposne = await _tagService.RemoveTag(tagId, HighlightModel.GetElementId(currentHighlightId));
-        if(resposne.IsSuccessStatusCode)
-        {
-            var tagToRemove = currentHighlight.Tags.FirstOrDefault(t => t.Id == tagId);
-            if(tagToRemove is not null)
-            {
-                currentHighlight.Tags.Remove(tagToRemove);
-                StateHasChanged();
-            }
-        }
-    }
-
-    async Task AddTag(int tagId)
-    {
-        if (currentHighlight.Tags.Any(t => t.Id == tagId))
-        {
-            return;
-        }
-
-        var resposne = await _highlightClientService.AddTag(currentHighlight.Id,tagId);
-        if(resposne.IsSuccessStatusCode)
-        {
-            var tagToAdd = bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
-            if(tagToAdd is not null)
-            {
-                currentHighlight.Tags.Add(tagToAdd);
-            }
-        }
-    }
-
-    async Task LoadTags()
-    {
-        var response = await _tagService.GetTags(bookAnalysis.Id);
-        var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse<List<TagModel>>>();
-        Tags = serviceResponse.Content;
-    }
-    #endregion
 
     [JSInvokableAttribute("ReRender")]
     public async void ReRender()
@@ -302,37 +134,6 @@ else
         StateHasChanged();
     }
 
-
-
-    async Task AddNote()
-    {
-        await jsRuntime.InvokeVoidAsync("addNote");
-        //await notesService.CreateNote();
-    }
-
-    async Task ReApplyHighlight(MouseEventArgs e)
-    {
-        editFlag = true;
-        await GetSelectedText(e);
-
-        //await CreatePermanentHighlight();
-        //await DeleteHighlight();
-    }
-
-    async Task DeleteHighlight()
-    {
-        var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlightId);
-        if (highlightToRemove is not null)
-        {
-            var response = await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
-            if (true)
-            {
-                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, highlightToRemove.NodeCount);
-                bookAnalysis.Highlights.Remove(highlightToRemove);
-            }
-        }
-    }
-
     async Task GetSelectedText(MouseEventArgs e)
     {
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
@@ -341,40 +142,23 @@ else
 
         if (items != "-1")
         {
-            //if (editFlag)
-            //{
-            //    editFlag = false;
-            //    var newSelection = new HighlightModel(items, currentCount);
-            //    var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.ElementId == currentHighlightId);
-            //    editedSelection.Update(newSelection);
-            //    _bookAnalysisClientService.UpdateBookAnalysis(bookAnalysis);
-            //    await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlightId, editedSelection.NodeCount);
-            //    //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, objRef, editedSelection.ElementId);
-            //}
+            if (editFlag)
+            {
+                editFlag = false;
+                var newSelection = new HighlightModel(bookAnalysis.Id, currentCount, items);
+                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
+                editedSelection.Update(newSelection);
+                await _highlightClientService.UpdateHighlight(editedSelection);
+                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), editedSelection.NodeCount);
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
+            }
 
             //else 
             highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
         }
-        //await jsRuntime.InvokeVoidAsync("highlightText.init", textContainerRef);
     }
 
-    private async Task CreatePermanentHighlight()
-    {
-        if (highlight is not null && highlight?.PageNumber == currentCount)
-        {
-            var elementId = highlight.GetElementId();
-            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
 
-
-            var response = await _highlightClientService.AddHighlight(highlight); //should return the new highlight
-            if(response.IsSuccessStatusCode)
-            {
-                var newHighlight = await HelperService.ReadServiceResponse<HighlightModel>(response);
-                bookAnalysis.Highlights.Add(newHighlight);
-            }
-
-        }
-    }
 
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
@@ -387,16 +171,14 @@ else
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlightId = idToString;
         currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
-        jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
+        await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
         StateHasChanged();
     }
 
     [JSInvokableAttribute("onPernamentHighlightClickOff")]
     public async void onPernamentHighlightClickOff()
     {
-        currentHighlightId = string.Empty;
         currentHighlight = new HighlightModel();
         StateHasChanged();
         //currentHighlightId = idToString;
@@ -404,11 +186,7 @@ else
         //await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
 
-    private async void ChangePage(int page)
-    {
-        currentCount += page;
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
-    }
+
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -483,7 +261,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         dotNetRef = DotNetObjectReference.Create(this);
-        filteredTags = bookAnalysis.Tags;
-
+        editFlag = false;
     }
 }

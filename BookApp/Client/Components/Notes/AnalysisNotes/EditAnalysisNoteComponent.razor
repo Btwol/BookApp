@@ -1,9 +1,4 @@
-﻿@using Blazored.Modal
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces.Notes
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.ClientModels.Notes
-@inject IAnalysisNoteClientService _analysisNoteClientService
+﻿@inject IAnalysisNoteClientService _analysisNoteClientService
 
 <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit analysis">
     <ChildContent>
@@ -47,8 +42,7 @@
     {
         awaitingResponse = true;
 
-        var response = await _analysisNoteClientService.EditNote(currentAnalysisNote);
-        var editedNote = await HelperService.HandleResponse<AnalysisNoteModel>(response);
+        var editedNote = await _analysisNoteClientService.EditNote(currentAnalysisNote);
         AnalysisNote = editedNote;
 
         await Close();

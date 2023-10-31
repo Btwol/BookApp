@@ -1,5 +1,4 @@
-﻿using BookApp.Server.Models.Identity;
-using BookApp.Shared.Models.Identity;
+﻿using BookApp.Shared.Models.Identity;
 
 namespace BookApp.Server.Services.MapperServices.Mappings
 {

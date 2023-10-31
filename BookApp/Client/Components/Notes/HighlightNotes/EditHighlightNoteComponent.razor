@@ -1,9 +1,4 @@
-﻿@using Blazored.Modal
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces.Notes
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.ClientModels.Notes
-@inject IHighlightNoteClientService _highlightNoteClientService
+﻿@inject IHighlightNoteClientService _highlightNoteClientService
 
 <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit highlight">
     <ChildContent>
@@ -47,8 +42,7 @@
     {
         awaitingResponse = true;
 
-        var response = await _highlightNoteClientService.EditNote(currentHighlightNote);
-        var editedNote = await HelperService.HandleResponse<HighlightNoteModel>(response);
+        var editedNote = await _highlightNoteClientService.EditNote(currentHighlightNote);
         HighlightNote = editedNote;
 
         await Close();

@@ -1,9 +1,4 @@
-﻿@using Blazored.Modal
-@using BookApp.Client.Services
-@using BookApp.Client.Services.Interfaces.Notes
-@using BookApp.Shared.Models.ClientModels
-@using BookApp.Shared.Models.ClientModels.Notes
-@inject IChapterNoteClientService _chapterNoteClientService
+﻿@inject IChapterNoteClientService _chapterNoteClientService
 
 <BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Edit chapter">
     <ChildContent>
@@ -56,8 +51,7 @@
         newChapterNote.BookAnalysisId = bookAnalysisId;
         newChapterNote.ChapterNumber = pageNumber;
 
-        var response = await _chapterNoteClientService.AddNote(newChapterNote);
-        var newNote = await HelperService.HandleResponse<ChapterNoteModel>(response);
+        var newNote = await _chapterNoteClientService.AddNote(newChapterNote);
         ChapterNotes.Add(newNote);
 
         await Close();
