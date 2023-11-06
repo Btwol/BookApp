@@ -30,8 +30,8 @@
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
     [Parameter] 
-    public BookAnalysisModel analysisToEdit { get; set; }
-    public BookAnalysisModel analysisFormModel { get; set; }
+    public BookAnalysisSummaryModel analysisToEdit { get; set; }
+    public BookAnalysisSummaryModel analysisFormModel { get; set; }
 
     private bool awaitingResponse = false;
 
@@ -49,12 +49,12 @@
             awaitingResponse = false;
         }
 
-        analysisToEdit = new BookAnalysisModel(analysisFormModel);
+        analysisToEdit = new BookAnalysisSummaryModel(analysisFormModel);
         await Close();
     }
 
     protected override void OnInitialized()
     {
-        analysisFormModel = new BookAnalysisModel(analysisToEdit);
+        analysisFormModel = new BookAnalysisSummaryModel(analysisToEdit);
     }
 }

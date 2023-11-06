@@ -14,7 +14,8 @@
                 .Include(b => b.Tags)
                 .Include(b => b.ParagraphNotes).ThenInclude(n => n.Tags)
                 .Include(b => b.ChapterNotes).ThenInclude(n => n.Tags)
-                .Include(b => b.AnalysisNotes).ThenInclude(n => n.Tags);
+                .Include(b => b.AnalysisNotes).ThenInclude(n => n.Tags)
+                .Include(b => b.Users);
         }
     }
 }

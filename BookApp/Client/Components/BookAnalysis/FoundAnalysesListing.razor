@@ -1,7 +1,7 @@
 ﻿@inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
 
-@foreach (BookAnalysisModel bookAnalysis in foundBookAnalyses)
+@foreach (BookAnalysisSummaryModel bookAnalysis in foundBookAnalyses)
 {
     <div class="book-analysis-listing">
         <b>Analysis Title: </b>
@@ -19,6 +19,12 @@
             <p>@author</p>
         }
         <hr />
+        <b>Members:</b>
+        @foreach (var member in bookAnalysis.Members)
+        {
+            <p>@member.Key.Email | @member.Value.ToString()</p>
+        }
+        <hr />
         <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
         <button class="button-action" @onclick="() => DeleteAnalysis(bookAnalysis)">Delete analysis</button>
         <button class="button-action" @onclick="() => ShowEditAnalysisModal(bookAnalysis)">Edit analysis</button>
@@ -28,22 +34,23 @@
 
 @code {
     [Parameter]
-    public List<BookAnalysisModel> foundBookAnalyses { get; set; } = new();
+    public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
 
     [Parameter]
-    public EventCallback<BookAnalysisModel> selectedBookAnalysisChanged { get; set; }
+    public BookAnalysisDetailedModel selectedBookAnalysis { get; set; }
 
     [Parameter]
-    public BookAnalysisModel selectedBookAnalysis { get; set; }
+    public EventCallback<BookAnalysisDetailedModel> selectedBookAnalysisChanged { get; set; }
 
-    private async Task ShowEditAnalysisModal(BookAnalysisModel bookAnalysis)
+
+    private async Task ShowEditAnalysisModal(BookAnalysisSummaryModel bookAnalysis)
     {
         var parameters = new ModalParameters().Add(nameof(EditAnalysis.analysisToEdit), bookAnalysis);
         var modal = Modal.Show<EditAnalysis>("Edit Analysis", parameters);
         await modal.Result;
     }
 
-    private async Task DeleteAnalysis(BookAnalysisModel analysisToDelete)
+    private async Task DeleteAnalysis(BookAnalysisSummaryModel analysisToDelete)
     {
         await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
 
@@ -51,18 +58,18 @@
         StateHasChanged();
     }
 
-    private async Task LoadAnalysis(BookAnalysisModel selectedBookAnalysis)
+    private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
     {
-        this.selectedBookAnalysis = selectedBookAnalysis;
+        this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
         await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        var presetAnalysis = foundBookAnalyses.FirstOrDefault(a => a.AnalysisTitle == "presetAnalysis");
-        if(presetAnalysis is not null)
-        {
-            await LoadAnalysis(presetAnalysis);
-        }
+        ////var presetAnalysis = foundBookAnalyses.FirstOrDefault(a => a.AnalysisTitle == "presetAnalysis");
+        //if(presetAnalysis is not null)
+        //{
+        //    await LoadAnalysis(presetAnalysis);
+        //}
     }
 }

@@ -5,11 +5,19 @@
         private static readonly string BreakSign = "_SEPARATE_";
         public BookAnalysisMapperProfile()
         {
-            CreateMap<BookAnalysisModel, BookAnalysis>()
+            CreateMap<BookAnalysisDetailedModel, BookAnalysis>()
                 .ForMember(m => m.Authors, b => b.Ignore())
                 .AfterMap((src, dest) => dest.Authors = string.Join(BreakSign, src.Authors));
 
-            CreateMap<BookAnalysis, BookAnalysisModel>()
+            CreateMap<BookAnalysisSummaryModel, BookAnalysis>()
+                .ForMember(m => m.Authors, b => b.Ignore())
+                .AfterMap((src, dest) => dest.Authors = string.Join(BreakSign, src.Authors));
+
+            CreateMap<BookAnalysis, BookAnalysisDetailedModel>()
+                .ForMember(m => m.Authors, b => b.Ignore())
+                .AfterMap((src, dest) => dest.Authors = src.Authors.Split(new string[] { BreakSign }, StringSplitOptions.None).ToList());
+
+            CreateMap<BookAnalysis, BookAnalysisSummaryModel>()
                 .ForMember(m => m.Authors, b => b.Ignore())
                 .AfterMap((src, dest) => dest.Authors = src.Authors.Split(new string[] { BreakSign }, StringSplitOptions.None).ToList());
 

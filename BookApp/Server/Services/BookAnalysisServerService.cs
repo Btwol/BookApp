@@ -21,17 +21,17 @@
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
         }
 
-        public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisModel newAnalysisModel)
+        public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisSummaryModel newAnalysisModel)
         {
-            var newAnalysis = _bookAnalysisMapper.MapToDbModel(newAnalysisModel);
+            var newAnalysis = await _bookAnalysisMapper.MapToDbModel(newAnalysisModel);
 
             var creator = await _userManager.FindByIdAsync(_userService.GetCurrentUserId().ToString());
             newAnalysis.Users.Add(creator);
 
             newAnalysis = await _bookAnalysisRepository.Create(newAnalysis);
-            newAnalysisModel = _bookAnalysisMapper.MapToClientModel(newAnalysis);
+            newAnalysisModel = await _bookAnalysisMapper.MapToClientModel(newAnalysis);
 
-            return ServiceResponse<BookAnalysisModel>.Success(newAnalysisModel, "Analysis created.");
+            return ServiceResponse<BookAnalysisSummaryModel>.Success(newAnalysisModel, "Analysis created.");
         }
 
         public async Task<ServiceResponse> DeleteBookAnalysis(int analysisId)
@@ -51,19 +51,19 @@
             return ServiceResponse.Success("Analysis deleted.");
         }
 
-        public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
+        public async Task<ServiceResponse> GetAnalysesByHash(string bookHash)
         {
             var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
-            List<BookAnalysisModel> mappedAnalyses = new();
+            List<BookAnalysisSummaryModel> mappedAnalyses = new();
             foreach (var analysis in foundAnalyses)
             {
-                mappedAnalyses.Add(_bookAnalysisMapper.MapToClientModel(analysis));
+                mappedAnalyses.Add(await _bookAnalysisMapper.MapToClientModel(analysis));
             }
 
-            return ServiceResponse<List<BookAnalysisModel>>.Success(mappedAnalyses, "Analyses retrieved.");
+            return ServiceResponse<List<BookAnalysisSummaryModel>>.Success(mappedAnalyses, "Analyses retrieved.");
         }
 
-        public async Task<ServiceResponse> GetBookAnalysis(int analysisId)
+        public async Task<ServiceResponse> GetAnalysisById(int analysisId)
         {
             var analysis = await _bookAnalysisRepository.FindByConditionsFirstOrDefault(b => b.Id == analysisId);
             if (analysis is null)
@@ -71,11 +71,11 @@
                 return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);
             }
 
-            var mappedAnalysis = _bookAnalysisMapper.MapToClientModel(analysis);
-            return ServiceResponse<BookAnalysisModel>.Success(mappedAnalysis, "Analysis retrieved.");
+            var mappedAnalysis = await _bookAnalysisMapper.MapToDetailedModel(analysis);
+            return ServiceResponse<BookAnalysisDetailedModel>.Success(mappedAnalysis, "Analysis retrieved.");
         }
 
-        public async Task<ServiceResponse> EditBookAnalysis(BookAnalysisModel updatedBookAnalysisModel)
+        public async Task<ServiceResponse> EditBookAnalysis(BookAnalysisSummaryModel updatedBookAnalysisModel)
         {
             var analysistoUpdate = await _bookAnalysisRepository.FindByConditionsFirstOrDefault(a => a.Id == updatedBookAnalysisModel.Id);
             if (analysistoUpdate is null)

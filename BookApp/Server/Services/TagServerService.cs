@@ -40,11 +40,11 @@
                 return validationResult;
             }
 
-            var mappedTag = _tagMapperService.MapToDbModel(newTag);
+            var mappedTag = await _tagMapperService.MapToDbModel(newTag);
             mappedTag.BookAnalysisId = bookAnalysisId;
 
             var addedTag = await _tagRepository.Create(mappedTag);
-            var mappedAddedTag = _tagMapperService.MapToClientModel(addedTag);
+            var mappedAddedTag = await _tagMapperService.MapToClientModel(addedTag);
 
             return ServiceResponse<TagModel>.Success(mappedAddedTag, "Tag created.");
         }

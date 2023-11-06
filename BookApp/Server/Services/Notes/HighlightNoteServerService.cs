@@ -35,9 +35,9 @@ namespace BookApp.Server.Services.Notes
 
         protected override async Task<ServiceResponse> SaveNote(HighlightNoteModel noteModel)
         {
-            var mappedNote = _noteMapper.MapToDbModel(noteModel);
+            var mappedNote = await _noteMapper.MapToDbModel(noteModel);
             var savedNoteId = (await _noteRepository.Create(mappedNote)).Id;
-            var createdNote = _noteMapper.MapToClientModel(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId));
+            var createdNote = await _noteMapper.MapToClientModel(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId));
 
             return ServiceResponse<HighlightNoteModel>.Success(createdNote, "Note added.");
         }

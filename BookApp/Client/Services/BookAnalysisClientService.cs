@@ -15,10 +15,10 @@ namespace BookApp.Client.Services
             HelperService.AddTokenToRequest(http, jsRuntime);
         }
 
-        public async Task<BookAnalysisModel> CreateBookAnalysis(BookAnalysisModel newBookAnalysis)
+        public async Task<BookAnalysisSummaryModel> CreateBookAnalysis(BookAnalysisSummaryModel newBookAnalysis)
         {
-            var response = await Http.PostAsJsonAsync<BookAnalysisModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
-            return await HelperService.HandleResponse<BookAnalysisModel>(response);
+            var response = await Http.PostAsJsonAsync<BookAnalysisSummaryModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
+            return await HelperService.HandleResponse<BookAnalysisSummaryModel>(response);
         }
 
         public async Task DeleteBookAnalysis(int bookAnalysisId)
@@ -27,16 +27,22 @@ namespace BookApp.Client.Services
             await HelperService.HandleResponse(response);
         }
 
-        public async Task EditBookAnalysis(BookAnalysisModel updatedBookAnalysis)
+        public async Task EditBookAnalysis(BookAnalysisSummaryModel updatedBookAnalysis)
         {
-            var response = await Http.PutAsJsonAsync<BookAnalysisModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
+            var response = await Http.PutAsJsonAsync<BookAnalysisSummaryModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
             await HelperService.HandleResponse(response);
         }
 
-        public async Task<List<BookAnalysisModel>> GetAnalysisByHash(string bookHash)
+        public async Task<List<BookAnalysisSummaryModel>> GetAnalysesByHash(string bookHash)
         {
-            var response = await Http.GetAsync($"BookAnalysis/GetAnalysisByHash/{bookHash}");
-            return await HelperService.HandleResponse<List<BookAnalysisModel>>(response);
+            var response = await Http.GetAsync($"BookAnalysis/GetAnalysesByHash/{bookHash}");
+            return await HelperService.HandleResponse<List<BookAnalysisSummaryModel>>(response);
+        }
+
+        public async Task<BookAnalysisDetailedModel> GetAnalysisById(int bookAnalysisId)
+        {
+            var response = await Http.GetAsync($"BookAnalysis/GetAnalysisById/{bookAnalysisId}");
+            return await HelperService.HandleResponse<BookAnalysisDetailedModel>(response);
         }
     }
 }
