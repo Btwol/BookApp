@@ -85,35 +85,9 @@
 </style>
 
 <div id="navbar" class="navbar-vertical ">
-
-@*    <a a href="/" class="icon home-icon">🏠<span class="tooltip">Home</span></a>
-    @if (userLoggedIn)
-    {
-        <a class="icon person-icon">👤<span class="tooltip">Profile: @currentUsername</span></a>
-        <a a href="/logout" class="icon door-icon">🚪<span class="tooltip">Log Out</span></a>
-    }
-    else
-    {
-        <a a href="/register" class="icon person-icon">👤<span class="tooltip">Register</span></a>
-        <a href="/login" class="icon door-icon">🚪<span class="tooltip">Login</span></a>
-    }*@
-
-
-@*    
-    @if (userLoggedIn)
-    {
-        
-        
-    }
-    else
-    {
-        
-        
-    }
-*@
-
     <ul>
         <li><a a href="/" class="icon home-icon">🏠<span class="tooltip">Home</span></a></li>
+        <li><a a href="/count" class="icon oi-sun">🏠<span class="tooltip">Counter</span></a></li>
         @if (userLoggedIn)
         {
             <li><a class="icon person-icon">👤<span class="tooltip">Profile: @currentUsername</span></a></li>
@@ -125,21 +99,6 @@
             <li><a href="/login" class="icon door-icon">🚪<span class="tooltip">Login</span></a></li>
         }
     </ul>
-
-    @*
-    <ul>
-    <li><a href="/">Home</a></li>
-    @if (userLoggedIn)
-    {
-    <li>Hello @currentUsername</li>
-    <li><a href="/logout">Logout</a></li>
-    }
-    else
-    {
-    <li><a href="/login">Login</a></li>
-    <li><a href="/register">Register</a></li>
-    }
-    </ul>*@
 </div>
 
 @code {

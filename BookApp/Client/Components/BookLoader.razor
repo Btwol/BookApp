@@ -50,14 +50,25 @@
     }
 else
 {
-    <ErrorHandlerComponent ChildComponentName="Text Box">
+    <button class="button-action" @onclick="() => switchView = switchView ? false : true">Switch!</button>
+    @if(switchView)
+    {
+        <ErrorHandlerComponent ChildComponentName="Summary">
+            <ChildContent><SummaryComponent bookAnalysis="bookAnalysis"/></ChildContent>
+        </ErrorHandlerComponent>
+    }
+    else
+    {
+        <ErrorHandlerComponent ChildComponentName="Text Box">
         <ChildContent><TextBox bookAnalysis="bookAnalysis" book="book" /></ChildContent>
     </ErrorHandlerComponent>
+    }
 }
 
 
 
 @code {
+    bool switchView = false;
     private bool awaitingResponse = false;
     private string bookAnalysisCreationResponseMessage = "";
     private bool bookAnalysisCreationSuccessful = true;
