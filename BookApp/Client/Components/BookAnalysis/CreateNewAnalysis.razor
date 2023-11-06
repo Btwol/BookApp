@@ -27,14 +27,14 @@
     public string loadedBookHash { get; set; }
 
     [Parameter]
-    public List<BookAnalysisModel> foundBookAnalyses { get; set; }
+    public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; }
 
     [Parameter]
-    public EventCallback<List<BookAnalysisModel>> foundBookAnalysesChanged { get; set; }
+    public EventCallback<List<BookAnalysisSummaryModel>> foundBookAnalysesChanged { get; set; }
 
     private bool awaitingResponse = false;
 
-    private BookAnalysisModel newAnalysis { get; set; } = new();
+    private BookAnalysisSummaryModel newAnalysis { get; set; } = new();
 
     public async Task CreateAnalysis()
     {

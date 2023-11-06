@@ -12,33 +12,28 @@
             _bookAnalysisService = bookAnalysisService;
         }
 
-        [HttpGet("GetBookAnalysis")]
-        public async Task<ServiceResponse> GetBookAnalysis(int analysisId)
+        [HttpGet("GetAnalysisById/{bookAnalysisId}")]
+        public async Task<ServiceResponse> GetAnalysisById(int bookAnalysisId)
         {
-            return await _bookAnalysisService.GetBookAnalysis(analysisId);
+            return await _bookAnalysisService.GetAnalysisById(bookAnalysisId);
         }
 
         [HttpPost("CreateBookAnalysis")]
-        public async Task<ServiceResponse> CreateBookAnalysis([FromBody] BookAnalysisModel newBookAnalysis)
+        public async Task<ServiceResponse> CreateBookAnalysis([FromBody] BookAnalysisSummaryModel newBookAnalysis)
         {
             return await _bookAnalysisService.CreateBookAnalysis(newBookAnalysis);
         }
 
         [HttpPut("EditBookAnalysis")]
-        public async Task<ServiceResponse> EditBookAnalysis([FromBody] BookAnalysisModel updatedBookAnalysis)
+        public async Task<ServiceResponse> EditBookAnalysis([FromBody] BookAnalysisSummaryModel updatedBookAnalysis)
         {
-            if (updatedBookAnalysis.AnalysisTitle == "rush")
-            {
-                throw new Exception("test EditBookAnalysis exception!");
-            }
-
             return await _bookAnalysisService.EditBookAnalysis(updatedBookAnalysis);
         }
 
-        [HttpGet("GetAnalysisByHash/{bookHash}")]
-        public async Task<ServiceResponse> GetAnalysisByHash(string bookHash)
+        [HttpGet("GetAnalysesByHash/{bookHash}")]
+        public async Task<ServiceResponse> GetAnalysesByHash(string bookHash)
         {
-            return await _bookAnalysisService.GetAnalysisByHash(bookHash);
+            return await _bookAnalysisService.GetAnalysesByHash(bookHash);
         }
 
         [HttpDelete("DeleteBookAnalysis/{bookAnalysisId}")]

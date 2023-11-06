@@ -1,6 +1,6 @@
 ﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 
-@if (bookAnalysis is null)
+@if (loadedBookAnalysis is null)
 {
     @if (showErrorBox)
     {
@@ -44,7 +44,7 @@
         }
 
         <ErrorHandlerComponent ChildComponentName="Book Analyses Listing">
-            <ChildContent><FoundAnalysesListing @bind-selectedBookAnalysis="bookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+            <ChildContent><FoundAnalysesListing @bind-selectedBookAnalysis="loadedBookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
         </ErrorHandlerComponent>
         }
     }
@@ -54,13 +54,13 @@ else
     @if(switchView)
     {
         <ErrorHandlerComponent ChildComponentName="Summary">
-            <ChildContent><SummaryComponent bookAnalysis="bookAnalysis"/></ChildContent>
+            <ChildContent><SummaryComponent bookAnalysis="loadedBookAnalysis"/></ChildContent>
         </ErrorHandlerComponent>
     }
     else
     {
         <ErrorHandlerComponent ChildComponentName="Text Box">
-        <ChildContent><TextBox bookAnalysis="bookAnalysis" book="book" /></ChildContent>
+        <ChildContent><TextBox bookAnalysis="loadedBookAnalysis" book="book" /></ChildContent>
     </ErrorHandlerComponent>
     }
 }
@@ -77,14 +77,14 @@ else
     private bool showLoadingAnalysis = false;
     private bool showErrorBox = false;
     private string errorContent = "";
-    private BookAnalysisModel bookAnalysis;
+    private BookAnalysisDetailedModel loadedBookAnalysis;
     private EpubBook book;
     private byte[] loadedBookByteArray;
     private string loadedBookHash;
-    public List<BookAnalysisModel> foundBookAnalyses { get; set; } = new();
+    public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
 
     private bool showCreateAnalysisForm = false;
-    private BookAnalysisModel newAnalysis { get; set; } = new();
+    private BookAnalysisSummaryModel newAnalysis { get; set; } = new();
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -111,7 +111,7 @@ else
         showLoadingAnalysis = true;
         try
         {
-            foundBookAnalyses = await _bookAnalysisClientService.GetAnalysisByHash(loadedBookHash);
+            foundBookAnalyses = await _bookAnalysisClientService.GetAnalysesByHash(loadedBookHash);
         }
         finally
         {

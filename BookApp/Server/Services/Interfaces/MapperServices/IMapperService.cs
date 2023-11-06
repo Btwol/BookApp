@@ -2,7 +2,7 @@
 {
     public interface IMapperService<D, C> where D : IDbModel where C : IClientModel
     {
-        public D MapToDbModel(C clientModel);
-        public C MapToClientModel(D dbModel);
+        public Task<D> MapToDbModel(C clientModel);
+        public Task<C> MapToClientModel(D dbModel);
     }
 }

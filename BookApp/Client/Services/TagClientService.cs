@@ -1,5 +1,4 @@
 ﻿using BookApp.Client.Services.Interfaces;
-using BookApp.Shared.Enums;
 using BookApp.Shared.Models.ClientModels;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;

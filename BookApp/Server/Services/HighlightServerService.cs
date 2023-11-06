@@ -13,9 +13,9 @@
 
         public async Task<ServiceResponse> AddHighlight(HighlightModel newHighlight)
         {
-            var mappedHighlight = _highlightMapperService.MapToDbModel(newHighlight);
+            var mappedHighlight = await _highlightMapperService.MapToDbModel(newHighlight);
             var addedHighlight = await _highlightRepository.Create(mappedHighlight);
-            var mappedHighlightModel = _highlightMapperService.MapToClientModel(addedHighlight);
+            var mappedHighlightModel = await _highlightMapperService.MapToClientModel(addedHighlight);
             return ServiceResponse<HighlightModel>.Success(mappedHighlightModel, "Highlight created.");
         }
 
@@ -33,7 +33,7 @@
             List<HighlightModel> mappedHighlights = new();
             foreach (Highlight highlight in highlights)
             {
-                mappedHighlights.Add(_highlightMapperService.MapToClientModel(highlight));
+                mappedHighlights.Add(await _highlightMapperService.MapToClientModel(highlight));
             }
 
             return ServiceResponse<List<HighlightModel>>.Success(mappedHighlights, "Highlights retrieved.");

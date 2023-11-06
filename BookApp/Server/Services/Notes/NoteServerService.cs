@@ -64,7 +64,7 @@ namespace BookApp.Server.Services.Notes
             ModifyNote(noteModel, noteToEdit);
 
             await _noteRepository.Edit(noteToEdit);
-            noteModel = _noteMapper.MapToClientModel(noteToEdit);
+            noteModel = await _noteMapper.MapToClientModel(noteToEdit);
             return ServiceResponse<C>.Success(noteModel, "Note edited.");
         }
 
@@ -91,9 +91,9 @@ namespace BookApp.Server.Services.Notes
 
         protected virtual async Task<ServiceResponse> SaveNote(C noteModel)
         {
-            var mappedNote = _noteMapper.MapToDbModel(noteModel);
+            var mappedNote = await _noteMapper.MapToDbModel(noteModel);
             var savedNote = await _noteRepository.Create(mappedNote);
-            var createdNote = _noteMapper.MapToClientModel(savedNote);
+            var createdNote = await _noteMapper.MapToClientModel(savedNote);
 
             return ServiceResponse<C>.Success(createdNote, "Note added.");
         }
