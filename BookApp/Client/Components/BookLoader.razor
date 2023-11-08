@@ -1,4 +1,5 @@
 ﻿@inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IBookAnalysisStorage bookAnalysisStorage
 
 @if (loadedBookAnalysis is null)
 {
@@ -50,9 +51,9 @@
     }
 else
 {
-        <ErrorHandlerComponent ChildComponentName="Text Box">
+        @*<ErrorHandlerComponent ChildComponentName="Text Box">
         <ChildContent><TextBox bookAnalysis="loadedBookAnalysis" book="book" /></ChildContent>
-    </ErrorHandlerComponent>
+    </ErrorHandlerComponent>*@
     
 }
 
@@ -83,6 +84,7 @@ else
             loadingFile = true;
             Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
             loadedBookByteArray = await ReadFully(stream);
+            await bookAnalysisStorage.SetBookArray(loadedBookByteArray);
             book = EpubReader.Read(loadedBookByteArray);
             await ReadBookHash();
             bookLoaded = true;

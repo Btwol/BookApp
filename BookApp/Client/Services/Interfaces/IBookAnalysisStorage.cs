@@ -7,5 +7,7 @@ namespace BookApp.Client.Services.Interfaces
         public Task<BookAnalysisDetailedModel> GetLoadedBookAnalysis();
         public Task SetBookAnalysis(BookAnalysisDetailedModel bookAnalysis);
         public Task<bool> AnalysisIsLoaded();
+        public Task SetBookArray(byte[] bookArray);
+        public Task<byte[]> GetLoadedBook();
     }
 }

@@ -1,8 +1,10 @@
-﻿@inject IBookAnalysisClientService _bookAnalysisClientService
+﻿@page "/reader"
+
+@inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-
+@inject IBookAnalysisStorage bookAnalysisStorage
 
 <style>
     @if (css != null)
@@ -15,34 +17,37 @@
 
 </style>
 
-
-<div class="highlight-textbox-wrapper">
-    <div id="highlightContainer" class="highlight-container"></div>
-    <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
-        @if (html is not null)
+    <ErrorHandlerComponent ChildComponentName="Text Box"><ChildContent>
+        @if (!loading)
         {
-            @((MarkupString)html[currentCount].TextContent)
-        }
-    </div>
-</div>
+            <div class="highlight-textbox-wrapper">
+                <div id="highlightContainer" class="highlight-container"></div>
+                <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
+                    @if (html is not null)
+                    {
+                        @(
+                            (MarkupString)html[currentCount].TextContent
+                            )
+                    }
+                </div>
+            </div>
 
-
-    <ErrorHandlerComponent ChildComponentName="Notes component">
-    <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
+            <ErrorHandlerComponent ChildComponentName="Notes component">
+                <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
                         @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
                         bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
                         Tags="bookAnalysis.Tags"/>
-    </ChildContent>
-    </ErrorHandlerComponent>
+                </ChildContent>
+            </ErrorHandlerComponent>
 
 
-@if (isLoading)
-{
-    <p>Uploading...</p>
-}
-else
-{
-<ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
+            @if (isLoading)
+            {
+                <p>Uploading...</p>
+            }
+            else
+            {
+                <ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
     <ChildContent>
         <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag"/>
     </ChildContent>
@@ -54,12 +59,13 @@ else
         <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight"/>
     </ChildContent>
 </ErrorHandlerComponent>
+        }
 
-
+</ChildContent>
+    </ErrorHandlerComponent>
 
 @code{
-    [Parameter]
-    public EpubBook book { get; set; }
+    EpubBook book;
 
     [Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
@@ -77,6 +83,7 @@ else
     private int currentCount = 7;
     public int lastClickedTextNodeIndex = -1;
     private bool isLoading = true;
+    bool loading = true;
 
 
     [JSInvokableAttribute("ReRender")]
@@ -149,43 +156,43 @@ else
     {
         if(firstRender)
         {
-            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
+            //await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
 
-            if (book is not null)
-            {   
-                html = book.Resources.Html.ToList();
-                css = book.Resources.Css;
-                images = book.Resources.Images;
-                //fonts = book.Resources.Fonts;
-                ////Image cover = book.CoverImage;
-                //ICollection<EpubChapter> chapters = book.TableOfContents;
+            //if (book is not null)
+            //{   
+            //    html = book.Resources.Html.ToList();
+            //    css = book.Resources.Css;
+            //    images = book.Resources.Images;
+            //    //fonts = book.Resources.Fonts;
+            //    ////Image cover = book.CoverImage;
+            //    //ICollection<EpubChapter> chapters = book.TableOfContents;
 
-                isLoading = false;
-                StateHasChanged();
-            }
+            //    isLoading = false;
+            //    StateHasChanged();
+            //}
 
-            foreach(EpubByteFile im in images)
-            {
-                //SaveImages(im.Content, im.ContentType.ToString());
-                //Console.WriteLine("image data:");
-                //Console.WriteLine(im.FileName);
-                //Console.WriteLine(im.ContentType);
-                //Console.WriteLine(im.MimeType);
-                //Console.WriteLine(im.Content);
-            }
+            //foreach(EpubByteFile im in images)
+            //{
+            //    //SaveImages(im.Content, im.ContentType.ToString());
+            //    //Console.WriteLine("image data:");
+            //    //Console.WriteLine(im.FileName);
+            //    //Console.WriteLine(im.ContentType);
+            //    //Console.WriteLine(im.MimeType);
+            //    //Console.WriteLine(im.Content);
+            //}
         }
 
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+        //await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
-        List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
+        //List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
 
-        foreach (HighlightModel highlight in currentHighlights)
-        {
-            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
-            {
-                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
-            }
-        }
+        //foreach (HighlightModel highlight in currentHighlights)
+        //{
+        //    if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+        //    {
+        //        await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
+        //    }
+        //}
     }
 
     //img upload test
@@ -216,7 +223,57 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var loadedBookByteArray = await bookAnalysisStorage.GetLoadedBook();
+        book = EpubReader.Read(loadedBookByteArray);
+        bookAnalysis = await bookAnalysisStorage.GetLoadedBookAnalysis();
+
+
+
         dotNetRef = DotNetObjectReference.Create(this);
         editFlag = false;
+
+        loading = false;
+
+        StateHasChanged();
+
+        await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
+
+        if (book is not null)
+        {
+            html = book.Resources.Html.ToList();
+            css = book.Resources.Css;
+            images = book.Resources.Images;
+            //fonts = book.Resources.Fonts;
+            ////Image cover = book.CoverImage;
+            //ICollection<EpubChapter> chapters = book.TableOfContents;
+
+            isLoading = false;
+            StateHasChanged();
+        }
+
+        foreach (EpubByteFile im in images)
+        {
+            //SaveImages(im.Content, im.ContentType.ToString());
+            //Console.WriteLine("image data:");
+            //Console.WriteLine(im.FileName);
+            //Console.WriteLine(im.ContentType);
+            //Console.WriteLine(im.MimeType);
+            //Console.WriteLine(im.Content);
+        }
+
+
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+
+        List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
+
+        foreach (HighlightModel highlight in currentHighlights)
+        {
+            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+            {
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
+            }
+        }
+
+        
     }
 }

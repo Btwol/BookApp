@@ -1,7 +1,10 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Text;
 
 namespace BookApp.Client.Services
 {
@@ -9,12 +12,46 @@ namespace BookApp.Client.Services
     {
         private readonly IJSRuntime _jSRuntime;
         private const string bookAnalysisKey = "storedBookAnalysis";
+        private const string bookArrayKey = "storedBook";
         private readonly IBookAnalysisClientService _bookAnalysisClientService;
 
         public BookAnalysisStorage(IJSRuntime jSRuntime, IBookAnalysisClientService bookAnalysisClientService)
         {
             _jSRuntime = jSRuntime;
             _bookAnalysisClientService = bookAnalysisClientService;
+        }
+
+        public async Task SetBookArray(byte[] bookArray)
+        {
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", bookArrayKey);
+
+            StringBuilder bytesString = new StringBuilder();
+            foreach (var bt in bookArray)
+            {
+                bytesString.Append(bt.ToString() + " ");
+            }
+
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", bookArrayKey, bytesString.ToString());
+        }
+
+        public async Task<byte[]> GetLoadedBook()
+        {
+            var book = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", bookArrayKey);
+            if (book is null) throw new Exception("Book not loaded.");
+            //return Encoding.UTF8.GetBytes(book);
+
+            //using (var stream = new MemoryStream(book))
+            //using (var reader = new StreamReader(stream, Encoding.UTF8))
+            //    return JsonSerializer.Create().Deserialize(reader, typeof(byte[])) as byte[];
+            var reArray = book.ToString().Split(new string[] { " " }, StringSplitOptions.None).ToList();
+            reArray.Remove("");
+            byte[] reByte = new byte[reArray.Count];
+            for (int i = 0; i < reArray.Count - 1; i++)
+            {
+                reByte[i] = byte.Parse(reArray[i]);
+            }
+
+            return reByte;
         }
 
         public async Task<BookAnalysisDetailedModel> GetLoadedBookAnalysis()
@@ -26,6 +63,7 @@ namespace BookApp.Client.Services
 
         public async Task SetBookAnalysis(BookAnalysisDetailedModel bookAnalysis)
         {
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", bookAnalysisKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", bookAnalysisKey, bookAnalysis.Id);
         }
 
