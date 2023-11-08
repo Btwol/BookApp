@@ -1,5 +1,6 @@
 ﻿@inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IBookAnalysisStorage bookAnalysisStorage
 
 @foreach (BookAnalysisSummaryModel bookAnalysis in foundBookAnalyses)
 {
@@ -61,6 +62,7 @@
     private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
     {
         this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
+        await bookAnalysisStorage.SetBookAnalysis(this.selectedBookAnalysis);
         await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
     }
 

@@ -1,4 +1,6 @@
 ﻿@using BookApp.Client.Pages.Identity
+
+@inject IBookAnalysisStorage bookAnalysisStorage
 @inject IJSRuntime JSRuntime
 
 <style>
@@ -59,6 +61,14 @@
                 </NavLink>
             </div>
         }
+        @if (analysisIsLoaded)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/summary">
+                    <span class="oi oi-info" aria-hidden="true"></span> Summary
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
@@ -72,12 +82,18 @@
     //    collapseNavMenu = !collapseNavMenu;
     //}
 
+    bool analysisIsLoaded = false;
     bool userLoggedIn = false;
     string currentUsername = "";
 
     private async Task<string> GetItemFromLocalStorage(string itemName)
     {
         return await JSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", itemName);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        analysisIsLoaded = await bookAnalysisStorage.AnalysisIsLoaded();
     }
 
     protected async override Task OnInitializedAsync()
