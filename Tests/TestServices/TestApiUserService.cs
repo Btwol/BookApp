@@ -1,6 +1,6 @@
 ﻿namespace Tests.TestServices
 {
-    internal class TestAppUserService : IAppUserService
+    public class TestAppUserService : IAppUserService
     {
         public int GetCurrentUserId()
         {

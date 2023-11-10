@@ -69,7 +69,7 @@ namespace BookApp.Server.Services
 
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            
 
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
@@ -110,6 +110,8 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IAppUserRepository), typeof(AppUserRepository));
             services.AddScoped(typeof(IAppUserValidatorService), typeof(AppUserValidatorService));
             services.AddScoped<RoleManager<AppRole>>();
+
+            services.AddAutoMapper(typeof(Program));
         }
     }
 }

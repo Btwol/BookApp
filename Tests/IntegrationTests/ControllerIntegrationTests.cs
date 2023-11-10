@@ -1,6 +1,6 @@
 ﻿namespace Tests.IntegrationTests
 {
-    internal class ControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Program>>
+    public class ControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         protected readonly HttpClient _HttpClient;
         protected readonly DataContext _context;
