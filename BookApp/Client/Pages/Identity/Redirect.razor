@@ -1,11 +1,16 @@
 ﻿@page "/redirect"
 @inject NavigationManager Navigation
+@inject IJSRuntime jsRuntime
 
 <h1>Redirecting...</h1>
 
 @code {
-    protected override void OnInitialized()
+    private string? redirectLink = "";
+    protected async override Task OnInitializedAsync()
     {
-        Navigation.NavigateTo("/");
+        var uri = new Uri(Navigation.Uri);
+        redirectLink = uri.Query.TrimStart('?');
+        Navigation.NavigateTo(redirectLink);
+        await jsRuntime.InvokeVoidAsync("reloadPage");
     }
 }

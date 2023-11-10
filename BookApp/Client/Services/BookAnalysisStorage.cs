@@ -11,8 +11,8 @@ namespace BookApp.Client.Services
     public class BookAnalysisStorage : IBookAnalysisStorage
     {
         private readonly IJSRuntime _jSRuntime;
-        private const string bookAnalysisKey = "storedBookAnalysis";
-        private const string bookArrayKey = "storedBook";
+        public const string bookAnalysisKey = "storedBookAnalysis";
+        public const string bookArrayKey = "storedBook";
         private readonly IBookAnalysisClientService _bookAnalysisClientService;
 
         public BookAnalysisStorage(IJSRuntime jSRuntime, IBookAnalysisClientService bookAnalysisClientService)
@@ -37,12 +37,11 @@ namespace BookApp.Client.Services
         public async Task<byte[]> GetLoadedBook()
         {
             var book = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", bookArrayKey);
-            if (book is null) throw new Exception("Book not loaded.");
-            //return Encoding.UTF8.GetBytes(book);
+            if (book is null) 
+            {
+                throw new Exception("Book not loaded."); 
+            }
 
-            //using (var stream = new MemoryStream(book))
-            //using (var reader = new StreamReader(stream, Encoding.UTF8))
-            //    return JsonSerializer.Create().Deserialize(reader, typeof(byte[])) as byte[];
             var reArray = book.ToString().Split(new string[] { " " }, StringSplitOptions.None).ToList();
             reArray.Remove("");
             byte[] reByte = new byte[reArray.Count];
