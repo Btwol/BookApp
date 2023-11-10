@@ -10,6 +10,8 @@
         await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUsername");
         await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUserEmail");
         await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", "currentUserId");
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", BookAnalysisStorage.bookAnalysisKey);
+        await JSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", BookAnalysisStorage.bookArrayKey);
         Navigation.NavigateTo("/redirect");
         await JSRuntime.InvokeVoidAsync("reloadPage");
     }

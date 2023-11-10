@@ -1,4 +1,7 @@
-﻿<p>Include Tag</p>
+﻿@page "/summary"
+@inject IBookAnalysisStorage bookAnalysisStorage
+
+<p>Include Tag</p>
 @*<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />*@
 @foreach (TagModel tag in filteredTags)
 {
@@ -44,9 +47,7 @@
 }
 
 @code {
-    [Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
-
     private List<HighlightModel> filteredHighlights { get; set; } = new();
     private List<HighlightNoteModel> filteredHighlightNotes { get; set; } = new();
     private List<AnalysisNoteModel> filteredAnalysisNotes { get; set; } = new();
@@ -97,8 +98,9 @@
         FilterByTag();
     }
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
+        bookAnalysis = await bookAnalysisStorage.GetLoadedBookAnalysis();
         filteredTags = bookAnalysis.Tags;
         FilterByTag();
     }

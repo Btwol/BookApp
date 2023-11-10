@@ -22,13 +22,9 @@ builder.Services.AddScoped(typeof(IParagraphNoteClientService), typeof(Paragraph
 builder.Services.AddScoped(typeof(IAnalysisNoteClientService), typeof(AnalysisNoteClientService));
 builder.Services.AddScoped(typeof(IChapterNoteClientService), typeof(ChapterNoteClientService));
 builder.Services.AddScoped(typeof(IHighlightNoteClientService), typeof(HighlightNoteClientService));
+builder.Services.AddScoped<IBookAnalysisStorage, BookAnalysisStorage>();
 
 builder.Services.AddBlazoredModal();
-
-//var unhandledExceptionSender = new UnhandledExceptionSender();
-//var unhandledExceptionProvider = new UnhandledExceptionProvider(unhandledExceptionSender);
-//builder.Logging.AddProvider(unhandledExceptionProvider);
-//builder.Services.AddSingleton<IUnhandledExceptionSender>(unhandledExceptionSender);
 
 clientConfiguration = builder.Configuration;
 

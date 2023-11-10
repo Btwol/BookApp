@@ -1,5 +1,7 @@
 ﻿@inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IBookAnalysisStorage bookAnalysisStorage
+@inject NavigationManager Navigation
 
 @foreach (BookAnalysisSummaryModel bookAnalysis in foundBookAnalyses)
 {
@@ -61,7 +63,10 @@
     private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
     {
         this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
+        await bookAnalysisStorage.SetBookAnalysis(this.selectedBookAnalysis);
         await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
+
+        Navigation.NavigateTo("redirect?reader");
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)

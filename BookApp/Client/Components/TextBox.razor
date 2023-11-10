@@ -1,8 +1,10 @@
-﻿@inject IBookAnalysisClientService _bookAnalysisClientService
+﻿@page "/reader"
+
+@inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-
+@inject IBookAnalysisStorage bookAnalysisStorage
 
 <style>
     @if (css != null)
@@ -15,34 +17,37 @@
 
 </style>
 
-
-<div class="highlight-textbox-wrapper">
-    <div id="highlightContainer" class="highlight-container"></div>
-    <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
-        @if (html is not null)
+    <ErrorHandlerComponent ChildComponentName="Text Box"><ChildContent>
+        @if (!initializingComponent)
         {
-            @((MarkupString)html[currentCount].TextContent)
-        }
-    </div>
-</div>
+            <div class="highlight-textbox-wrapper">
+                <div id="highlightContainer" class="highlight-container"></div>
+                <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
+                    @if (html is not null)
+                    {
+                        @(
+                            (MarkupString)html[currentCount].TextContent
+                            )
+                    }
+                </div>
+            </div>
 
-
-    <ErrorHandlerComponent ChildComponentName="Notes component">
-    <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
+            <ErrorHandlerComponent ChildComponentName="Notes component">
+                <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
                         @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
                         bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
                         Tags="bookAnalysis.Tags"/>
-    </ChildContent>
-    </ErrorHandlerComponent>
+                </ChildContent>
+            </ErrorHandlerComponent>
 
 
-@if (isLoading)
-{
-    <p>Uploading...</p>
-}
-else
-{
-<ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
+            @if (isLoading)
+            {
+                <p>Uploading...</p>
+            }
+            else
+            {
+                <ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
     <ChildContent>
         <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag"/>
     </ChildContent>
@@ -54,12 +59,13 @@ else
         <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight"/>
     </ChildContent>
 </ErrorHandlerComponent>
+        }
 
-
+</ChildContent>
+    </ErrorHandlerComponent>
 
 @code{
-    [Parameter]
-    public EpubBook book { get; set; }
+    EpubBook book;
 
     [Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
@@ -67,7 +73,7 @@ else
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
     private HighlightModel currentHighlight = new HighlightModel();
-    public bool editFlag;
+    public bool editFlag = false;
     List<EpubTextFile> html;
     ICollection<EpubTextFile> css;
     ICollection<EpubByteFile> images;
@@ -77,6 +83,8 @@ else
     private int currentCount = 7;
     public int lastClickedTextNodeIndex = -1;
     private bool isLoading = true;
+    bool initializingComponent = true;
+    bool firstComponentRender = true;
 
 
     [JSInvokableAttribute("ReRender")]
@@ -114,8 +122,6 @@ else
         }
     }
 
-
-
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
@@ -142,81 +148,88 @@ else
         //await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
 
+    ////img upload test
+    //public void SaveImages(byte[] imageData, string extension)
+    //{
+    //    string basePath = AppDomain.CurrentDomain.BaseDirectory;
+    //    Console.WriteLine(basePath);
+    //    string imageDirectory = System.IO.Path.Combine(basePath, "wwwroot");
+    //    Console.WriteLine(imageDirectory);
+    //    //var imagePath = "images"; // Create a directory under "wwwroot" to store images
+    //    //var imageDirectory = Path.Combine(webRootPath, imagePath);
 
+    //    if (!Directory.Exists(imageDirectory))
+    //    {
+    //        return;
+    //        //Directory.CreateDirectory(imageDirectory);
+    //    }
+
+    //    var uniqueFileName = $"{Guid.NewGuid()}.{extension}";
+    //    var filePath = Path.Combine(imageDirectory, uniqueFileName);
+
+    //    using (var imageStream = new MemoryStream(imageData))
+    //    using (var fileStream = new FileStream(filePath, FileMode.Create))
+    //    {
+    //        imageStream.CopyTo(fileStream);
+    //    }
+    //}
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (!initializingComponent)
         {
-            await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
-
-            if (book is not null)
-            {   
-                html = book.Resources.Html.ToList();
-                css = book.Resources.Css;
-                images = book.Resources.Images;
-                //fonts = book.Resources.Fonts;
-                ////Image cover = book.CoverImage;
-                //ICollection<EpubChapter> chapters = book.TableOfContents;
-
-                isLoading = false;
-                StateHasChanged();
-            }
-
-            foreach(EpubByteFile im in images)
+            if (firstComponentRender)
             {
-                //SaveImages(im.Content, im.ContentType.ToString());
-                //Console.WriteLine("image data:");
-                //Console.WriteLine(im.FileName);
-                //Console.WriteLine(im.ContentType);
-                //Console.WriteLine(im.MimeType);
-                //Console.WriteLine(im.Content);
+                firstComponentRender = false;
+                await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
+
+                if (book is not null)
+                {
+                    html = book.Resources.Html.ToList();
+                    css = book.Resources.Css;
+                    images = book.Resources.Images;
+                    //fonts = book.Resources.Fonts;
+                    ////Image cover = book.CoverImage;
+                    //ICollection<EpubChapter> chapters = book.TableOfContents;
+
+                    isLoading = false;
+                    StateHasChanged();
+                }
+
+                foreach (EpubByteFile im in images)
+                {
+                    //SaveImages(im.Content, im.ContentType.ToString());
+                    //Console.WriteLine("image data:");
+                    //Console.WriteLine(im.FileName);
+                    //Console.WriteLine(im.ContentType);
+                    //Console.WriteLine(im.MimeType);
+                    //Console.WriteLine(im.Content);
+                }
             }
-        }
 
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+            await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
-        List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
+            List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
 
-        foreach (HighlightModel highlight in currentHighlights)
-        {
-            if(highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+            foreach (HighlightModel highlight in currentHighlights)
             {
-                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
+                if (highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+                {
+                    await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
+                }
             }
-        }
-    }
-
-    //img upload test
-    public void SaveImages(byte[] imageData, string extension)
-    {
-        string basePath = AppDomain.CurrentDomain.BaseDirectory;
-        Console.WriteLine(basePath);
-        string imageDirectory = System.IO.Path.Combine(basePath, "wwwroot");
-        Console.WriteLine(imageDirectory);
-        //var imagePath = "images"; // Create a directory under "wwwroot" to store images
-        //var imageDirectory = Path.Combine(webRootPath, imagePath);
-
-        if (!Directory.Exists(imageDirectory))
-        {
-            return;
-            //Directory.CreateDirectory(imageDirectory);
-        }
-
-        var uniqueFileName = $"{Guid.NewGuid()}.{extension}";
-        var filePath = Path.Combine(imageDirectory, uniqueFileName);
-
-        using (var imageStream = new MemoryStream(imageData))
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            imageStream.CopyTo(fileStream);
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
+        var loadedBookByteArray = await bookAnalysisStorage.GetLoadedBook();
+        book = EpubReader.Read(loadedBookByteArray);
+        bookAnalysis = await bookAnalysisStorage.GetLoadedBookAnalysis();
         dotNetRef = DotNetObjectReference.Create(this);
-        editFlag = false;
+        initializingComponent = false;
+
+        StateHasChanged(); 
     }
 }
