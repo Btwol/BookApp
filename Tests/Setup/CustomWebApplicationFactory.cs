@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-namespace Tests.Setup
+﻿namespace Tests.Setup
 {
     public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
     {
