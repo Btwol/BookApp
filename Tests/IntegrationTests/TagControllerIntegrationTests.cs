@@ -36,7 +36,7 @@ namespace Tests.IntegrationTests
             // Assert
             AssertResponseSuccess(createResponse);
             Assert.NotNull(createResponse.Content);
-            Assert.True(createResponse.Content.Id > 0); // Assuming the ID is generated on creation
+            Assert.True(createResponse.Content.Id > 0); 
         }
 
         [Fact]
@@ -79,11 +79,8 @@ namespace Tests.IntegrationTests
             // Assert
             AssertResponseSuccess(editResponse);
 
-            var getUrl = $"/BookAnalysis/GetAnalysisById/{testTag.BookAnalysisId}";
-            var getAnalysisResponse = await DeserializeResponse<ServiceResponse<BookAnalysisDetailedModel>>(
-                await _HttpClient.GetAsync(getUrl)
-            );
-            var editedTag = getAnalysisResponse.Content.Tags.FirstOrDefault(t => t.Id == testTag.Id);
+            var analysis = await GetBookAnalysisRequest(testTag.BookAnalysisId);
+            var editedTag = analysis.Content.Tags.FirstOrDefault(t => t.Id == testTag.Id);
 
             Assert.Equal(updatedTagModel.Id, editedTag.Id);
             Assert.Equal(updatedTagModel.Name, editedTag.Name);

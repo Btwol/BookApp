@@ -33,14 +33,29 @@ namespace Tests.IntegrationTests
 
         protected string SteupUser()
         {
-            var user  = _context.Set<AppUser>().Where(user => user.Id == 1).FirstOrDefault();
+            var role = _context.Set<AppRole>().Where(user => user.Id == 1).FirstOrDefault();
+            if(role is null)
+            {
+                _context.Add(new AppRole { Name = "User", NormalizedName = "USER" });
+                _context.SaveChanges();
+
+                role = _context.Set<AppRole>().Where(role => role.Name == "User").FirstOrDefault();
+            }
+
+            var user = _context.Set<AppUser>().Where(user => user.Id == 1).FirstOrDefault();
             if (user is null)
             {
-                user = new AppUser { Id = 1, Email = "testEmail1@email.com", UserName = "testUser1", NormalizedUserName = "TESTUSER1" };
+                user = new AppUser { Email = "testEmail1@email.com", UserName = "testUser1", NormalizedUserName = "TESTUSER1" };
                 _context.Add(user);
-                _context.Add(new AppRole { Id = 1, Name = "User", NormalizedName = "USER" });
-                _context.Add(new IdentityUserRole<int> { RoleId = 1, UserId = 1 });
                 _context.SaveChanges();
+
+                user = _context.Set<AppUser>().Where(user => user.UserName == "testUser1").FirstOrDefault();
+                if(_context.Set<AppRole>().Where(user => user.Id == 1).FirstOrDefault() is null)
+                {
+                    _context.Add(new IdentityUserRole<int> { RoleId = role.Id, UserId = user.Id });
+                    _context.SaveChanges();
+                }
+
                 user = _context.Set<AppUser>().Where(user => user.Id == 1).FirstOrDefault();
             }
 
@@ -89,6 +104,32 @@ namespace Tests.IntegrationTests
             var createdTag = await AddToDatabase(testTag);
             
             return (Tag)createdTag;
+        }
+
+        protected async Task<Highlight> AddTestHighlightToDatabase()
+        {
+            var testAnalysis = await AddTestAnalysisToDatabase();
+            var testHighlight = new Highlight
+            {
+                BookAnalysisId = testAnalysis.Id,
+                FirstNodeCharIndex = 1,
+                LastNodeCharIndex = 2,
+                LastNodeIndex = 1,
+                FirstNodeIndex = 2,
+                PageNumber = 1,
+            };
+            var createdHighlight = await AddToDatabase(testHighlight);
+
+            return (Highlight)createdHighlight;
+        }
+
+        protected async Task<ServiceResponse<BookAnalysisDetailedModel>> GetBookAnalysisRequest(int bookAnalysisId)
+        {
+            var getUrl = $"/BookAnalysis/GetAnalysisById/{bookAnalysisId}";
+            var getAnalysisResponse = await DeserializeResponse<ServiceResponse<BookAnalysisDetailedModel>>(
+                await _HttpClient.GetAsync(getUrl)
+            );
+            return getAnalysisResponse;
         }
 
         protected async Task<T> DeserializeResponse<T>(HttpResponseMessage response) where T : class
