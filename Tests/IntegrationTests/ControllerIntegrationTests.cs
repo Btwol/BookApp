@@ -1,4 +1,6 @@
-﻿using BookApp.Server.Models.Identity;
+﻿using BookApp.Server.Models;
+using BookApp.Server.Models.Enums;
+using BookApp.Server.Models.Identity;
 using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +19,7 @@ namespace Tests.IntegrationTests
         protected readonly HttpClient _HttpClient;
         protected readonly DataContext _context;
         protected readonly IConfiguration _configuration;
+        protected AppUser TestUser { get; private set; }
 
         public ControllerIntegrationTests(CustomWebApplicationFactory<Program> fixture)
         {
@@ -40,7 +43,9 @@ namespace Tests.IntegrationTests
                 _context.SaveChanges();
                 user = _context.Set<AppUser>().Where(user => user.Id == 1).FirstOrDefault();
             }
-            
+
+            TestUser = user;
+
             var userClaims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -66,6 +71,24 @@ namespace Tests.IntegrationTests
                         SecurityAlgorithms.HmacSha256
                 )
             );
+        }
+
+        protected async Task<BookAnalysis> AddTestAnalysisToDatabase()
+        {
+            var testAnalysis = new BookAnalysis { BookHash = "TestHash", AnalysisTitle = "TestAnalysis", Authors = "TestAuthor", BookTitle = "TestBook" };
+            var createdAnalysis = await AddToDatabase(testAnalysis);
+            AddToDatabase(new BookAnalysisUser { BookAnalysisId = testAnalysis.Id, UsersId = TestUser.Id, MemberType = MemberType.Administrator });
+
+            return (BookAnalysis)createdAnalysis;
+        }
+
+        protected async Task<Tag> AddTestTagToDatabase()
+        {
+            var testAnalysis = await AddTestAnalysisToDatabase();
+            var testTag = new Tag { Name = "TestTag", BookAnalysisId = testAnalysis.Id };
+            var createdTag = await AddToDatabase(testTag);
+            
+            return (Tag)createdTag;
         }
 
         protected async Task<T> DeserializeResponse<T>(HttpResponseMessage response) where T : class
