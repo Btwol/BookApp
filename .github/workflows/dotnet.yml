@@ -17,15 +17,12 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore Dependencies
-      working-directory: ./BookApp
       run: dotnet restore
 
     - name: Build Solution
-      working-directory: ./BookApp
       run: dotnet build --configuration Release
 
     - name: Run Integration Tests
       env:
         JwtKey: ${{ secrets.JwtKey }}
-      working-directory: ./BookApp
       run: dotnet test --filter Category=Integration
