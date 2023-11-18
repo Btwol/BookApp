@@ -15,7 +15,10 @@ ServicesConfigurator.ConfigureServices(builder.Services);
 ServicesConfigurator.ConfigureIdentity(builder);
 ServicesConfigurator.ConfigureSwagger(builder);
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped(sp => new HttpClient());
+builder.Services.AddHttpContextAccessor();
 
 configuration = builder.Configuration;
 

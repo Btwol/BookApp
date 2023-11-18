@@ -26,7 +26,10 @@ namespace BookApp.Server.Database
                 .AddJsonFile("appsettings.json")
                 .Build();
             var connectionString = configuration.GetConnectionString("BookAppDBConnection");
-            optionsBuilder.UseSqlServer(connectionString);
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(connectionString);
+            }
 
             optionsBuilder.EnableSensitiveDataLogging();
         }

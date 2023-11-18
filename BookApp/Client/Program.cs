@@ -32,7 +32,7 @@ var app = builder.Build();
 
 await app.RunAsync();
 
-public partial class Program
+internal partial class Program
 {
     public static IConfiguration clientConfiguration { get; private set; }
 }
