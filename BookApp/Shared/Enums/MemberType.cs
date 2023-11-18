@@ -5,6 +5,7 @@
         Administrator,
         Moderator,
         Editor,
-        Viewer
+        Viewer,
+        Invited
     }
 }
