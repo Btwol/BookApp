@@ -1,11 +1,6 @@
 ﻿using BookApp.Server.Models;
 using BookApp.Shared.Models.ClientModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tests.IntegrationTests
 {
@@ -36,7 +31,7 @@ namespace Tests.IntegrationTests
             // Assert
             AssertResponseSuccess(createResponse);
             Assert.NotNull(createResponse.Content);
-            Assert.True(createResponse.Content.Id > 0); 
+            Assert.True(createResponse.Content.Id > 0);
         }
 
         [Fact]

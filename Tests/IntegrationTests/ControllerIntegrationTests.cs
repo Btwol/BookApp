@@ -2,13 +2,9 @@
 using BookApp.Server.Models.Enums;
 using BookApp.Server.Models.Identity;
 using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq.Expressions;
-using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 
@@ -34,7 +30,7 @@ namespace Tests.IntegrationTests
         protected string SteupUser()
         {
             var role = _context.Set<AppRole>().Where(user => user.Id == 1).FirstOrDefault();
-            if(role is null)
+            if (role is null)
             {
                 _context.Add(new AppRole { Name = "User", NormalizedName = "USER" });
                 _context.SaveChanges();
@@ -50,7 +46,7 @@ namespace Tests.IntegrationTests
                 _context.SaveChanges();
 
                 user = _context.Set<AppUser>().Where(user => user.UserName == "testUser1").FirstOrDefault();
-                if(_context.Set<AppRole>().Where(user => user.Id == 1).FirstOrDefault() is null)
+                if (_context.Set<AppRole>().Where(user => user.Id == 1).FirstOrDefault() is null)
                 {
                     _context.Add(new IdentityUserRole<int> { RoleId = role.Id, UserId = user.Id });
                     _context.SaveChanges();
@@ -102,7 +98,7 @@ namespace Tests.IntegrationTests
             var testAnalysis = await AddTestAnalysisToDatabase();
             var testTag = new Tag { Name = "TestTag", BookAnalysisId = testAnalysis.Id };
             var createdTag = await AddToDatabase(testTag);
-            
+
             return (Tag)createdTag;
         }
 

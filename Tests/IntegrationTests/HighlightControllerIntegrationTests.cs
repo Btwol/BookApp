@@ -1,11 +1,5 @@
-﻿using BookApp.Server.Models;
-using BookApp.Shared.Models.ClientModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using BookApp.Shared.Models.ClientModels;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tests.IntegrationTests
 {
@@ -42,7 +36,7 @@ namespace Tests.IntegrationTests
             // Assert
             AssertResponseSuccess(createResponse);
             Assert.NotNull(createResponse.Content);
-            Assert.True(createResponse.Content.Id > 0); // Assuming the ID is generated on creation
+            Assert.True(createResponse.Content.Id > 0);
         }
 
 
@@ -128,7 +122,7 @@ namespace Tests.IntegrationTests
 
             var addTagUrl = $"/Highlight/AddTag/{testHighlight.Id}/{testTag.Id}";
             var addTagResponse = await DeserializeResponse<ServiceResponse>(
-                await _HttpClient.PostAsync(addTagUrl, null) 
+                await _HttpClient.PostAsync(addTagUrl, null)
             );
 
             // Act
@@ -140,7 +134,6 @@ namespace Tests.IntegrationTests
             // Assert
             AssertResponseSuccess(removeTagResponse);
 
-            // Verify that the tag was actually removed from the highlight
             var analysis = await GetBookAnalysisRequest(testHighlight.BookAnalysisId);
             Assert.Null(analysis.Content.Highlights.FirstOrDefault(h => h.Id == testHighlight.Id).Tags.FirstOrDefault(t => t.Id == testTag.Id));
         }
