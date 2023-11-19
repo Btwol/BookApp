@@ -1,5 +1,5 @@
 ﻿@inject IBookAnalysisClientService _bookAnalysisClientService
-@inject IBookAnalysisStorage bookAnalysisStorage
+@inject IAppStorage bookAnalysisStorage
 
 @if (loadedBookAnalysis is null)
 {
@@ -84,7 +84,7 @@ else
             loadingFile = true;
             Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
             loadedBookByteArray = await ReadFully(stream);
-            await bookAnalysisStorage.SetBookArray(loadedBookByteArray);
+            await bookAnalysisStorage.StoreBook(loadedBookByteArray);
             book = EpubReader.Read(loadedBookByteArray);
             await ReadBookHash();
             bookLoaded = true;

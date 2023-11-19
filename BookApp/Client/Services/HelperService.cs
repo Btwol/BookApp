@@ -1,4 +1,5 @@
-﻿using BookApp.Shared.Models.Services;
+﻿using BookApp.Client.Services.Interfaces;
+using BookApp.Shared.Models.Services;
 using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;

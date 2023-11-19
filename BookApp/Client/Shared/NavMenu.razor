@@ -1,7 +1,6 @@
 ﻿@using BookApp.Client.Pages.Identity
 
-@inject IBookAnalysisStorage bookAnalysisStorage
-@inject IJSRuntime JSRuntime
+@inject IAppStorage appStorage
 
 <style>
     .sidebar-container {
@@ -19,15 +18,6 @@
     }
 </style>
 
-@*<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BookApp</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>*@
-
 <div class="custom-sidebar">
     <nav class="flex-column">
         <div class="nav-item px-3">
@@ -39,7 +29,7 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="">
-                    <span class="oi oi-person" aria-hidden="true"></span> Hello @currentUsername
+                    <span class="oi oi-person" aria-hidden="true"></span> Hello @currentUser.Username
                 </NavLink>
             </div>
             <div class="nav-item px-3">
@@ -78,35 +68,21 @@
 </div>
 
 @code {
-    //private bool collapseNavMenu = true;
-
-    //private string? NavMenuCssClass => collapseNavMenu ? "collapse" : "custom-sidebar";
-
-    //private void ToggleNavMenu()
-    //{
-    //    collapseNavMenu = !collapseNavMenu;
-    //}
-
     bool analysisIsLoaded = false;
     bool userLoggedIn = false;
-    string currentUsername = "";
-
-    private async Task<string> GetItemFromLocalStorage(string itemName)
-    {
-        return await JSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", itemName);
-    }
+    AppUserModel? currentUser = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        analysisIsLoaded = await bookAnalysisStorage.AnalysisIsLoaded();
+        analysisIsLoaded = await appStorage.AnalysisIsStored();
     }
 
     protected async override Task OnInitializedAsync()
     {
-        userLoggedIn = await GetItemFromLocalStorage("currentUserToken") != null;
-        if (userLoggedIn)
+        if (await appStorage.UserIsStored())
         {
-            currentUsername = await GetItemFromLocalStorage("currentUsername");
+            userLoggedIn = true;
+            currentUser = await appStorage.GetStoredUser();
         }
     }
 }

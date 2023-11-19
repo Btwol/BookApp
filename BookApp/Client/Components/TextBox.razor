@@ -4,7 +4,7 @@
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-@inject IBookAnalysisStorage bookAnalysisStorage
+@inject IAppStorage bookAnalysisStorage
 
 <style>
     @if (css != null)
@@ -224,9 +224,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var loadedBookByteArray = await bookAnalysisStorage.GetLoadedBook();
+        var loadedBookByteArray = await bookAnalysisStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        bookAnalysis = await bookAnalysisStorage.GetLoadedBookAnalysis();
+        bookAnalysis = await bookAnalysisStorage.GetStoredBookAnalysis();
         dotNetRef = DotNetObjectReference.Create(this);
         initializingComponent = false;
 

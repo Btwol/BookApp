@@ -4,9 +4,9 @@
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IApiUserGetterService _apiUserGetterService;
+        private readonly IAppUserGetterService _apiUserGetterService;
 
-        public UsersController(IApiUserGetterService apiUserGetterService)
+        public UsersController(IAppUserGetterService apiUserGetterService)
         {
             _apiUserGetterService = apiUserGetterService;
         }
@@ -15,6 +15,12 @@
         public async Task<ServiceResponse> GetUserById(int userId)
         {
             return await _apiUserGetterService.GetUserById(userId);
+        }
+
+        [HttpGet("GetUserByEmail/{userEmail}")]
+        public async Task<ServiceResponse> GetUserByEmail(string userEmail)
+        {
+            return await _apiUserGetterService.GetUserByEmail(userEmail);
         }
     }
 }

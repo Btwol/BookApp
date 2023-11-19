@@ -1,4 +1,4 @@
-﻿namespace BookApp.Server.Models.Enums
+﻿namespace BookApp.Shared.Models.Enums
 {
     public enum MemberType
     {

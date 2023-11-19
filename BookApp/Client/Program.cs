@@ -22,7 +22,7 @@ builder.Services.AddScoped(typeof(IParagraphNoteClientService), typeof(Paragraph
 builder.Services.AddScoped(typeof(IAnalysisNoteClientService), typeof(AnalysisNoteClientService));
 builder.Services.AddScoped(typeof(IChapterNoteClientService), typeof(ChapterNoteClientService));
 builder.Services.AddScoped(typeof(IHighlightNoteClientService), typeof(HighlightNoteClientService));
-builder.Services.AddScoped<IBookAnalysisStorage, BookAnalysisStorage>();
+builder.Services.AddScoped<IAppStorage, AppStorage>();
 
 builder.Services.AddBlazoredModal();
 

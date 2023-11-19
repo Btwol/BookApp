@@ -1,6 +1,6 @@
 ﻿@inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
-@inject IBookAnalysisStorage bookAnalysisStorage
+@inject IAppStorage bookAnalysisStorage
 @inject NavigationManager Navigation
 
 @foreach (BookAnalysisSummaryModel bookAnalysis in foundBookAnalyses)
@@ -21,12 +21,39 @@
             <p>@author</p>
         }
         <hr />
-        <b>Members:</b>
-        @foreach (var member in bookAnalysis.Members)
+
+        <b>Admin:</b>
+        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator)</p>
+        <hr />
+
+        <b>Moderators:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Moderator))
         {
-            <p>@member.Key.Email | @member.Value.ToString()</p>
+            <p>@member.Key.Email</p>
         }
         <hr />
+
+        <b>Editors:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Editor))
+        {
+            <p>@member.Key.Email</p>
+        }
+        <hr />
+
+        <b>Viewers:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Viewer))
+        {
+            <p>@member.Key.Email</p>
+        }
+        <hr />
+
+        <b>Invited:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Invited))
+        {
+            <p>@member.Key.Email</p>
+        }
+        <hr />
+
         <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
         <button class="button-action" @onclick="() => DeleteAnalysis(bookAnalysis)">Delete analysis</button>
         <button class="button-action" @onclick="() => ShowEditAnalysisModal(bookAnalysis)">Edit analysis</button>
@@ -43,6 +70,7 @@
 
     [Parameter]
     public EventCallback<BookAnalysisDetailedModel> selectedBookAnalysisChanged { get; set; }
+
 
 
     private async Task ShowEditAnalysisModal(BookAnalysisSummaryModel bookAnalysis)
@@ -63,7 +91,7 @@
     private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
     {
         this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
-        await bookAnalysisStorage.SetBookAnalysis(this.selectedBookAnalysis);
+        await bookAnalysisStorage.StoreBookAnalysis(this.selectedBookAnalysis);
         await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
 
         Navigation.NavigateTo("redirect?reader");

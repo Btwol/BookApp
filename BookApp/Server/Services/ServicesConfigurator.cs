@@ -103,7 +103,7 @@ namespace BookApp.Server.Services
 
             services.AddScoped(typeof(IAppUserService), typeof(AppUserService));
             services.AddScoped(typeof(IAppUserMapperService), typeof(AppUserMapperService));
-            services.AddScoped(typeof(IApiUserGetterService), typeof(ApiUserGetterService));
+            services.AddScoped(typeof(IAppUserGetterService), typeof(AppUserGetterService));
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
             services.AddScoped(typeof(IAppUserRepository), typeof(AppUserRepository));
             services.AddScoped(typeof(IAppUserValidatorService), typeof(AppUserValidatorService));

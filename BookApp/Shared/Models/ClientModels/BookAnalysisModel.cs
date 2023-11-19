@@ -1,8 +1,4 @@
-﻿using BookApp.Server.Models.Enums;
-using BookApp.Shared.Interfaces.Model;
-using BookApp.Shared.Models.ClientModels.Notes;
-using BookApp.Shared.Models.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using BookApp.Shared.Models.ClientModels.Notes;
 
 namespace BookApp.Shared.Models.ClientModels
 {
