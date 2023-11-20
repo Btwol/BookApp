@@ -164,5 +164,42 @@
                     return ServiceResponse.Success("User removed.");
             }
         }
+
+        public async Task<ServiceResponse> AcceptInvite(int bookAnalysisId)
+        {
+            var userInvitation = await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au => 
+                   au.UsersId == _appUserService.GetCurrentUserId() 
+                && au.BookAnalysisId == bookAnalysisId 
+                && au.MemberType == MemberType.Invited);
+
+            if (userInvitation is null)
+            {
+                return ServiceResponse.Error("User not invited.");
+            }
+
+            userInvitation.MemberType = MemberType.Viewer;
+            await _bookAnalysisUserRepository.Edit(userInvitation);
+
+            return ServiceResponse.Success("Invitation accepted.");
+        }
+
+        public async Task<ServiceResponse> DeclineInvite(int bookAnalysisId)
+        {
+            var userInvitation = await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au =>
+                    au.UsersId == _appUserService.GetCurrentUserId()
+                 && au.BookAnalysisId == bookAnalysisId
+                 && au.MemberType == MemberType.Invited);
+
+            if (userInvitation is null)
+            {
+                return ServiceResponse.Error("User not invited.");
+            }
+
+            await _bookAnalysisUserRepository.Delete(userInvitation);
+
+            return ServiceResponse.Success("Invitation declined.");
+        }
     }
 }

@@ -183,15 +183,15 @@ namespace BookApp.Server.Database
                 }
             }
 
-            foreach (EntityEntry<BookAnalysisUser> entry in ChangeTracker.Entries<BookAnalysisUser>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.MemberType = MemberType.Administrator;
-                        break;
-                }
-            }
+            //foreach (EntityEntry<BookAnalysisUser> entry in ChangeTracker.Entries<BookAnalysisUser>())
+            //{
+            //    switch (entry.State)
+            //    {
+            //        case EntityState.Added:
+            //            entry.Entity.MemberType = MemberType.Administrator;
+            //            break;
+            //    }
+            //}
 
             return await base.SaveChangesAsync(cancellationToken);
         }
