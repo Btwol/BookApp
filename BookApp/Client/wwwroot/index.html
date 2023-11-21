@@ -447,6 +447,17 @@
             document.addEventListener('scroll', function (e) { dotNet.invokeMethodAsync("ReRender"); }, true);
         }
 
+        //setup reference for navmenu to re-render it from other components
+        let dotNetNavMenuReference;
+        function setupNavMenuEvent(_dotNetNavMenuReference) {
+            dotNetNavMenuReference = _dotNetNavMenuReference;
+        }
+
+        //nav menu re-render method
+        function reRenderNavMenu() {
+            dotNetNavMenuReference.invokeMethodAsync("ReRenderNavMenu");
+        }
+
         function setAddParagraphNotePosition(left, top, elementId) {
             element = document.getElementById(elementId);
             element.style.left = left-100 + 'px';

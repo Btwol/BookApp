@@ -1,6 +1,7 @@
 ﻿@using BookApp.Client.Pages.Identity
 
 @inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
 
 <style>
     .sidebar-container {
@@ -37,6 +38,11 @@
                     <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
                 </NavLink>
             </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/bookLoader">
+                    <span class="oi oi-bookmark" aria-hidden="true"></span> Book Loader
+                </NavLink>
+            </div>
         }
         else
         {
@@ -51,6 +57,7 @@
                 </NavLink>
             </div>
         }
+
         @if (analysisIsLoaded)
         {
             <div class="nav-item px-3">
@@ -63,6 +70,11 @@
                     <span class="oi oi-info" aria-hidden="true"></span> Summary
                 </NavLink>
             </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/analysisDetails">
+                    <span class="oi oi-clipboard" aria-hidden="true"></span> Details
+                </NavLink>
+            </div>
         }
     </nav>
 </div>
@@ -71,18 +83,32 @@
     bool analysisIsLoaded = false;
     bool userLoggedIn = false;
     AppUserModel? currentUser = null;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        analysisIsLoaded = await appStorage.AnalysisIsStored();
-    }
+    private DotNetObjectReference<NavMenu> componentReference;
 
     protected async override Task OnInitializedAsync()
     {
-        if (await appStorage.UserIsStored())
+        componentReference = DotNetObjectReference.Create(this);
+        await jsRuntime.InvokeVoidAsync("setupNavMenuEvent", componentReference);
+
+        await CheckState();
+    }
+
+    [JSInvokableAttribute("ReRenderNavMenu")]
+    public async void ReRenderNavMenu()
+    {
+        await CheckState();
+    }
+
+    private async Task CheckState()
+    {
+        analysisIsLoaded = await appStorage.AnalysisIsStored();
+        userLoggedIn = await appStorage.UserIsStored();
+
+        if (userLoggedIn)
         {
             userLoggedIn = true;
             currentUser = await appStorage.GetStoredUser();
         }
+        StateHasChanged();
     }
 }

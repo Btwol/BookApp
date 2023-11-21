@@ -11,8 +11,9 @@ namespace BookApp.Client.Services
 {
     public class AppStorage : IAppStorage
     {
-        public const string StoredAnalysisKey = "storedBookAnalysis";
+        public const string StoredAnalysisIdKey = "storedBookAnalysis";
         public const string StoredBookKey = "storedBook";
+        public const string StoredBookHashKey = "storedBookHash";
         public const string CurrentUserTokenKey = "currentUserToken";
         public const string CurrentUserNameKey = "currentUsername";
         public const string CurrentUserEmailKey = "currentUserEmail";
@@ -27,9 +28,10 @@ namespace BookApp.Client.Services
             _bookAnalysisClientService = bookAnalysisClientService;
         }
 
-        public async Task StoreBook(byte[] bookArray)
+        public async Task StoreBook(byte[] bookArray, string bookHash)
         {
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookKey);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookHashKey);
 
             StringBuilder bytesString = new StringBuilder();
             foreach (var bt in bookArray)
@@ -38,16 +40,18 @@ namespace BookApp.Client.Services
             }
 
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredBookKey, bytesString.ToString());
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredBookHashKey, bookHash);
+        }
+
+        public async Task<string> GetStoredBookHash()
+        {
+            return await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookHashKey);
         }
 
         public async Task<byte[]> GetStoredBook()
         {
             var book = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookKey);
-            if (book is null) 
-            {
-                throw new Exception("Book not loaded."); 
-            }
-
+            
             var reArray = book.ToString().Split(new string[] { " " }, StringSplitOptions.None).ToList();
             reArray.Remove("");
             byte[] reByte = new byte[reArray.Count];
@@ -62,30 +66,36 @@ namespace BookApp.Client.Services
         public async Task DeleteBookFromStorage()
         {
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookKey);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookHashKey);
         }
 
         public async Task<BookAnalysisDetailedModel> GetStoredBookAnalysis()
         {
-            var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisKey);
+            var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
             if (bookAnalysisId is null) throw new Exception("Book analysis not loaded.");
             return await _bookAnalysisClientService.GetAnalysisById(int.Parse(bookAnalysisId));
         }
 
+        public async Task<string> GetStoredBookAnalysisId()
+        {
+            return await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
+        }
+
         public async Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis)
         {
-            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisKey);
-            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisKey, bookAnalysis.Id);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisIdKey, bookAnalysis.Id);
         }
 
         public async Task DeleteAnalysisFromStorage()
         {
-            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisKey);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
 
         }
 
         public async Task<bool> AnalysisIsStored()
         {
-            var bookAnalysis = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisKey);
+            var bookAnalysis = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
             if (bookAnalysis is null) return false;
             else return true;
         }
@@ -124,6 +134,11 @@ namespace BookApp.Client.Services
                 Username = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", CurrentUserNameKey),
                 Email = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", CurrentUserEmailKey)
             };
+        }
+
+        public async Task<bool> BookIsStored()
+        {
+            return await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookHashKey) != null;
         }
     }
 }

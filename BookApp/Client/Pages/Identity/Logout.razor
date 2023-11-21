@@ -1,16 +1,15 @@
 ﻿@page "/logout"
-@inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject IAppStorage appStorage
 
+<b>Logging out...</b>
+
 @code {
-    protected async override Task OnInitializedAsync()
+    protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         await appStorage.DeleteUserFromStorage();
         await appStorage.DeleteAnalysisFromStorage();
         await appStorage.DeleteBookFromStorage();
-
         Navigation.NavigateTo("/redirect");
-        await JSRuntime.InvokeVoidAsync("reloadPage");
     }
 }

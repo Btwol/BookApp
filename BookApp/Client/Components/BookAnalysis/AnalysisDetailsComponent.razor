@@ -51,13 +51,12 @@
         <hr />
     }
 
-            @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Administrator))
-            {
-                <b>Admin:</b>
-                <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
-                <hr />
-            }
-
+    @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Administrator))
+    {
+        <b>Admin:</b>
+        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
+        <hr />
+    }
 
     @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Moderator))
     {
@@ -269,8 +268,11 @@
 
         var uri = new Uri(Navigation.Uri);
         bookAnalysisId = uri.Query.TrimStart('?');
+        if(string.IsNullOrEmpty(bookAnalysisId))
+        {
+           bookAnalysisId = await appStorage.GetStoredBookAnalysisId();
+        }
 
-        Console.WriteLine("bookAnalysisId: " + bookAnalysisId);
         if(!int.TryParse(bookAnalysisId, out int _bookAnalysisId))
         {
             throw new Exception("Invalid book analysis Id.");

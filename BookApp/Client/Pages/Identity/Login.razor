@@ -43,7 +43,6 @@
             var user = await HelperService.HandleResponse<LoginResponse>(response);
             await appStorage.StoreUser(user);
             Navigation.NavigateTo("/redirect");
-            await JSRuntime.InvokeVoidAsync("reloadPage");
         }
         else
         {

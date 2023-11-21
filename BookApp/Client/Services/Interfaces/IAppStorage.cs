@@ -8,12 +8,15 @@ namespace BookApp.Client.Services.Interfaces
         public Task<BookAnalysisDetailedModel> GetStoredBookAnalysis();
         public Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis);
         public Task<bool> AnalysisIsStored();
-        public Task StoreBook(byte[] bookArray);
+        public Task<string> GetStoredBookAnalysisId();
+        public Task StoreBook(byte[] bookArray, string bookHash);
         public Task<byte[]> GetStoredBook();
+        public Task<string> GetStoredBookHash();
         public Task StoreUser(LoginResponse loginResponse);
         public Task DeleteBookFromStorage();
         public Task DeleteAnalysisFromStorage();
         public Task DeleteUserFromStorage();
+        public Task<bool> BookIsStored();
         public Task<string> GetUserToken();
         public Task<bool> UserIsStored();
         public Task<AppUserModel> GetStoredUser();

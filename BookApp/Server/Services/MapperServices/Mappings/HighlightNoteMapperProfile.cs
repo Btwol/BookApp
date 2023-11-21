@@ -4,7 +4,9 @@
     {
         public HighlightNoteMapperProfile()
         {
-            CreateMap<HighlightNoteModel, HighlightNote>().ReverseMap().AfterMap((db, client) => client.BookAnalysisId = db.Highlight.BookAnalysisId);
+            CreateMap<HighlightNoteModel, HighlightNote>().ReverseMap()
+                .AfterMap((db, client) => client.BookAnalysisId = db.Highlight.BookAnalysisId);
         }
     }
 }
+
