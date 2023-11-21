@@ -1,23 +1,24 @@
 ﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 
-<EditForm Model="@newAnalysis" OnValidSubmit="@CreateAnalysis" class="form">
+<EditForm style="margin:5px" Model="@newAnalysis" OnValidSubmit="@CreateAnalysis" class="form">
     <DataAnnotationsValidator />
     <ValidationSummary class="validation-summary" />
-
-    <div class="form-group">
+    <div>
         <label for="AnalysisTitle">Book Analysis Title</label>
-        <InputText @bind-Value="newAnalysis!.AnalysisTitle" class="form-control" />
-    </div>
+        <div style="display:flex">
+            <InputText style="width:30%" @bind-Value="newAnalysis!.AnalysisTitle" class="form-control" />
 
-    @if (awaitingResponse)
-    {
-        <p>Creating Analysis...</p>
-    }
-    else
-    {
-        <button type="submit" class="btn btn-primary">Submit</button>
-    }
-</EditForm> 
+            @if (awaitingResponse)
+            {
+                <p>Creating Analysis...</p>
+            }
+            else
+            {
+                <button type="submit" class="button-action">Submit</button>
+            }
+        </div>
+    </div>
+</EditForm>
 
 @code {
     [Parameter]

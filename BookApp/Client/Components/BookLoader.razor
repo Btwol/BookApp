@@ -4,7 +4,7 @@
 @inject IAppStorage appStorage
 @inject IJSRuntime jsRuntime
 
-<BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent ChildComponentName="Book Loader">
+<ErrorHandlerComponent ChildComponentName="Book Loader">
     <ChildContent>
 @if (checkingIfLoaded)
 {
@@ -66,7 +66,7 @@ else
 
     }
     </ChildContent>
-</BookApp.Client.Components.ErrorHandler.ErrorHandlerComponent>
+</ErrorHandlerComponent>
 
 @code {
     private bool checkingIfLoaded = true;
