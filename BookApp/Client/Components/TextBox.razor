@@ -14,7 +14,28 @@
             @(new HtmlString(txt.TextContent))
         }
     }
+    .text-box-container
+    {
+        height:fit-content; 
+        width:fit-content;
+        border-style:solid; 
+        border-width:2px; 
+        border-color:black; 
+    }
 
+    .light-mode * {
+        background-color:#cccccc;
+        color:black;
+    }
+
+    .dark-mode * {
+        background-color:#101010;
+        color:white;
+    }
+
+    .font-size-override * {
+        font-size: 20px;
+    }
 </style>
 
 
@@ -23,7 +44,7 @@
         {
             <div class="highlight-textbox-wrapper">
                 <div id="highlightContainer" class="highlight-container"></div>
-                <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
+                <div class="font-size-override light-mode text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
                     @if (html is not null)
                     {
                         @(

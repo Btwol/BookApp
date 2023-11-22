@@ -2,15 +2,15 @@
 @inject IAnalysisNoteClientService _analysisNoteClientService
 @inject IAppStorage appStorage
 
+<div style="border-width:2px; border-style: solid; border-color: black;">
+<p>Analysis Notes:</p>
 @if (userCanEdit)
 {
     <button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
 }
 
-<h3>Analysis Notes:</h3>
 @foreach (AnalysisNoteModel note in AnalysisNotes)
 {
-    <hr />
     <div class="note-holder">
         <p>@note.Content</p>
     </div>
@@ -21,6 +21,7 @@
     }
     <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
 }
+</div>
 
 @code {
     [Parameter]

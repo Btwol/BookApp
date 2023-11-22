@@ -1,4 +1,5 @@
 ﻿@inject ITagClientService _tagService
+@inject IAppStorage appStorage
 
 <ErrorHandlerComponent ChildComponentName="Manage tags">
     <ChildContent>
@@ -211,7 +212,7 @@
         }
     }
 
-    protected override Task OnInitializedAsync()
+    protected async override Task OnInitializedAsync()
     {
         var currentUser = await appStorage.GetStoredUser();
         userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
