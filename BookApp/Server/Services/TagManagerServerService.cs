@@ -26,7 +26,7 @@
 
             if (taggedItem.Tags.Any(tag => tag.Id == tagId))
             {
-                ServiceResponse.Error("This item already has an the tag.");
+                ServiceResponse.Error("This item already has the tag.");
             }
 
             taggedItem.Tags.Add(tag);
@@ -61,12 +61,12 @@
         {
             if (taggedItem is null)
             {
-                ServiceResponse.Error("Item not found.");
+                return ServiceResponse.Error("Item not found.");
             }
 
             if (tag is null)
             {
-                ServiceResponse.Error("Tag not found.");
+                return ServiceResponse.Error("Tag not found.");
             }
 
             if (!await _bookAnalysisServerService.CurrentUserIsMemberTypeOfAnalysis(tag.BookAnalysisId, MemberType.Editor,

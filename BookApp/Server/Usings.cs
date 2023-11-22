@@ -3,7 +3,6 @@ global using BookApp.Server.Attributes;
 global using BookApp.Server.Database;
 global using BookApp.Server.Middlewares;
 global using BookApp.Server.Models;
-global using BookApp.Server.Models.Auditables;
 global using BookApp.Server.Models.Identity;
 global using BookApp.Server.Models.Interfaces;
 global using BookApp.Server.Models.Notes;
