@@ -1,4 +1,8 @@
-﻿namespace BookApp.Server.Services
+﻿using BookApp.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+
+namespace BookApp.Server.Services
 {
     public class BookAnalysisServerService : IBookAnalysisServerService
     {
@@ -7,18 +11,21 @@
         private readonly IAppUserService _userService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
+        private readonly IHubContext<BookAnalysisHub> _hubContext;
 
         public BookAnalysisServerService(IBookAnalysisMapperService bookAnalysisMapper,
             IBookAnalysisRepository bookAnalysisRepository,
             IAppUserService userService,
             UserManager<AppUser> userManager,
-            IBookAnalysisUserRepository bookAnalysisUserRepository)
+            IBookAnalysisUserRepository bookAnalysisUserRepository,
+            IHubContext<BookAnalysisHub> hubContext)
         {
             _bookAnalysisMapper = bookAnalysisMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
             _userService = userService;
             _userManager = userManager;
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
+            this._hubContext = hubContext;
         }
 
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisSummaryModel newAnalysisModel)
@@ -90,6 +97,14 @@
 
             _bookAnalysisMapper.MapEditBookAnalysis(analysistoUpdate, updatedBookAnalysisModel);
             await _bookAnalysisRepository.Edit(analysistoUpdate);
+
+
+            List<string> usersToCall = new();
+            foreach(var user in analysistoUpdate.Users)
+            {
+                usersToCall.Add(user.Id.ToString());
+            }
+            await _hubContext.Clients.All.SendAsync("BookAnalysisSummaryUpdated", updatedBookAnalysisModel);
 
             return ServiceResponse.Success("Analysis updated.");
         }

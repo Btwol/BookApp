@@ -1,3 +1,5 @@
+using BookApp.Server.Hubs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 ILogger logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
@@ -19,6 +21,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSignalR();
 
 configuration = builder.Configuration;
 
@@ -55,6 +59,8 @@ app.UseAuthentication();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+app.MapHub<BookAnalysisHub>("/bookAnalysisHub");
 
 app.Run();
 

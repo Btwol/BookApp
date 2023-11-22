@@ -1,12 +1,14 @@
 ﻿@page "/analysisDetails"
 
 @using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.SignalR.Client
 @inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IAppStorage appStorage
 @inject IAnalysisMembershipClientService analysisMembershipClientService
 @inject IAppUserClientService appUserClientService
 @inject NavigationManager Navigation
+@inject IJSRuntime _jsRuntime
 
 <ErrorHandlerComponent ChildComponentName="Analysis details">
     <ChildContent>
@@ -264,8 +266,32 @@
         Navigation.NavigateTo("redirect?reader");
     }
 
+    //[JSInvokable]
+    //public void TaskUpdated(BookAnalysisSummaryModel updatedBookAnalysis)
+    //{
+    //    // Handle the real-time update from SignalR.
+    //    bookAnalysis.AnalysisTitle = updatedBookAnalysis.AnalysisTitle;
+    //    StateHasChanged();
+    //}
+    HubConnection hubConnection = new HubConnectionBuilder()
+      .WithUrl(Program.baseUri + "bookAnalysisHub")
+      .WithAutomaticReconnect()
+      .Build();
+
+
+
     protected async override Task OnInitializedAsync()
     {
+        //await _jsRuntime.InvokeVoidAsync("registerSignalR", DotNetObjectReference.Create(this));
+        await hubConnection.StartAsync();
+
+        hubConnection.On("BookAnalysisSummaryUpdated", async(BookAnalysisSummaryModel updatedTask) =>
+    {
+        Console.WriteLine("Enter message:");
+        bookAnalysis.AnalysisTitle = updatedTask.AnalysisTitle;
+        StateHasChanged();
+    });
+
         if (!await appStorage.UserIsStored())
         {
             throw new Exception("User is not logged in.");
