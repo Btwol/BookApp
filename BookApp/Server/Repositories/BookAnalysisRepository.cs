@@ -1,10 +1,51 @@
-﻿namespace BookApp.Server.Repositories
+﻿using BookApp.Server.Models;
+using BookApp.Server.Models.Notes;
+
+namespace BookApp.Server.Repositories
 {
     public class BookAnalysisRepository : BaseRepository<BookAnalysis>, IBookAnalysisRepository
     {
         public BookAnalysisRepository(DataContext context) : base(context)
         {
 
+        }
+
+        public async override Task Delete(BookAnalysis bookAnalysisToDelete)
+        {
+            var tags = bookAnalysisToDelete.Tags;
+            var analysisNotes = bookAnalysisToDelete.AnalysisNotes;
+            var chapterNotes = bookAnalysisToDelete.ChapterNotes;
+            var paragraphNotes = bookAnalysisToDelete.ParagraphNotes;
+            var highlights = bookAnalysisToDelete.Highlights;
+
+            foreach (var analysisNote in analysisNotes)
+            {
+                analysisNote.Tags.Clear();
+                _context.Remove(analysisNote);
+            }
+            foreach (var chapterNote in chapterNotes)
+            {
+                chapterNote.Tags.Clear();
+                _context.Remove(chapterNote);
+            }
+            foreach (var paragraphNote in paragraphNotes)
+            {
+                paragraphNote.Tags.Clear();
+                _context.Remove(paragraphNote);
+            }
+            foreach (var highlight in highlights)
+            {
+                foreach (var highlightNote in highlight.HighlightNotes)
+                {
+                    highlightNote.Tags.Clear();
+                    _context.Remove(highlightNote);
+                }
+                highlight.Tags.Clear();
+                _context.Remove(highlight);
+            }
+
+            _context.Remove(bookAnalysisToDelete);
+            await _context.SaveChangesAsync();
         }
 
         public override IQueryable<BookAnalysis> QueryWithIncludes(DbSet<BookAnalysis> querry)

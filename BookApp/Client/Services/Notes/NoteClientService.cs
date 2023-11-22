@@ -7,43 +7,49 @@ namespace BookApp.Client.Services.Notes
 {
     public abstract class NoteClientService<T> : INoteClientService<T>  where T : NoteModel
     {
-        protected readonly HttpClient Http;
-        protected readonly string NoteType;
+        protected readonly HttpClient _http;
+        protected readonly string noteType;
+        protected readonly IJSRuntime _jsRuntime;
 
-        public NoteClientService(HttpClient http, IJSRuntime jsRuntime)
+        public NoteClientService(HttpClient http, IJSRuntime jSRuntime)
         {
-            NoteType = typeof(T).Name.Replace("Model", string.Empty);
-            Http = http;
-            HelperService.AddTokenToRequest(http, jsRuntime);
+            noteType = typeof(T).Name.Replace("Model", string.Empty);
+            this._http = http;
+            this._jsRuntime = jSRuntime;
         }
 
         public virtual async Task<T> AddNote(T noteModel)
         {
-            var response = await Http.PostAsJsonAsync($"{NoteType}/Add{NoteType}", noteModel);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PostAsJsonAsync($"{noteType}/Add{noteType}", noteModel);
             return await HelperService.HandleResponse<T>(response);
         }
 
         public virtual async Task DeleteNote(int noteId, int bookAnalysisId)
         {
-            var response = await Http.DeleteAsync($"{NoteType}/Delete{NoteType}/{noteId}/{bookAnalysisId}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.DeleteAsync($"{noteType}/Delete{noteType}/{noteId}/{bookAnalysisId}");
             await HelperService.HandleResponse(response);
         }
 
         public virtual async Task<T> EditNote(T noteModel)
         {
-            var response = await Http.PutAsJsonAsync($"{NoteType}/Edit{NoteType}", noteModel);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PutAsJsonAsync($"{noteType}/Edit{noteType}", noteModel);
             return await HelperService.HandleResponse<T>(response);
         }
 
         public virtual async Task AddTag(int noteId, int tagId)
         {
-            var response = await Http.PostAsync($"{NoteType}/AddTag/{noteId}/{tagId}", null);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PostAsync($"{noteType}/AddTag/{noteId}/{tagId}", null);
             await HelperService.HandleResponse(response);
         }
 
         public virtual async Task RemoveTag(int noteId, int tagId)
         {
-            var response = await Http.DeleteAsync($"{NoteType}/RemoveTag/{noteId}/{tagId}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.DeleteAsync($"{noteType}/RemoveTag/{noteId}/{tagId}");
             await HelperService.HandleResponse(response);
         }
     }

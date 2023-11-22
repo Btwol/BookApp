@@ -4,9 +4,7 @@ namespace BookApp.Server.Repositories.Notes
 {
     public class HighlightNoteRepository : BaseRepository<HighlightNote>, IHighlightNoteRepository
     {
-        public HighlightNoteRepository(DataContext context) : base(context)
-        {
-        }
+        public HighlightNoteRepository(DataContext context) : base(context) { }
 
         public override IQueryable<HighlightNote> QueryWithIncludes(DbSet<HighlightNote> querry)
         {

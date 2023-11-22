@@ -6,13 +6,13 @@
         private readonly IBookAnalysisRepository _bookAnalysisRepository;
         private readonly IAppUserService _userService;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IBaseRepository<BookAnalysisUser> _bookAnalysisUserRepository;
+        private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
 
         public BookAnalysisServerService(IBookAnalysisMapperService bookAnalysisMapper,
             IBookAnalysisRepository bookAnalysisRepository,
             IAppUserService userService,
             UserManager<AppUser> userManager,
-            IBaseRepository<BookAnalysisUser> bookAnalysisUserRepository)
+            IBookAnalysisUserRepository bookAnalysisUserRepository)
         {
             _bookAnalysisMapper = bookAnalysisMapper;
             _bookAnalysisRepository = bookAnalysisRepository;

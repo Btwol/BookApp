@@ -1,4 +1,5 @@
 ﻿@inject ITagClientService _tagService
+@inject IAppStorage appStorage
 
 <ErrorHandlerComponent ChildComponentName="Manage tags">
     <ChildContent>
@@ -12,6 +13,8 @@
 
                 <hr />
 
+            @if (userHasEditRights)
+            {
                 <h3>Add Tags</h3>
                 @foreach (TagModel tag in filteredTags)
                 {
@@ -20,44 +23,47 @@
                     <button class="tag-item" style=@buttonToggle @onclick="() => AddTag(tag.Id)">@tag.Name</button>
                     }
                 }
-        </EditForm>
-        
-        <hr />
-
-        <p>Create new tag:</p>
-        <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <InputText @bind-Value="NewTag!.Name" />
-            <button class="button-action" type="submit">Submit</button>
+            }
         </EditForm>
 
-        <hr />
+        @if (userHasEditRights)
+        {
+            <hr />
 
-        <p>Edit tag:</p>
-        @foreach (var tag in filteredTags)
-        {
-            <li class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</li>
-        }
-        @if (showEditTagForm)
-        {
-            <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
+            <p>Create new tag:</p>
+            <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
-                <p>Tag name:</p>
-                <InputText @bind-Value="TagToEdit!.Name" />
+                <InputText @bind-Value="NewTag!.Name" />
                 <button class="button-action" type="submit">Submit</button>
             </EditForm>
+
+            <hr />
+
+            <p>Edit tag:</p>
+            @foreach (var tag in filteredTags)
+            {
+                <li class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</li>
+            }
+            @if (showEditTagForm)
+            {
+                <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <p>Tag name:</p>
+                    <InputText @bind-Value="TagToEdit!.Name" />
+                    <button class="button-action" type="submit">Submit</button>
+                </EditForm>
+            }
+
+            <hr />
+
+            <p>Delete tag:</p>
+            @foreach (var tag in filteredTags)
+            {
+                <li class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</li>
+            }
         }
-
-        <hr />
-
-        <p>Delete tag:</p>
-        @foreach (var tag in filteredTags)
-        {
-            <li class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</li>
-        }
-
         <hr />
 
         <button class="button-action" @onclick="Close">Close</button>
@@ -94,6 +100,7 @@
     private bool addTag = true;
     private string tagSearchKeyword = "";
     private List<TagModel> filteredTags = new();
+    private bool userHasEditRights = false;
 
     private async Task Close() => await BlazoredModal.CloseAsync();
 
@@ -203,5 +210,11 @@
         {
             buttonToggle = disabledButtonStyle;
         }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var currentUser = await appStorage.GetStoredUser();
+        userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
     }
 }

@@ -1,8 +1,12 @@
-﻿@inject IJSRuntime jsRuntime
+﻿@inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
 @inject IHighlightClientService _highlightClientService
 
 <div class="text-box-bar">
-    <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
+    @if(userCanEdit)
+    {
+        <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
+    }
 
     <div class="row">
         <div class="col">
@@ -28,10 +32,11 @@
 
     [Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
-    
+
     [Parameter]
     public DotNetObjectReference<TextBox> dotNetRef { get; set; }
 
+    private bool userCanEdit = false;
 
     private async Task CreatePermanentHighlight()
     {
@@ -49,5 +54,10 @@
         currentCount += page;
         await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
         await currentCountChanged.InvokeAsync(currentCount);
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
     }
 }

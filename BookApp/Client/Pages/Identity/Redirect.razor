@@ -11,6 +11,6 @@
         var uri = new Uri(Navigation.Uri);
         redirectLink = uri.Query.TrimStart('?');
         Navigation.NavigateTo(redirectLink);
-        await jsRuntime.InvokeVoidAsync("reloadPage");
+        await jsRuntime.InvokeVoidAsync("reRenderNavMenu");
     }
 }

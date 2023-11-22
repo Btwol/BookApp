@@ -1,6 +1,9 @@
-﻿@inject IModalService Modal
+﻿@using System.Text.RegularExpressions
+@inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
-@inject IBookAnalysisStorage bookAnalysisStorage
+@inject IAppStorage appStorage
+@inject IAnalysisMembershipClientService analysisMembershipClientService
+@inject IAppUserClientService appUserClientService
 @inject NavigationManager Navigation
 
 @foreach (BookAnalysisSummaryModel bookAnalysis in foundBookAnalyses)
@@ -9,29 +12,17 @@
         <b>Analysis Title: </b>
         <p>@bookAnalysis.AnalysisTitle</p>
         <hr />
-        <b>Book Hash: </b>
-        <p>@bookAnalysis.BookHash</p>
+      
+        <b>Admin:</b>
+        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
         <hr />
-        <b>Book Title: </b>
-        <p>@bookAnalysis.BookTitle</p>
-        <hr />
-        <b>Authors:</b>
-        @foreach (string author in bookAnalysis.Authors)
+
+        @*@if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator, MemberType.Editor, MemberType.Viewer))
         {
-            <p>@author</p>
-        }
-        <hr />
-        <b>Members:</b>
-        @foreach (var member in bookAnalysis.Members)
-        {
-            <p>@member.Key.Email | @member.Value.ToString()</p>
-        }
-        <hr />
-        <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
-        <button class="button-action" @onclick="() => DeleteAnalysis(bookAnalysis)">Delete analysis</button>
-        <button class="button-action" @onclick="() => ShowEditAnalysisModal(bookAnalysis)">Edit analysis</button>
+            <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
+        }*@
+        <button class="button-action" @onclick="() => ViewAnalysisDetails(bookAnalysis.Id)">Details</button>
     </div>
-    <hr />
 }
 
 @code {
@@ -44,37 +35,39 @@
     [Parameter]
     public EventCallback<BookAnalysisDetailedModel> selectedBookAnalysisChanged { get; set; }
 
+    public AppUserModel currentUser = new();
 
-    private async Task ShowEditAnalysisModal(BookAnalysisSummaryModel bookAnalysis)
+    //private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
+    //{
+    //    this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
+
+    //    var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Key.Id == currentUser.Id).Value;
+    //    bool editorialRights = (userMembershipType == MemberType.Administrator
+    //    || userMembershipType == MemberType.Moderator
+    //    || userMembershipType == MemberType.Editor) ? true : false;
+
+    //    await appStorage.StoreBookAnalysis(this.selectedBookAnalysis, editorialRights);
+    //    await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
+
+    //    Navigation.NavigateTo("redirect?reader");
+    //}
+
+    private void ViewAnalysisDetails(int bookAnalysisId)
     {
-        var parameters = new ModalParameters().Add(nameof(EditAnalysis.analysisToEdit), bookAnalysis);
-        var modal = Modal.Show<EditAnalysis>("Edit Analysis", parameters);
-        await modal.Result;
+        Navigation.NavigateTo($"analysisDetails?{bookAnalysisId}");
     }
 
-    private async Task DeleteAnalysis(BookAnalysisSummaryModel analysisToDelete)
+    //private bool CurrentUserIsOfMemberType(BookAnalysisSummaryModel bookAnalysis, params MemberType[] memberTypes)
+    //{
+    //    return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Value) && m.Key.Id == currentUser.Id);
+    //}
+
+    protected async override Task OnInitializedAsync()
     {
-        await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
-
-        foundBookAnalyses.Remove(analysisToDelete);
-        StateHasChanged();
-    }
-
-    private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
-    {
-        this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
-        await bookAnalysisStorage.SetBookAnalysis(this.selectedBookAnalysis);
-        await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
-
-        Navigation.NavigateTo("redirect?reader");
-    }
-
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-        ////var presetAnalysis = foundBookAnalyses.FirstOrDefault(a => a.AnalysisTitle == "presetAnalysis");
-        //if(presetAnalysis is not null)
-        //{
-        //    await LoadAnalysis(presetAnalysis);
-        //}
+        if(!await appStorage.UserIsStored())
+        {
+            throw new Exception("User is not logged in.");
+        }
+        currentUser = await appStorage.GetStoredUser();
     }
 }

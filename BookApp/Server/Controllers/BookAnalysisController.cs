@@ -1,8 +1,8 @@
 ﻿namespace BookApp.Server.Controllers
 {
+    [JwtAuthorize("User")]
     [ApiController]
     [Route("[controller]")]
-    [JwtAuthorize("User")]
     public class BookAnalysisController : ControllerBase
     {
         private readonly IBookAnalysisServerService _bookAnalysisService;

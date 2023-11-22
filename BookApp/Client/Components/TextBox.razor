@@ -4,7 +4,7 @@
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-@inject IBookAnalysisStorage bookAnalysisStorage
+@inject IAppStorage appStorage
 
 <style>
     @if (css != null)
@@ -14,15 +14,37 @@
             @(new HtmlString(txt.TextContent))
         }
     }
+    .text-box-container
+    {
+        height:fit-content; 
+        width:fit-content;
+        border-style:solid; 
+        border-width:2px; 
+        border-color:black; 
+    }
 
+    .light-mode * {
+        background-color:#cccccc;
+        color:black;
+    }
+
+    .dark-mode * {
+        background-color:#101010;
+        color:white;
+    }
+
+    .font-size-override * {
+        font-size: 20px;
+    }
 </style>
+
 
     <ErrorHandlerComponent ChildComponentName="Text Box"><ChildContent>
         @if (!initializingComponent)
         {
             <div class="highlight-textbox-wrapper">
                 <div id="highlightContainer" class="highlight-container"></div>
-                <div id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef" class="text-box">
+                <div class="font-size-override light-mode text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
                     @if (html is not null)
                     {
                         @(
@@ -85,24 +107,23 @@
     private bool isLoading = true;
     bool initializingComponent = true;
     bool firstComponentRender = true;
-
+    private bool userHasEditRights = false;
 
     [JSInvokableAttribute("ReRender")]
     public async void ReRender()
-    {
-        Refresh();
-    }
-
-    void Refresh()
     {
         StateHasChanged();
     }
 
     async Task GetSelectedText(MouseEventArgs e)
     {
+        if (!userHasEditRights)
+        {
+            return;
+        }
+
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
         string items = selectionRange.ToString();
-
 
         if (items != "-1")
         {
@@ -125,6 +146,7 @@
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
+
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
         await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
         StateHasChanged();
@@ -173,7 +195,6 @@
     //        imageStream.CopyTo(fileStream);
     //    }
     //}
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -224,10 +245,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var loadedBookByteArray = await bookAnalysisStorage.GetLoadedBook();
+        var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        bookAnalysis = await bookAnalysisStorage.GetLoadedBookAnalysis();
+        bookAnalysis = await appStorage.GetStoredBookAnalysis();
+
         dotNetRef = DotNetObjectReference.Create(this);
+
+        var currentUser = await appStorage.GetStoredUser();
+        userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
+
         initializingComponent = false;
 
         StateHasChanged(); 

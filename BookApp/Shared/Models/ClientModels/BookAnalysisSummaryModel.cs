@@ -1,5 +1,5 @@
-﻿using BookApp.Server.Models.Enums;
-using BookApp.Shared.Interfaces.Model;
+﻿using BookApp.Shared.Interfaces.Model;
+using BookApp.Shared.Models.Enums;
 using BookApp.Shared.Models.Identity;
 using System.ComponentModel.DataAnnotations;
 

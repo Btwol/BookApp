@@ -1,18 +1,27 @@
 ﻿@inject IModalService Modal
 @inject IAnalysisNoteClientService _analysisNoteClientService
+@inject IAppStorage appStorage
 
-<button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
-<h3>Analysis Notes:</h3>
+<div style="border-width:2px; border-style: solid; border-color: black;">
+<p>Analysis Notes:</p>
+@if (userCanEdit)
+{
+    <button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
+}
+
 @foreach (AnalysisNoteModel note in AnalysisNotes)
 {
-    <hr />
     <div class="note-holder">
         <p>@note.Content</p>
     </div>
-    <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
-    <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
-    <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Manage Tags</button>
+    @if (userCanEdit)
+    {
+        <button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
+        <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+    }
+    <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
 }
+</div>
 
 @code {
     [Parameter]
@@ -23,6 +32,9 @@
     public int bookAnalysisId { get; set; }
     [Parameter]
     public List<TagModel> Tags { get; set; }
+
+    private bool userCanEdit = false;
+
 
     private async Task ShowAddAnalysisNoteModal()
     {
@@ -60,4 +72,8 @@
         AnalysisNotes.Remove(noteToRemove);
     }
 
+    protected async override Task OnInitializedAsync()
+    {
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
+    }
 }

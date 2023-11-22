@@ -1,10 +1,8 @@
-﻿@inject NavigationManager Navigation
-@page "/login"
-@using BookApp.Client.Services
-@using BookApp.Shared.Models.Identity
+﻿@page "/login"
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
-
+@inject IAppStorage appStorage
+@inject NavigationManager Navigation
 
 <EditForm Model="@loginRequest" OnValidSubmit="@LoginUser" class="form">
     <DataAnnotationsValidator />
@@ -25,7 +23,7 @@
     }
     else
     {
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="button-action">Submit</button>
     }
 </EditForm>
 
@@ -43,9 +41,8 @@
         if (response.IsSuccessStatusCode)
         {
             var user = await HelperService.HandleResponse<LoginResponse>(response);
-            await SetUserInLocalStorage(user);
+            await appStorage.StoreUser(user);
             Navigation.NavigateTo("/redirect");
-            await JSRuntime.InvokeVoidAsync("reloadPage");
         }
         else
         {
@@ -56,13 +53,5 @@
 
         awaitingResponse = false;
         StateHasChanged();
-    }
-
-    private async Task SetUserInLocalStorage(LoginResponse loginResponse)
-    {
-        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUserToken", loginResponse.Token);
-        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUsername", loginResponse.User.Username);
-        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUserEmail", loginResponse.User.Email);
-        await JSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", "currentUserId", loginResponse.User.Id);
     }
 }

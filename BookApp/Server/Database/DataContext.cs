@@ -161,38 +161,6 @@ namespace BookApp.Server.Database
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            foreach (EntityEntry<Creatable> entry in ChangeTracker.Entries<Creatable>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.CreatorId = _apiUserService.GetCurrentUserId();
-                        entry.Entity.CreatedAt = DateTime.UtcNow;
-                        break;
-                }
-            }
-
-            foreach (EntityEntry<Updatable> entry in ChangeTracker.Entries<Updatable>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Modified:
-                        entry.Entity.UpdaterId = _apiUserService.GetCurrentUserId();
-                        entry.Entity.UpdatedAt = DateTime.UtcNow;
-                        break;
-                }
-            }
-
-            foreach (EntityEntry<BookAnalysisUser> entry in ChangeTracker.Entries<BookAnalysisUser>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.MemberType = MemberType.Administrator;
-                        break;
-                }
-            }
-
             return await base.SaveChangesAsync(cancellationToken);
         }
     }

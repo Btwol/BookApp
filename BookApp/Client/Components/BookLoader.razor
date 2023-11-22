@@ -1,5 +1,18 @@
-﻿@inject IBookAnalysisClientService _bookAnalysisClientService
-@inject IBookAnalysisStorage bookAnalysisStorage
+﻿@page "/bookLoader"
+
+@inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
+
+<ErrorHandlerComponent ChildComponentName="Book Loader">
+    <ChildContent>
+@if (checkingIfLoaded)
+{
+    <h3>Loading...</h3>
+}
+else
+{
+
 
 @if (loadedBookAnalysis is null)
 {
@@ -49,17 +62,14 @@
         </ErrorHandlerComponent>
         }
     }
-else
-{
-        @*<ErrorHandlerComponent ChildComponentName="Text Box">
-        <ChildContent><TextBox bookAnalysis="loadedBookAnalysis" book="book" /></ChildContent>
-    </ErrorHandlerComponent>*@
-    
-}
 
 
+    }
+    </ChildContent>
+</ErrorHandlerComponent>
 
 @code {
+    private bool checkingIfLoaded = true;
     private bool awaitingResponse = false;
     private string bookAnalysisCreationResponseMessage = "";
     private bool bookAnalysisCreationSuccessful = true;
@@ -69,9 +79,9 @@ else
     private bool showErrorBox = false;
     private string errorContent = "";
     private BookAnalysisDetailedModel loadedBookAnalysis;
-    private EpubBook book;
-    private byte[] loadedBookByteArray;
-    private string loadedBookHash;
+    private EpubBook book = null;
+    private byte[]? loadedBookByteArray;
+    private string loadedBookHash = string.Empty;
     public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
 
     private bool showCreateAnalysisForm = false;
@@ -84,11 +94,12 @@ else
             loadingFile = true;
             Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
             loadedBookByteArray = await ReadFully(stream);
-            await bookAnalysisStorage.SetBookArray(loadedBookByteArray);
+            ReadBookHash();
+            await appStorage.StoreBook(loadedBookByteArray, loadedBookHash);
             book = EpubReader.Read(loadedBookByteArray);
-            await ReadBookHash();
             bookLoaded = true;
             loadingFile = false;
+            await jsRuntime.InvokeVoidAsync("reRenderNavMenu");
             await LoadAnalysesFromServer(loadedBookHash);
         }
         catch (Exception ex)
@@ -125,11 +136,36 @@ else
         }
     }
 
-    private async Task ReadBookHash()
+    private void ReadBookHash()
     {
         SHA256 sha256 = SHA256.Create();
         byte[] hashValue = sha256.ComputeHash(loadedBookByteArray);
         string hashString = BitConverter.ToString(hashValue).Replace("-", "");
         loadedBookHash = hashString;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            if (await appStorage.BookIsStored())
+            {
+                loadingFile = true;
+
+                loadedBookHash = await appStorage.GetStoredBookHash() ?? string.Empty;
+                loadedBookByteArray = await appStorage.GetStoredBook() ?? null;
+
+                if (!string.IsNullOrEmpty(loadedBookHash) && loadedBookByteArray is not null)
+                {
+                    book = EpubReader.Read((byte[])loadedBookByteArray);
+                    bookLoaded = true;
+                    await LoadAnalysesFromServer(loadedBookHash);
+                }
+                loadingFile = false;
+                await jsRuntime.InvokeVoidAsync("reRenderNavMenu");
+            }
+            checkingIfLoaded = false;
+            StateHasChanged();
+        }
     }
 }

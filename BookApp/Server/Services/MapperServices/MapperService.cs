@@ -10,6 +10,7 @@
         }
 
         public async virtual Task<C> MapToClientModel(D dbModel)
+
         {
             return _mapper.Map<C>(dbModel);
         }
@@ -20,3 +21,4 @@
         }
     }
 }
+

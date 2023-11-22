@@ -2,10 +2,10 @@
 {
     public class BookAnalysisMapper : MapperService<BookAnalysis, BookAnalysisSummaryModel>, IBookAnalysisMapperService
     {
-        private readonly IBaseRepository<BookAnalysisUser> _bookAnalysisUserRepository;
+        private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
         private readonly IAppUserMapperService _appUserMapperService; 
 
-        public BookAnalysisMapper(IMapper mapper, IBaseRepository<BookAnalysisUser> bookAnalysisUserRepository, IAppUserMapperService appUserMapperService) : base(mapper)
+        public BookAnalysisMapper(IMapper mapper, IBookAnalysisUserRepository bookAnalysisUserRepository, IAppUserMapperService appUserMapperService) : base(mapper)
         {
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
             _appUserMapperService = appUserMapperService;

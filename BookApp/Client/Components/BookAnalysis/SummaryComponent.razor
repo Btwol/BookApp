@@ -1,5 +1,5 @@
 ﻿@page "/summary"
-@inject IBookAnalysisStorage bookAnalysisStorage
+@inject IAppStorage bookAnalysisStorage
 
 <p>Include Tag</p>
 @*<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />*@
@@ -100,7 +100,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        bookAnalysis = await bookAnalysisStorage.GetLoadedBookAnalysis();
+        bookAnalysis = await bookAnalysisStorage.GetStoredBookAnalysis();
         filteredTags = bookAnalysis.Tags;
         FilterByTag();
     }

@@ -46,7 +46,7 @@
             }
 
             context.Response.WriteAsJsonAsync(ServiceResponse.Error(
-                $"Error ocurred at {context.GetRouteValue("controller")}, {context.GetRouteValue("action")}"
+                $"{exception.Message}"
                 , (HttpStatusCode)context.Response.StatusCode)).Wait();
         }
     }

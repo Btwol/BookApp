@@ -1,0 +1,288 @@
+﻿@page "/analysisDetails"
+
+@using System.Text.RegularExpressions
+@inject IModalService Modal
+@inject IBookAnalysisClientService _bookAnalysisClientService
+@inject IAppStorage appStorage
+@inject IAnalysisMembershipClientService analysisMembershipClientService
+@inject IAppUserClientService appUserClientService
+@inject NavigationManager Navigation
+
+<ErrorHandlerComponent ChildComponentName="Analysis details">
+    <ChildContent>
+
+<div style="width:fit-content;">
+    <b>Analysis Title: </b>
+    <p>@bookAnalysis.AnalysisTitle</p>
+    <hr />
+    <b>Book Hash: </b>
+    <p>@bookAnalysis.BookHash</p>
+    <hr />
+    <b>Book Title: </b>
+    <p>@bookAnalysis.BookTitle</p>
+    <hr />
+    <b>Authors:</b>
+    @foreach (string author in bookAnalysis.Authors)
+    {
+        <p>@author</p>
+    }
+    <hr />
+
+    @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator))
+    {
+        <p>Invite user...</p>
+        <input type="text" @onchange="SearchUserByEmail" style="width:fit-content;" placeholder="Search user by email..." class="form-control" />
+        @if (!string.IsNullOrEmpty(searchErrorMessage))
+        {
+            <p class="text-danger">@searchErrorMessage</p>
+        }
+        @if (userToInvite is not null)
+        {
+            <button class="button-action" @onclick="() => InviteUser(bookAnalysis.Id)">Invite</button>
+        }
+        <hr />
+    }
+
+    @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Invited))
+    {
+        <p>Invitation pending</p>
+        <button class="button-action" @onclick="() => AcceptInvite(bookAnalysis.Id)">Accept</button>
+        <button class="button-action" @onclick="() => DeclineInvite(bookAnalysis.Id)">Decline</button>
+        <hr />
+    }
+
+    @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Administrator))
+    {
+        <b>Admin:</b>
+        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
+        <hr />
+    }
+
+    @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Moderator))
+    {
+        <b>Moderators:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Moderator))
+        {
+            <p>@member.Key.Email</p>
+            @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
+            {
+                <select @bind="memberType">
+                    @foreach (var item in memberTypeOptions.Where(o => o != member.Value))
+                    {
+                        <option value="@item">@item.ToString()</option>
+                    }
+                </select>
+                <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Key.Id)">Change member type</button>
+                <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Kick</button>
+            }
+
+        }
+        <hr />
+    }
+
+    @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Editor))
+    {
+        <b>Editors:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Editor))
+        {
+            <p>@member.Key.Email</p>
+            @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
+            {
+                <select @bind="memberType">
+                    @foreach (var item in memberTypeOptions.Where(o => o != member.Value))
+                    {
+                        <option value="@item">@item.ToString()</option>
+                    }
+                </select>
+                <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Key.Id)">Change member type</button>
+                <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Kick</button>
+            }
+
+        }
+        <hr />
+    }
+
+    @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Viewer))
+    {
+        <b>Viewers:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Viewer))
+        {
+            <p>@member.Key.Email</p>
+            @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
+            {
+                <select @bind="memberType">
+                    @foreach (var item in memberTypeOptions.Where(o => o != member.Value))
+                    {
+                        <option value="@item">@item.ToString()</option>
+                    }
+                </select>
+                <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Key.Id)">Change member type</button>
+                <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Kick</button>
+            }
+        }
+        <hr />
+    }
+
+    @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Invited))
+    {
+        <b>Invited:</b>
+        @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Invited))
+        {
+            <p>@member.Key.Email</p>
+            @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
+            {
+                <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Uninvite</button>
+            }
+        }
+        <hr />
+    }
+
+    @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator, MemberType.Editor, MemberType.Viewer))
+    {
+        <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
+    }
+    @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
+    {
+        <button class="button-action" @onclick="() => DeleteAnalysis(bookAnalysis)">Delete analysis</button>
+    }
+    @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator))
+    {
+        <button class="button-action" @onclick="() => ShowEditAnalysisModal(bookAnalysis)">Edit analysis</button>
+    }
+</div>
+
+</ChildContent>
+</ErrorHandlerComponent>
+
+@code {
+    [Parameter]
+    public string bookAnalysisId { get; set; }
+
+    //[Parameter]
+    public BookAnalysisDetailedModel bookAnalysis { get; set; } = new();
+
+    //[Parameter]
+    //public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
+
+    private AppUserModel userToInvite;
+    public AppUserModel currentUser = new();
+
+    private MemberType? memberType = null;
+    private List<MemberType> memberTypeOptions = new List<MemberType> { MemberType.Moderator, MemberType.Editor, MemberType.Viewer };
+
+    private string searchErrorMessage;
+    private async Task SearchUserByEmail(ChangeEventArgs e)
+    {
+        string email = e.Value.ToString();
+        if (!string.IsNullOrEmpty(email) && Regex.IsMatch(email, @"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"))
+        {
+            searchErrorMessage = string.Empty;
+            userToInvite = await appUserClientService.GetUserByEmail(email);
+        }
+        else
+        {
+            searchErrorMessage = "Invalid email.";
+        }
+    }
+
+    private async Task AcceptInvite(int bookAnalysisId)
+    {
+        await analysisMembershipClientService.AcceptInvite(bookAnalysisId);
+        await ChangeMembershipType((await appStorage.GetStoredUser()).Id, MemberType.Viewer);
+        StateHasChanged();
+    }
+
+    private async Task DeclineInvite(int bookAnalysisId)
+    {
+        await analysisMembershipClientService.DeclineInvite(bookAnalysisId);
+        await ChangeMembershipType((await appStorage.GetStoredUser()).Id, null);
+        StateHasChanged();
+    }
+
+    private async Task InviteUser(int bookAnalysisId)
+    {
+        if (userToInvite is not null)
+        {
+            await analysisMembershipClientService.InviteUser(bookAnalysisId, userToInvite.Id);
+            bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(userToInvite, MemberType.Invited));
+        }
+    }
+
+    private async Task KickUser(int bookAnalysisId, int kickedUserId)
+    {
+        await analysisMembershipClientService.RemoveUser(bookAnalysisId, kickedUserId);
+        await ChangeMembershipType(kickedUserId, null);
+    }
+
+    private async Task ChangeMemberType(int bookAnalysisId, int memberId)
+    {
+        if (memberType is not null)
+        {
+            await analysisMembershipClientService.ChangeMemberStatus(bookAnalysisId, memberId, (MemberType)memberType);
+            await ChangeMembershipType(memberId, memberType);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ChangeMembershipType(int userId, MemberType? newMemberType)
+    {
+        var userMembership = bookAnalysis.Members.FirstOrDefault(m => m.Key.Id == userId);
+        bookAnalysis.Members.Remove(userMembership);
+        if (newMemberType is not null)
+        {
+            bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(userMembership.Key, (MemberType)newMemberType));
+        }
+    }
+
+    private async Task ShowEditAnalysisModal(BookAnalysisSummaryModel bookAnalysis)
+    {
+        var parameters = new ModalParameters().Add(nameof(EditAnalysis.analysisToEdit), bookAnalysis);
+        var modal = Modal.Show<EditAnalysis>("Edit Analysis", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteAnalysis(BookAnalysisSummaryModel analysisToDelete)
+    {
+        await _bookAnalysisClientService.DeleteBookAnalysis(analysisToDelete.Id);
+        Navigation.NavigateTo("redirect");
+    }
+
+    private bool CurrentUserIsOfMemberType(BookAnalysisSummaryModel bookAnalysis, params MemberType[] memberTypes)
+    {
+        return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Value) && m.Key.Id == currentUser.Id);
+    }
+
+    private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
+    {
+        var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Key.Id == currentUser.Id).Value;
+        bool editorialRights = (userMembershipType == MemberType.Administrator
+        || userMembershipType == MemberType.Moderator
+        || userMembershipType == MemberType.Editor) ? true : false;
+
+        await appStorage.StoreBookAnalysis(bookAnalysis, editorialRights);
+
+        Navigation.NavigateTo("redirect?reader");
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (!await appStorage.UserIsStored())
+        {
+            throw new Exception("User is not logged in.");
+        }
+        currentUser = await appStorage.GetStoredUser();
+
+        var uri = new Uri(Navigation.Uri);
+        bookAnalysisId = uri.Query.TrimStart('?');
+        if(string.IsNullOrEmpty(bookAnalysisId))
+        {
+           bookAnalysisId = await appStorage.GetStoredBookAnalysisId();
+        }
+
+        if(!int.TryParse(bookAnalysisId, out int _bookAnalysisId))
+        {
+            throw new Exception("Invalid book analysis Id.");
+        }
+        bookAnalysis = await _bookAnalysisClientService.GetAnalysisById(_bookAnalysisId);
+    }
+}

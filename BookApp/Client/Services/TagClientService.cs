@@ -7,35 +7,40 @@ namespace BookApp.Client.Services
 {
     public class TagClientService : ITagClientService
     {
-        private readonly HttpClient Http;
+        private readonly HttpClient _http;
+        protected readonly IJSRuntime _jsRuntime;
 
         public TagClientService(HttpClient http, IJSRuntime jsRuntime)
         {
-            Http = http;
-            HelperService.AddTokenToRequest(http, jsRuntime);
+            _http = http;
+            _jsRuntime = jsRuntime;
         }
 
         public async Task<TagModel> CreateNewTag(TagModel newTag, int bookAnalysisId)
         {
-            var response = await Http.PostAsJsonAsync<TagModel>($"Tag/CreateNewTag/{bookAnalysisId}", newTag);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PostAsJsonAsync<TagModel>($"Tag/CreateNewTag/{bookAnalysisId}", newTag);
             return await HelperService.HandleResponse<TagModel>(response);
         }
 
         public async Task DeleteTag(int tagId)
         {
-            var response = await Http.DeleteAsync($"Tag/DeleteTag/{tagId}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.DeleteAsync($"Tag/DeleteTag/{tagId}");
             await HelperService.HandleResponse(response);
         }
 
         public async Task EditTag(TagModel tagToEdit)
         {
-            var response = await Http.PutAsJsonAsync<TagModel>($"Tag/EditTag", tagToEdit);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PutAsJsonAsync<TagModel>($"Tag/EditTag", tagToEdit);
             await HelperService.HandleResponse(response);
         }
 
         public async Task<List<TagModel>> GetTags(int bookAnalysisId)
         {
-            var response = await Http.GetAsync($"Tag/GetTags/{bookAnalysisId}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.GetAsync($"Tag/GetTags/{bookAnalysisId}");
             return await HelperService.HandleResponse<List<TagModel>>(response);
         }
     }
