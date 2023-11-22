@@ -18,6 +18,7 @@ namespace BookApp.Client.Services
         public const string CurrentUserNameKey = "currentUsername";
         public const string CurrentUserEmailKey = "currentUserEmail";
         public const string CurrentUserIdKey = "currentUserId";
+        public const string UserCanEditLoadedAnalysis = "currentUserCanEditLoadedAnalysis";
 
         private readonly IJSRuntime _jSRuntime;
         private readonly IBookAnalysisClientService _bookAnalysisClientService;
@@ -81,16 +82,18 @@ namespace BookApp.Client.Services
             return await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
         }
 
-        public async Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis)
+        public async Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis, bool userHasEditorRights)
         {
-            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
+            await DeleteAnalysisFromStorage();
+
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", UserCanEditLoadedAnalysis, userHasEditorRights.ToString());
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisIdKey, bookAnalysis.Id);
         }
 
         public async Task DeleteAnalysisFromStorage()
         {
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
-
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", UserCanEditLoadedAnalysis);
         }
 
         public async Task<bool> AnalysisIsStored()
@@ -139,6 +142,11 @@ namespace BookApp.Client.Services
         public async Task<bool> BookIsStored()
         {
             return await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookHashKey) != null;
+        }
+
+        public async Task<bool> UserHasStoredAnalysisEditorialRights()
+        {
+            return bool.Parse(await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", UserCanEditLoadedAnalysis));
         }
     }
 }

@@ -1,17 +1,19 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.Enums;
 using Microsoft.JSInterop;
+using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services
 {
     public class AnalysisMembershipClientService : IAnalysisMembershipClientService
     {
         private readonly HttpClient Http;
+        private readonly IJSRuntime jsRuntime;
 
         public AnalysisMembershipClientService(HttpClient http, IJSRuntime jsRuntime)
         {
             Http = http;
-            HelperService.AddTokenToRequest(http, jsRuntime);
+            this.jsRuntime = jsRuntime;
         }
 
         public async Task AcceptInvite(int bookAnalysisId)
@@ -28,6 +30,8 @@ namespace BookApp.Client.Services
 
         public async Task DeclineInvite(int bookAnalysisId)
         {
+            await HelperService.AddTokenToRequest(Http, jsRuntime);
+
             var response = await Http.DeleteAsync($"AnalysisMembership/DeclineInvite/{bookAnalysisId}");
             await HelperService.HandleResponse(response);
         }

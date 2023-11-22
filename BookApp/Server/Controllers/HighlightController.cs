@@ -14,6 +14,12 @@
             _tagService = tagService;
         }
 
+        [HttpPost("AddTag/{highlightId}/{tagId}")]
+        public async Task<ServiceResponse> AddTag(int highlightId, int tagId)
+        {
+            return await _tagService.AddTag(highlightId, tagId);
+        }
+
         [HttpPut("UpdateHighlight")]
         public async Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
@@ -32,11 +38,7 @@
             return await _highlightService.DeleteHighlight(highlightId);
         }
 
-        [HttpPost("AddTag/{highlightId}/{tagId}")]
-        public async Task<ServiceResponse> AddTag(int highlightId, int tagId)
-        {
-            return await _tagService.AddTag(highlightId, tagId);
-        }
+
 
         [HttpDelete("RemoveTag/{highlightId}/{tagId}")]
         public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)

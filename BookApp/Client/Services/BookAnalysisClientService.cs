@@ -17,7 +17,7 @@ namespace BookApp.Client.Services
 
         public async Task<BookAnalysisSummaryModel> CreateBookAnalysis(BookAnalysisSummaryModel newBookAnalysis)
         {
-            var response = await Http.PostAsJsonAsync<BookAnalysisSummaryModel>("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
+            var response = await Http.PostAsJsonAsync("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
             return await HelperService.HandleResponse<BookAnalysisSummaryModel>(response);
         }
 

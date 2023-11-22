@@ -6,11 +6,29 @@
         private readonly ITagMapper _tagMapperService;
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
 
-        public TagServerService(IBookAnalysisServerService bookAnalysisServerService, ITagMapper tagMapperService, ITagRepository tagRepository)
+        public TagServerService(IBookAnalysisServerService bookAnalysisServerService, ITagMapper tagMapperService, 
+            ITagRepository tagRepository)
         {
             _bookAnalysisServerService = bookAnalysisServerService;
             _tagMapperService = tagMapperService;
             _tagRepository = tagRepository;
+        }
+
+        public async Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId)
+        {
+            var validationResult = await ValidateTagRequest(bookAnalysisId);
+            if (!validationResult.SuccessStatus)
+            {
+                return validationResult;
+            }
+
+            var mappedTag = await _tagMapperService.MapToDbModel(newTag);
+            mappedTag.BookAnalysisId = bookAnalysisId;
+
+            var addedTag = await _tagRepository.Create(mappedTag);
+            var mappedAddedTag = await _tagMapperService.MapToClientModel(addedTag);
+
+            return ServiceResponse<TagModel>.Success(mappedAddedTag, "Tag created.");
         }
 
         public async Task<ServiceResponse> DeleteTag(int tagId)
@@ -30,23 +48,6 @@
             await _tagRepository.DeleteById(tagId);
 
             return ServiceResponse.Success("Tag deleted.");
-        }
-
-        public async Task<ServiceResponse> CreateNewTag(TagModel newTag, int bookAnalysisId)
-        {
-            var validationResult = await ValidateTagRequest(bookAnalysisId);
-            if (!validationResult.SuccessStatus)
-            {
-                return validationResult;
-            }
-
-            var mappedTag = await _tagMapperService.MapToDbModel(newTag);
-            mappedTag.BookAnalysisId = bookAnalysisId;
-
-            var addedTag = await _tagRepository.Create(mappedTag);
-            var mappedAddedTag = await _tagMapperService.MapToClientModel(addedTag);
-
-            return ServiceResponse<TagModel>.Success(mappedAddedTag, "Tag created.");
         }
 
         public async Task<ServiceResponse> EditTag(TagModel editedTag)

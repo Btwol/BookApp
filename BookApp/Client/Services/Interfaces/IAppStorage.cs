@@ -6,9 +6,10 @@ namespace BookApp.Client.Services.Interfaces
     public interface IAppStorage
     {
         public Task<BookAnalysisDetailedModel> GetStoredBookAnalysis();
-        public Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis);
+        public Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis, bool userHasEditorRights);
         public Task<bool> AnalysisIsStored();
         public Task<string> GetStoredBookAnalysisId();
+        public Task<bool> UserHasStoredAnalysisEditorialRights();
         public Task StoreBook(byte[] bookArray, string bookHash);
         public Task<byte[]> GetStoredBook();
         public Task<string> GetStoredBookHash();

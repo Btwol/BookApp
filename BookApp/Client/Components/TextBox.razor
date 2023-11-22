@@ -4,7 +4,7 @@
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
-@inject IAppStorage bookAnalysisStorage
+@inject IAppStorage appStorage
 
 <style>
     @if (css != null)
@@ -16,6 +16,7 @@
     }
 
 </style>
+
 
     <ErrorHandlerComponent ChildComponentName="Text Box"><ChildContent>
         @if (!initializingComponent)
@@ -85,24 +86,23 @@
     private bool isLoading = true;
     bool initializingComponent = true;
     bool firstComponentRender = true;
-
+    private bool userHasEditRights = false;
 
     [JSInvokableAttribute("ReRender")]
     public async void ReRender()
-    {
-        Refresh();
-    }
-
-    void Refresh()
     {
         StateHasChanged();
     }
 
     async Task GetSelectedText(MouseEventArgs e)
     {
+        if (!userHasEditRights)
+        {
+            return;
+        }
+
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
         string items = selectionRange.ToString();
-
 
         if (items != "-1")
         {
@@ -125,17 +125,23 @@
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-        lastClickedTextNodeIndex = lastSelectedNodeIndex;
-        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
-        StateHasChanged();
+        if (userHasEditRights)
+        {
+            lastClickedTextNodeIndex = lastSelectedNodeIndex;
+            await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
+            StateHasChanged();
+        }
     }
 
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
-        await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
-        StateHasChanged();
+        if (userHasEditRights)
+        {
+            currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
+            await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
+            StateHasChanged();
+        }
     }
 
     [JSInvokableAttribute("onPernamentHighlightClickOff")]
@@ -173,7 +179,6 @@
     //        imageStream.CopyTo(fileStream);
     //    }
     //}
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -224,10 +229,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var loadedBookByteArray = await bookAnalysisStorage.GetStoredBook();
+        var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        bookAnalysis = await bookAnalysisStorage.GetStoredBookAnalysis();
+        bookAnalysis = await appStorage.GetStoredBookAnalysis();
+
         dotNetRef = DotNetObjectReference.Create(this);
+
+        var currentUser = await appStorage.GetStoredUser();
+        userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
+
         initializingComponent = false;
 
         StateHasChanged(); 

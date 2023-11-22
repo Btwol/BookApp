@@ -17,10 +17,10 @@
         <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
         <hr />
 
-        @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator, MemberType.Editor, MemberType.Viewer))
+        @*@if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator, MemberType.Editor, MemberType.Viewer))
         {
             <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
-        }
+        }*@
         <button class="button-action" @onclick="() => ViewAnalysisDetails(bookAnalysis.Id)">Details</button>
     </div>
 }
@@ -37,24 +37,30 @@
 
     public AppUserModel currentUser = new();
 
-    private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
-    {
-        this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
-        await appStorage.StoreBookAnalysis(this.selectedBookAnalysis);
-        await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
+    //private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
+    //{
+    //    this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
 
-        Navigation.NavigateTo("redirect?reader");
-    }
+    //    var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Key.Id == currentUser.Id).Value;
+    //    bool editorialRights = (userMembershipType == MemberType.Administrator
+    //    || userMembershipType == MemberType.Moderator
+    //    || userMembershipType == MemberType.Editor) ? true : false;
+
+    //    await appStorage.StoreBookAnalysis(this.selectedBookAnalysis, editorialRights);
+    //    await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
+
+    //    Navigation.NavigateTo("redirect?reader");
+    //}
 
     private void ViewAnalysisDetails(int bookAnalysisId)
     {
         Navigation.NavigateTo($"analysisDetails?{bookAnalysisId}");
     }
 
-    private bool CurrentUserIsOfMemberType(BookAnalysisSummaryModel bookAnalysis, params MemberType[] memberTypes)
-    {
-        return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Value) && m.Key.Id == currentUser.Id);
-    }
+    //private bool CurrentUserIsOfMemberType(BookAnalysisSummaryModel bookAnalysis, params MemberType[] memberTypes)
+    //{
+    //    return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Value) && m.Key.Id == currentUser.Id);
+    //}
 
     protected async override Task OnInitializedAsync()
     {

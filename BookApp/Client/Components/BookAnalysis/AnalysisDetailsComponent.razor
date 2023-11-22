@@ -204,7 +204,7 @@
         if (userToInvite is not null)
         {
             await analysisMembershipClientService.InviteUser(bookAnalysisId, userToInvite.Id);
-            await ChangeMembershipType(userToInvite.Id, MemberType.Invited);
+            bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(userToInvite, MemberType.Invited));
         }
     }
 
@@ -254,7 +254,13 @@
 
     private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
     {
-        await appStorage.StoreBookAnalysis(bookAnalysis);
+        var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Key.Id == currentUser.Id).Value;
+        bool editorialRights = (userMembershipType == MemberType.Administrator
+        || userMembershipType == MemberType.Moderator
+        || userMembershipType == MemberType.Editor) ? true : false;
+
+        await appStorage.StoreBookAnalysis(bookAnalysis, editorialRights);
+
         Navigation.NavigateTo("redirect?reader");
     }
 
