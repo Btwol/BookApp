@@ -125,23 +125,18 @@
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-        if (userHasEditRights)
-        {
-            lastClickedTextNodeIndex = lastSelectedNodeIndex;
-            await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
-            StateHasChanged();
-        }
+
+        lastClickedTextNodeIndex = lastSelectedNodeIndex;
+        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
+        StateHasChanged();
     }
 
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        if (userHasEditRights)
-        {
-            currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
-            await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
-            StateHasChanged();
-        }
+        currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
+        await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
+        StateHasChanged();
     }
 
     [JSInvokableAttribute("onPernamentHighlightClickOff")]

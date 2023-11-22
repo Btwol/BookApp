@@ -6,17 +6,19 @@ namespace BookApp.Client.Services
 {
     public class AppUserClientService : IAppUserClientService
     {
-        private readonly HttpClient Http;
+        private readonly HttpClient http;
+        private readonly IJSRuntime _jsRuntime;
 
         public AppUserClientService(HttpClient http, IJSRuntime jsRuntime)
         {
-            Http = http;
-            HelperService.AddTokenToRequest(http, jsRuntime);
+            this.http = http;
+            _jsRuntime = jsRuntime;
         }
 
         public async Task<AppUserModel> GetUserByEmail(string email)
         {
-            var response = await Http.GetAsync($"Users/GetUserByEmail/{email}");
+            await HelperService.AddTokenToRequest(http, _jsRuntime);
+            var response = await http.GetAsync($"Users/GetUserByEmail/{email}");
             return await HelperService.HandleResponse<AppUserModel>(response);
         }
     }

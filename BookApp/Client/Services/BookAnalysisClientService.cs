@@ -7,41 +7,47 @@ namespace BookApp.Client.Services
 {
     public class BookAnalysisClientService : IBookAnalysisClientService
     {
-        private readonly HttpClient Http;
+        private readonly HttpClient _http;
+        private readonly IJSRuntime _jsRuntime;
 
         public BookAnalysisClientService(HttpClient http, IJSRuntime jsRuntime)
         {
-            Http = http;
-            HelperService.AddTokenToRequest(http, jsRuntime);
+            _http = http;
+            _jsRuntime = jsRuntime;
         }
 
         public async Task<BookAnalysisSummaryModel> CreateBookAnalysis(BookAnalysisSummaryModel newBookAnalysis)
         {
-            var response = await Http.PostAsJsonAsync("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PostAsJsonAsync("BookAnalysis/CreateBookAnalysis", newBookAnalysis);
             return await HelperService.HandleResponse<BookAnalysisSummaryModel>(response);
         }
 
         public async Task DeleteBookAnalysis(int bookAnalysisId)
         {
-            var response = await Http.DeleteAsync($"BookAnalysis/DeleteBookAnalysis/{bookAnalysisId}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.DeleteAsync($"BookAnalysis/DeleteBookAnalysis/{bookAnalysisId}");
             await HelperService.HandleResponse(response);
         }
 
         public async Task EditBookAnalysis(BookAnalysisSummaryModel updatedBookAnalysis)
         {
-            var response = await Http.PutAsJsonAsync<BookAnalysisSummaryModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.PutAsJsonAsync<BookAnalysisSummaryModel>("BookAnalysis/EditBookAnalysis", updatedBookAnalysis);
             await HelperService.HandleResponse(response);
         }
 
         public async Task<List<BookAnalysisSummaryModel>> GetAnalysesByHash(string bookHash)
         {
-            var response = await Http.GetAsync($"BookAnalysis/GetAnalysesByHash/{bookHash}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.GetAsync($"BookAnalysis/GetAnalysesByHash/{bookHash}");
             return await HelperService.HandleResponse<List<BookAnalysisSummaryModel>>(response);
         }
 
         public async Task<BookAnalysisDetailedModel> GetAnalysisById(int bookAnalysisId)
         {
-            var response = await Http.GetAsync($"BookAnalysis/GetAnalysisById/{bookAnalysisId}");
+            await HelperService.AddTokenToRequest(_http, _jsRuntime);
+            var response = await _http.GetAsync($"BookAnalysis/GetAnalysisById/{bookAnalysisId}");
             return await HelperService.HandleResponse<BookAnalysisDetailedModel>(response);
         }
     }
