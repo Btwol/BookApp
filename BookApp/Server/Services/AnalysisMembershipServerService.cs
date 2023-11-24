@@ -6,14 +6,16 @@
         private readonly IAppUserRepository _appUserRepository;
         private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
         private readonly IAppUserService _appUserService;
+        private readonly IHubServerService _hubServerService;
 
-        public AnalysisMembershipServerService(IBookAnalysisRepository bookAnalysisRepository, IAppUserRepository appUserRepository, 
-            IBookAnalysisUserRepository bookAnalysisUserRepository, IAppUserService appUserService)
+        public AnalysisMembershipServerService(IBookAnalysisRepository bookAnalysisRepository, IAppUserRepository appUserRepository,
+            IBookAnalysisUserRepository bookAnalysisUserRepository, IAppUserService appUserService, IHubServerService hubServerService)
         {
             _bookAnalysisRepository = bookAnalysisRepository;
             _appUserRepository = appUserRepository;
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
             _appUserService = appUserService;
+            _hubServerService = hubServerService;
         }
 
         public async Task<ServiceResponse> ChangeMemberStatus(int bookAnalysisId, int memberUserId, MemberType newMemberType)
@@ -46,35 +48,53 @@
 
         private async Task<ServiceResponse> ChangeMemberType(MemberType newMemberType, MemberType requestorMemberType, BookAnalysisUser modifiedUserMembership)
         {
+            string responseMessage = string.Empty;
+            bool successStatus = false;
+
             switch (newMemberType)
             {
                 case MemberType.Administrator:
-                    return ServiceResponse.Error("There may only be one administrator");
+                    responseMessage = "There may only be one administrator";
+                    break;
 
                 case MemberType.Moderator:
                     if (requestorMemberType != MemberType.Administrator)
                     {
-                        return ServiceResponse.Error("Only the administrators can promote to moderator.");
+                        responseMessage = "Only the administrators can promote to moderator.";
                     }
                     else
                     {
                         modifiedUserMembership.MemberType = MemberType.Moderator;
-                        await _bookAnalysisUserRepository.Edit(modifiedUserMembership);
-                        return ServiceResponse.Success("User status changed to moderator.");
+                        responseMessage = "User status changed to moderator.";
+                        successStatus = true;
                     }
+                    break;
 
                 case MemberType.Editor:
                     modifiedUserMembership.MemberType = MemberType.Editor;
-                    await _bookAnalysisUserRepository.Edit(modifiedUserMembership);
-                    return ServiceResponse.Success("User status changed to editor.");
+                    responseMessage = "User status changed to editor.";
+                    successStatus = true;
+                    break;
 
                 case MemberType.Viewer:
                     modifiedUserMembership.MemberType = MemberType.Viewer;
-                    await _bookAnalysisUserRepository.Edit(modifiedUserMembership);
-                    return ServiceResponse.Success("User status changed to viewer.");
+                    responseMessage = "User status changed to viewer.";
+                    successStatus = true;
+                    break;
             }
 
-            return ServiceResponse.Error("There was an error while changing the member type");
+            
+            if(!successStatus)
+            {
+                responseMessage = string.IsNullOrEmpty(responseMessage) ? "There was an error while changing the member type" : responseMessage;
+                return ServiceResponse.Error(responseMessage);
+            }
+            else
+            {
+                await _bookAnalysisUserRepository.Edit(modifiedUserMembership);
+                await _hubServerService.AnalysisMemberModified(modifiedUserMembership.BookAnalysisId, modifiedUserMembership.UsersId, modifiedUserMembership.MemberType);
+                return ServiceResponse.Success(responseMessage);
+            }
         }
 
         public async Task<ServiceResponse> InviteUser(int bookAnalysisId, int invitedUserId)
@@ -111,6 +131,7 @@
             var newMembership = new BookAnalysisUser { BookAnalysisId = bookAnalysisId, UsersId = invitedUserId, MemberType = MemberType.Invited };
             await _bookAnalysisUserRepository.Create(newMembership);
 
+            await _hubServerService.AnalysisMemberAdded(bookAnalysisId, invitedUserId);
             return ServiceResponse.Success("User invited.");
         }
 
@@ -134,6 +155,7 @@
                 else
                 {
                     await _bookAnalysisUserRepository.Delete(modifiedUserMembership);
+                    await _hubServerService.AnalysisMemberRemoved(bookAnalysisId, removedUserId);
                     return ServiceResponse.Success("Analysis left.");
                 }
             }
@@ -152,6 +174,7 @@
                     if(requestorMemberType == MemberType.Administrator)
                     {
                         await _bookAnalysisUserRepository.Delete(modifiedUserMembership);
+                        await _hubServerService.AnalysisMemberRemoved(bookAnalysisId, removedUserId);
                         return ServiceResponse.Success("User removed.");
                     }
                     else
@@ -161,6 +184,7 @@
 
                 default:
                     await _bookAnalysisUserRepository.Delete(modifiedUserMembership);
+                    await _hubServerService.AnalysisMemberRemoved(bookAnalysisId, removedUserId);
                     return ServiceResponse.Success("User removed.");
             }
         }
@@ -181,6 +205,7 @@
             userInvitation.MemberType = MemberType.Viewer;
             await _bookAnalysisUserRepository.Edit(userInvitation);
 
+            await _hubServerService.AnalysisMemberModified(bookAnalysisId, userInvitation.UsersId, userInvitation.MemberType);
             return ServiceResponse.Success("Invitation accepted.");
         }
 
@@ -199,6 +224,7 @@
 
             await _bookAnalysisUserRepository.Delete(userInvitation);
 
+            await _hubServerService.AnalysisMemberRemoved(bookAnalysisId, userInvitation.UsersId);
             return ServiceResponse.Success("Invitation declined.");
         }
     }

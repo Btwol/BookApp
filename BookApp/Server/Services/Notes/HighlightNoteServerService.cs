@@ -6,13 +6,11 @@ namespace BookApp.Server.Services.Notes
     {
         private readonly IHighlightRepository _highlightRepository;
 
-        public HighlightNoteServerService(IHighlightNoteMapper highlightNoteMapperService, IBookAnalysisRepository bookAnalysisRepository,
-            IHighlightNoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHighlightRepository highlightRepository)
-            : base(highlightNoteMapperService, bookAnalysisRepository, noteRepository, bookAnalysisServerService)
+        public HighlightNoteServerService(INoteMapper<HighlightNote, HighlightNoteModel> noteMapper, IBookAnalysisRepository bookAnalysisRepository, 
+            INoteRepository<HighlightNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService) 
+            : base(noteMapper, bookAnalysisRepository, noteRepository, bookAnalysisServerService, hubServerService)
         {
-            _highlightRepository = highlightRepository;
         }
-
 
         protected override async Task<ServiceResponse> ValidateNoteRequest<T>(int bookAnalysisId, T noteModel)
         {

@@ -5,12 +5,15 @@
         private readonly ITagRepository _tagRepository;
         private readonly IBaseRepository<T> _taggedRepository;
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
+        private readonly IHubServerService _hubServerService;
 
-        public TagManagerServerService(IBaseRepository<T> taggedRepository, ITagRepository tagRepository, IBookAnalysisServerService bookAnalysisServerService)
+        public TagManagerServerService(IBaseRepository<T> taggedRepository, ITagRepository tagRepository, IBookAnalysisServerService bookAnalysisServerService, 
+            IHubServerService hubServerService)
         {
             _taggedRepository = taggedRepository;
             _tagRepository = tagRepository;
             _bookAnalysisServerService = bookAnalysisServerService;
+            _hubServerService = hubServerService;
         }
 
         public async Task<ServiceResponse> AddTag(int taggedItemId, int tagId)
@@ -32,6 +35,7 @@
             taggedItem.Tags.Add(tag);
             await _taggedRepository.Edit(taggedItem);
 
+            await _hubServerService.TagAdded(tag.BookAnalysisId, tagId, taggedItemId);
             return ServiceResponse.Success("Tag added to item.");
         }
 
@@ -54,6 +58,7 @@
             taggedItem.Tags.Remove(tag);
             await _taggedRepository.Edit(taggedItem);
 
+            await _hubServerService.TagRemoved(tag.BookAnalysisId, tagId, taggedItemId);
             return ServiceResponse.Success("Tag removed from item.");
         }
 

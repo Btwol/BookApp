@@ -270,9 +270,8 @@
 
     protected async override Task OnInitializedAsync()
     {
-       hubService.hubConnection.On("BookAnalysisSummaryUpdated", async(BookAnalysisSummaryModel updatedTask) =>
+       hubService.hubConnection.On("AnalysisSummaryUpdated", async(BookAnalysisSummaryModel updatedTask) =>
         {
-            Console.WriteLine("Enter message:");
             bookAnalysis.AnalysisTitle = updatedTask.AnalysisTitle;
             StateHasChanged();
         });
