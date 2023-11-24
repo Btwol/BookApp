@@ -104,8 +104,8 @@ namespace BookApp.Server.Services
             {
                 usersToCall.Add(user.Id.ToString());
             }
-            await _hubContext.Clients.All.SendAsync("BookAnalysisSummaryUpdated", updatedBookAnalysisModel);
-
+            await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(analysistoUpdate.Id)).SendAsync("BookAnalysisSummaryUpdated", updatedBookAnalysisModel);
+            //await _hubContext.Clients.All.SendAsync("BookAnalysisSummaryUpdated", updatedBookAnalysisModel);
             return ServiceResponse.Success("Analysis updated.");
         }
 

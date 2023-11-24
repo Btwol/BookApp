@@ -13,7 +13,6 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-baseUri = new Uri(builder.HostEnvironment.BaseAddress);
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
@@ -31,22 +30,23 @@ builder.Services.AddScoped<IAppStorage, AppStorage>();
 
 builder.Services.AddBlazoredModal();
 
-//builder.Services.AddSingleton<HubConnection>(sp => {
-//    var navigationManager = sp.GetRequiredService<NavigationManager>();
-//    return new HubConnectionBuilder()
-//      .WithUrl(navigationManager.ToAbsoluteUri("/bookAnalysisHub"))
-//      .WithAutomaticReconnect()
-//      .Build();
-//});
+builder.Services.AddSingleton<HubConnection>(sp =>
+{
+    var navigationManager = sp.GetRequiredService<NavigationManager>();
+    return new HubConnectionBuilder()
+      .WithUrl(navigationManager.ToAbsoluteUri("/bookAnalysisHub"))
+      .WithAutomaticReconnect()
+      .Build();
+});
 
 clientConfiguration = builder.Configuration;
 
 var app = builder.Build();
+
 
 await app.RunAsync();
 
 internal partial class Program
 {
     public static IConfiguration clientConfiguration { get; private set; }
-    public static Uri baseUri;
 }

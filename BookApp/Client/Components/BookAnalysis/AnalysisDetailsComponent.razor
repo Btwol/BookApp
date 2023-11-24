@@ -9,10 +9,10 @@
 @inject IAppUserClientService appUserClientService
 @inject NavigationManager Navigation
 @inject IJSRuntime _jsRuntime
+@inject HubConnection hubConnection
 
 <ErrorHandlerComponent ChildComponentName="Analysis details">
     <ChildContent>
-
 <div style="width:fit-content;">
     <b>Analysis Title: </b>
     <p>@bookAnalysis.AnalysisTitle</p>
@@ -266,29 +266,15 @@
         Navigation.NavigateTo("redirect?reader");
     }
 
-    //[JSInvokable]
-    //public void TaskUpdated(BookAnalysisSummaryModel updatedBookAnalysis)
-    //{
-    //    // Handle the real-time update from SignalR.
-    //    bookAnalysis.AnalysisTitle = updatedBookAnalysis.AnalysisTitle;
-    //    StateHasChanged();
-    //}
-    HubConnection hubConnection = new HubConnectionBuilder()
-      .WithUrl(Program.baseUri + "bookAnalysisHub")
-      .WithAutomaticReconnect()
-      .Build();
-
-
 
     protected async override Task OnInitializedAsync()
     {
-        //await _jsRuntime.InvokeVoidAsync("registerSignalR", DotNetObjectReference.Create(this));
-        await hubConnection.StartAsync();
-
         hubConnection.On("BookAnalysisSummaryUpdated", async(BookAnalysisSummaryModel updatedTask) =>
     {
         Console.WriteLine("Enter message:");
         bookAnalysis.AnalysisTitle = updatedTask.AnalysisTitle;
+        //await hubConnection.SendAsync("BookAnalysisSummaryUpdated", bookAnalysis); //sends message back to server hub
+
         StateHasChanged();
     });
 
@@ -310,5 +296,11 @@
             throw new Exception("Invalid book analysis Id.");
         }
         bookAnalysis = await _bookAnalysisClientService.GetAnalysisById(_bookAnalysisId);
+
+        if(hubConnection.State != HubConnectionState.Connected)
+        {
+            await hubConnection.StartAsync();
+        }
+        await hubConnection.SendAsync("JoinAnalysisEditGroup", _bookAnalysisId); //sends message back to server hub
     }
 }

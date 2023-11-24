@@ -1,6 +1,7 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Identity;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,11 +23,16 @@ namespace BookApp.Client.Services
 
         private readonly IJSRuntime _jSRuntime;
         private readonly IBookAnalysisClientService _bookAnalysisClientService;
+        //private readonly HubConnection hubConnection;
 
         public AppStorage(IJSRuntime jSRuntime, IBookAnalysisClientService bookAnalysisClientService)
         {
             _jSRuntime = jSRuntime;
             _bookAnalysisClientService = bookAnalysisClientService;
+            //this.hubConnection = new HubConnectionBuilder()
+            //    .WithUrl(Program.baseUri + "bookAnalysisHub")
+            //    .WithAutomaticReconnect()
+            //    .Build();
         }
 
         public async Task StoreBook(byte[] bookArray, string bookHash)
@@ -88,13 +94,38 @@ namespace BookApp.Client.Services
 
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", UserCanEditLoadedAnalysis, userHasEditorRights.ToString());
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisIdKey, bookAnalysis.Id);
+
+            //await JoinAnalysisEditGroup(bookAnalysis.Id);
         }
 
         public async Task DeleteAnalysisFromStorage()
         {
+            //var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
+            //if(int.TryParse(bookAnalysisId, out int _bookAnalysisId))
+            //{
+            //    await LeaveAnalysisEditGroup(_bookAnalysisId);
+            //}
+            
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", UserCanEditLoadedAnalysis);
         }
+
+        //private async Task JoinAnalysisEditGroup(int bookAnalysisId)
+        //{
+        //    await hubConnection.StartAsync();
+        //    await hubConnection.SendAsync("JoinAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
+        //    //await hubConnection.StopAsync();
+        //}
+
+        //private async Task LeaveAnalysisEditGroup(int bookAnalysisId)
+        //{
+        //    if(hubConnection.State == HubConnectionState.Disconnected)
+        //    {
+        //        await hubConnection.StartAsync();
+        //    }
+        //    await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
+        //    await hubConnection.StopAsync();
+        //}
 
         public async Task<bool> AnalysisIsStored()
         {
