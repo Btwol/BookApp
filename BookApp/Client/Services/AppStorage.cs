@@ -100,32 +100,9 @@ namespace BookApp.Client.Services
 
         public async Task DeleteAnalysisFromStorage()
         {
-            //var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
-            //if(int.TryParse(bookAnalysisId, out int _bookAnalysisId))
-            //{
-            //    await LeaveAnalysisEditGroup(_bookAnalysisId);
-            //}
-            
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", UserCanEditLoadedAnalysis);
         }
-
-        //private async Task JoinAnalysisEditGroup(int bookAnalysisId)
-        //{
-        //    await hubConnection.StartAsync();
-        //    await hubConnection.SendAsync("JoinAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
-        //    //await hubConnection.StopAsync();
-        //}
-
-        //private async Task LeaveAnalysisEditGroup(int bookAnalysisId)
-        //{
-        //    if(hubConnection.State == HubConnectionState.Disconnected)
-        //    {
-        //        await hubConnection.StartAsync();
-        //    }
-        //    await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
-        //    await hubConnection.StopAsync();
-        //}
 
         public async Task<bool> AnalysisIsStored()
         {

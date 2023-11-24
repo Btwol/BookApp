@@ -14,17 +14,22 @@ namespace BookApp.Server.Hubs
             await Clients.All.SendAsync("BookAnalysisSummaryUpdated", updatedTask);
         }
 
+        public static string GetAnalysisEditRoomName(string bookAnalysisId)
+        {
+            return EditAnalysisRoomPrefix + bookAnalysisId;
+        }
+
         public static string GetAnalysisEditRoomName(int bookAnalysisId)
         {
             return EditAnalysisRoomPrefix + bookAnalysisId;
         }
 
-        public async Task JoinAnalysisEditGroup(int bookAnalysisId)  //recievs messages from client
+        public async Task JoinAnalysisEditGroup(string bookAnalysisId)  //recievs messages from client
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, GetAnalysisEditRoomName(bookAnalysisId));
         }
 
-        public async Task LeaveAnalysisEditGroup(int bookAnalysisId)  //recievs messages from client
+        public async Task LeaveAnalysisEditGroup(string bookAnalysisId)  //recievs messages from client
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetAnalysisEditRoomName(bookAnalysisId));
         }

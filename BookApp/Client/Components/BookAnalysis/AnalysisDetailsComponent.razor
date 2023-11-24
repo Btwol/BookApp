@@ -9,7 +9,7 @@
 @inject IAppUserClientService appUserClientService
 @inject NavigationManager Navigation
 @inject IJSRuntime _jsRuntime
-@inject HubConnection hubConnection
+@inject IHubClientService hubService
 
 <ErrorHandlerComponent ChildComponentName="Analysis details">
     <ChildContent>
@@ -261,6 +261,7 @@
         || userMembershipType == MemberType.Moderator
         || userMembershipType == MemberType.Editor) ? true : false;
 
+        await hubService.LeaveAnalysisEditGroup();
         await appStorage.StoreBookAnalysis(bookAnalysis, editorialRights);
 
         Navigation.NavigateTo("redirect?reader");
@@ -269,14 +270,12 @@
 
     protected async override Task OnInitializedAsync()
     {
-        hubConnection.On("BookAnalysisSummaryUpdated", async(BookAnalysisSummaryModel updatedTask) =>
-    {
-        Console.WriteLine("Enter message:");
-        bookAnalysis.AnalysisTitle = updatedTask.AnalysisTitle;
-        //await hubConnection.SendAsync("BookAnalysisSummaryUpdated", bookAnalysis); //sends message back to server hub
-
-        StateHasChanged();
-    });
+       hubService.hubConnection.On("BookAnalysisSummaryUpdated", async(BookAnalysisSummaryModel updatedTask) =>
+        {
+            Console.WriteLine("Enter message:");
+            bookAnalysis.AnalysisTitle = updatedTask.AnalysisTitle;
+            StateHasChanged();
+        });
 
         if (!await appStorage.UserIsStored())
         {
@@ -288,7 +287,7 @@
         bookAnalysisId = uri.Query.TrimStart('?');
         if(string.IsNullOrEmpty(bookAnalysisId))
         {
-           bookAnalysisId = await appStorage.GetStoredBookAnalysisId();
+            bookAnalysisId = await appStorage.GetStoredBookAnalysisId();
         }
 
         if(!int.TryParse(bookAnalysisId, out int _bookAnalysisId))
@@ -297,10 +296,6 @@
         }
         bookAnalysis = await _bookAnalysisClientService.GetAnalysisById(_bookAnalysisId);
 
-        if(hubConnection.State != HubConnectionState.Connected)
-        {
-            await hubConnection.StartAsync();
-        }
-        await hubConnection.SendAsync("JoinAnalysisEditGroup", _bookAnalysisId); //sends message back to server hub
+        await hubService.JoinAnalysisEditGroup(bookAnalysisId);
     }
 }
