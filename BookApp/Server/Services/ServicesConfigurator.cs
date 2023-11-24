@@ -112,6 +112,8 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IBookAnalysisUserRepository), typeof(BookAnalysisUserRepository));
             services.AddScoped(typeof(IAnalysisMembershipServerService), typeof(AnalysisMembershipServerService));
 
+            services.AddScoped(typeof(IHubServerService), typeof(HubServerService));
+
             services.AddAutoMapper(typeof(Program));
         }
     }

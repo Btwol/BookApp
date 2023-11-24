@@ -11,21 +11,21 @@ namespace BookApp.Server.Services
         private readonly IAppUserService _userService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
-        private readonly IHubContext<BookAnalysisHub> _hubContext;
+        private readonly IHubServerService _hubServerService;
 
         public BookAnalysisServerService(IBookAnalysisMapperService bookAnalysisMapper,
             IBookAnalysisRepository bookAnalysisRepository,
             IAppUserService userService,
             UserManager<AppUser> userManager,
             IBookAnalysisUserRepository bookAnalysisUserRepository,
-            IHubContext<BookAnalysisHub> hubContext)
+            IHubServerService hubServerService)
         {
             _bookAnalysisMapper = bookAnalysisMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
             _userService = userService;
             _userManager = userManager;
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
-            this._hubContext = hubContext;
+            _hubServerService = hubServerService;
         }
 
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisSummaryModel newAnalysisModel)
@@ -98,14 +98,7 @@ namespace BookApp.Server.Services
             _bookAnalysisMapper.MapEditBookAnalysis(analysistoUpdate, updatedBookAnalysisModel);
             await _bookAnalysisRepository.Edit(analysistoUpdate);
 
-
-            List<string> usersToCall = new();
-            foreach(var user in analysistoUpdate.Users)
-            {
-                usersToCall.Add(user.Id.ToString());
-            }
-            await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(analysistoUpdate.Id)).SendAsync("BookAnalysisSummaryUpdated", updatedBookAnalysisModel);
-            //await _hubContext.Clients.All.SendAsync("BookAnalysisSummaryUpdated", updatedBookAnalysisModel);
+            await _hubServerService.AnalysisSummaryUpdated(updatedBookAnalysisModel);
             return ServiceResponse.Success("Analysis updated.");
         }
 
