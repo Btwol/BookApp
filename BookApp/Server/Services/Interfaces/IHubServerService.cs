@@ -9,8 +9,8 @@
         public Task HighlightAdded(HighlightModel highlight);
         public Task HighlightUpdated(HighlightModel highlight);
         public Task HighlightRemoved(int bookAnalysisId, int highlightId);
-        public Task TagAdded(int bookAnalysisId, int tagId, int taggedId);
-        public Task TagRemoved(int bookAnalysisId, int tagId, int taggedId);
+        public Task TagAdded(int bookAnalysisId, int tagId, int taggedId, string taggedType);
+        public Task TagRemoved(int bookAnalysisId, int tagId, int taggedId, string taggedType);
         public Task TagCreated(int bookAnalysisId, TagModel tagModel);
         public Task TagUpdated(int bookAnalysisId, TagModel tagModel);
         public Task TagDeleted(int bookAnalysisId, int tagId);

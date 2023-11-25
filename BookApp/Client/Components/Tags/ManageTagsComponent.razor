@@ -43,7 +43,7 @@
             <p>Edit tag:</p>
             @foreach (var tag in filteredTags)
             {
-                <li class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</li>
+                <button class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</button>
             }
             @if (showEditTagForm)
             {
@@ -61,7 +61,7 @@
             <p>Delete tag:</p>
             @foreach (var tag in filteredTags)
             {
-                <li class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</li>
+                <button class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</button>
             }
         }
         <hr />
@@ -110,7 +110,6 @@
         try
         {
             var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysisId);
-            Tags.Add(newTag);
             NewTag = new();
         }
         finally
@@ -125,8 +124,6 @@
         try
         {
             await _tagService.EditTag(TagToEdit);
-            Tags.Remove(Tags.FirstOrDefault(t => t.Id == TagToEdit.Id));
-            Tags.Add(TagToEdit);
             TagToEdit = new();
         }
         finally
@@ -142,8 +139,7 @@
         try
         {
             await _tagService.DeleteTag(tagId);
-            var deletedTag = Tags.FirstOrDefault(t => t.Id == tagId);
-            Tags.Remove(deletedTag);
+            Tags.FirstOrDefault(t => t.Id == tagId);
         }
         finally
         {
@@ -159,12 +155,10 @@
             if(addTag)
             {
                 await tagManagerClientService.AddTag(taggedItem.Id, selectedTagId);
-                taggedItem.Tags.Add(Tags.FirstOrDefault(t => t.Id == selectedTagId));
             }
             else
             {
                 await tagManagerClientService.RemoveTag(taggedItem.Id, selectedTagId);
-                taggedItem.Tags.Remove(taggedItem.Tags.FirstOrDefault(t => t.Id == selectedTagId));
             }
         }
         finally

@@ -78,10 +78,10 @@ namespace BookApp.Server.Services
             return noteModel.GetType().Name.Replace("Model", string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task TagAdded(int bookAnalysisId, int tagId, int taggedId)
+        public async Task TagAdded(int bookAnalysisId, int tagId, int taggedId, string taggedType)
         {
             await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(bookAnalysisId))
-                .SendAsync("TagAdded", tagId, taggedId);
+                .SendAsync("TagAdded", tagId, taggedId, taggedType);
         }
 
         public async Task TagCreated(int bookAnalysisId, TagModel tagModel)
@@ -96,10 +96,10 @@ namespace BookApp.Server.Services
                 .SendAsync("TagDeleted", tagId);
         }
 
-        public async Task TagRemoved(int bookAnalysisId, int tagId, int taggedId)
+        public async Task TagRemoved(int bookAnalysisId, int tagId, int taggedId, string taggedType)
         {
             await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(bookAnalysisId))
-                .SendAsync("TagRemoved", tagId, taggedId);
+                .SendAsync("TagRemoved", tagId, taggedId, taggedType);
         }
 
         public async Task TagUpdated(int bookAnalysisId, TagModel tagModel)

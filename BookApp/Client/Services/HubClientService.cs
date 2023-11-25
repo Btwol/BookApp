@@ -141,6 +141,101 @@ namespace BookApp.Client.Services
                     DeleteNote(highlight.HighlightNotes, noteId, textBox);
                 }
             });
+
+            hubConnection.On("TagCreated", async (TagModel tagModel) =>
+            {
+                textBox.bookAnalysis.Tags.Add(tagModel);
+                textBox.ReRender();
+            });
+
+            hubConnection.On("TagUpdated", async (TagModel tagModel) =>
+            {
+                var tagToUpdate = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagModel.Id);
+                if(tagToUpdate is not null)
+                {
+                    textBox.bookAnalysis.Tags.Remove(tagToUpdate);
+                    textBox.bookAnalysis.Tags.Add(tagModel);
+                    textBox.ReRender();
+                }
+            });
+
+            hubConnection.On("TagDeleted", async (int tagId) =>
+            {
+                var tagToDelete = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+                if (tagToDelete is not null)
+                {
+                    textBox.bookAnalysis.Tags.Remove(tagToDelete);
+                    textBox.ReRender();
+                }
+            });
+
+            hubConnection.On("TagAdded", async (int tagId, int taggedId, string taggedType) =>
+            {
+                ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, textBox.bookAnalysis);
+                
+                var tag = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+
+                if(taggedItem is not null && tag is not null)
+                {
+                    AddTag(taggedItem, tag, textBox);
+                }
+            });
+
+            hubConnection.On("TagRemoved", async (int tagId, int taggedId, string taggedType) =>
+            {
+                ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, textBox.bookAnalysis);
+
+                var tag = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+
+                if (taggedItem is not null && tag is not null)
+                {
+                    RemoveTag(taggedItem, tag, textBox);
+                }
+            });
+        }
+
+        private ITagableItemModel GetTaggedItem(string taggedType, int taggedId, BookAnalysisDetailedModel bookAnalysis)
+        {
+            ITagableItemModel taggedItem = null;
+            Console.WriteLine(taggedType);
+            switch (taggedType)
+            {
+                case "Highlight":
+                    taggedItem = bookAnalysis.Highlights.FirstOrDefault(t => t.Id == taggedId);
+                    break;
+                case "HighlightNote":
+                    taggedItem = bookAnalysis.Highlights.FirstOrDefault(t => t.HighlightNotes.Any(n => n.Id == taggedId)).HighlightNotes.FirstOrDefault(n => n.Id == taggedId);
+                    break;
+                case "AnalysisNote":
+                    taggedItem = bookAnalysis.AnalysisNotes.FirstOrDefault(t => t.Id == taggedId);
+                    break;
+                case "ChapterNote":
+                    taggedItem = bookAnalysis.ChapterNotes.FirstOrDefault(t => t.Id == taggedId);
+                    break;
+                case "ParagraphNote":
+                    taggedItem = bookAnalysis.ParagraphNotes.FirstOrDefault(t => t.Id == taggedId);
+                    break;
+            }
+
+            return taggedItem;
+        }
+
+
+        private void AddTag<T>(T taggedItem, TagModel tag, TextBox textBox) where T : ITagableItemModel
+        {
+            Console.WriteLine("1");
+            taggedItem.Tags.Add(tag);
+            textBox.ReRender();
+        }
+
+        private void RemoveTag<T>(T taggedItem, TagModel tag, TextBox textBox) where T : ITagableItemModel
+        {
+            var tagToRemove = taggedItem.Tags.FirstOrDefault(t => t.Id == tag.Id);
+            if(tagToRemove is not null)
+            {
+                taggedItem.Tags.Remove(tagToRemove);
+                textBox.ReRender();
+            }
         }
 
         private void AddNote<T>(List<T> notes, T note, TextBox textBox) where T : INoteClientModel

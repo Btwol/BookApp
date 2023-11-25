@@ -1,4 +1,6 @@
-﻿using BookApp.Server.Repositories.Interfaces.Notes;
+﻿using BookApp.Server.Repositories;
+using BookApp.Server.Repositories.Interfaces;
+using BookApp.Server.Repositories.Interfaces.Notes;
 using BookApp.Server.Repositories.Notes;
 using BookApp.Server.Services.Identity;
 using BookApp.Server.Services.Notes;
@@ -113,6 +115,8 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IAnalysisMembershipServerService), typeof(AnalysisMembershipServerService));
 
             services.AddScoped(typeof(IHubServerService), typeof(HubServerService));
+
+            services.AddScoped(typeof(ITaggableRepository<>), typeof(TaggableRepository<>));
 
             services.AddAutoMapper(typeof(Program));
         }

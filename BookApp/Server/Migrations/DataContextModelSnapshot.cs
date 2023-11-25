@@ -34,7 +34,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("AnalysisNoteTag");
+                    b.ToTable("AnalysisNoteTag", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.BookAnalysis", b =>
@@ -66,7 +66,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BookAnalyses");
+                    b.ToTable("BookAnalyses", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.BookAnalysisUser", b =>
@@ -92,7 +92,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("BookAnalysisUser");
+                    b.ToTable("BookAnalysisUser", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Highlight", b =>
@@ -125,7 +125,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("BookAnalysisId");
 
-                    b.ToTable("Highlights");
+                    b.ToTable("Highlights", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Identity.AppRole", b =>
@@ -285,7 +285,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("BookAnalysisId");
 
-                    b.ToTable("AnalysisNotes");
+                    b.ToTable("AnalysisNotes", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Notes.ChapterNote", b =>
@@ -310,7 +310,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("BookAnalysisId");
 
-                    b.ToTable("ChapterNotes");
+                    b.ToTable("ChapterNotes", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Notes.HighlightNote", b =>
@@ -332,7 +332,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("HighlightId");
 
-                    b.ToTable("HighlightNotes");
+                    b.ToTable("HighlightNotes", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Notes.ParagraphNote", b =>
@@ -360,7 +360,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("BookAnalysisId");
 
-                    b.ToTable("ParagraphNotes");
+                    b.ToTable("ParagraphNotes", (string)null);
                 });
 
             modelBuilder.Entity("BookApp.Server.Models.Tag", b =>
@@ -382,7 +382,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("BookAnalysisId");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("ChapterNoteTag", b =>
@@ -397,7 +397,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("ChapterNoteTag");
+                    b.ToTable("ChapterNoteTag", (string)null);
                 });
 
             modelBuilder.Entity("HighlightNoteTags", b =>
@@ -412,7 +412,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("HighlightNoteTags");
+                    b.ToTable("HighlightNoteTags", (string)null);
                 });
 
             modelBuilder.Entity("HighlightTag", b =>
@@ -427,7 +427,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("HighlightTag");
+                    b.ToTable("HighlightTag", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -557,7 +557,7 @@ namespace BookApp.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("ParagraphNoteTag");
+                    b.ToTable("ParagraphNoteTag", (string)null);
                 });
 
             modelBuilder.Entity("AnalysisNoteTag", b =>

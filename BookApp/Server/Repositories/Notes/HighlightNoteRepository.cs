@@ -8,7 +8,9 @@ namespace BookApp.Server.Repositories.Notes
 
         public override IQueryable<HighlightNote> QueryWithIncludes(DbSet<HighlightNote> querry)
         {
-            return querry.Include(n => n.Highlight).ThenInclude(h => h.BookAnalysis);
+            return querry
+                .Include(n => n.Highlight).ThenInclude(h => h.BookAnalysis)
+                .Include(n => n.Tags);
         }
     }
 }
