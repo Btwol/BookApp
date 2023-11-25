@@ -48,8 +48,8 @@
         if (highlightToRemove is not null)
         {
             await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
-            await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), highlightToRemove.NodeCount);
-            bookAnalysis.Highlights.Remove(highlightToRemove);
+            //await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), highlightToRemove.NodeCount);
+            //bookAnalysis.Highlights.Remove(highlightToRemove);
         }
     }
 }

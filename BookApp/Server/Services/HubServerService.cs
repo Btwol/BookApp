@@ -1,7 +1,4 @@
 ﻿using BookApp.Server.Hubs;
-using BookApp.Server.Models;
-using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BookApp.Server.Services

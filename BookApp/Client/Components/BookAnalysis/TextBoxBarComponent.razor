@@ -43,9 +43,9 @@
         if (highlight?.PageNumber == currentCount)
         {
             var newHighlight = await _highlightClientService.AddHighlight(highlight);
-            var elementId = highlight.GetElementId();
-            await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
-            bookAnalysis.Highlights.Add(newHighlight);
+            //var elementId = highlight.GetElementId();
+            //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
+            //bookAnalysis.Highlights.Add(newHighlight);
         }
     }
 

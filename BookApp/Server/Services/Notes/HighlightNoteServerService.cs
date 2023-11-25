@@ -6,7 +6,7 @@ namespace BookApp.Server.Services.Notes
     {
         private readonly IHighlightRepository _highlightRepository;
 
-        public HighlightNoteServerService(INoteMapper<HighlightNote, HighlightNoteModel> noteMapper, IBookAnalysisRepository bookAnalysisRepository, 
+        public HighlightNoteServerService(IHighlightNoteMapper noteMapper, IBookAnalysisRepository bookAnalysisRepository, 
             INoteRepository<HighlightNote> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService) 
             : base(noteMapper, bookAnalysisRepository, noteRepository, bookAnalysisServerService, hubServerService)
         {

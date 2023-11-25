@@ -1,10 +1,11 @@
 ﻿@page "/reader"
-
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
 @inject IAppStorage appStorage
+@inject IHubClientService hubService
+
 
 <style>
     @if (css != null)
@@ -134,8 +135,8 @@
                 var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
                 editedSelection.Update(newSelection);
                 await _highlightClientService.UpdateHighlight(editedSelection);
-                await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), editedSelection.NodeCount);
-                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
+                //await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), editedSelection.NodeCount);
+                //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
             }
 
             //else 
@@ -243,6 +244,37 @@
         }
     }
 
+    async Task RegisterHub()
+    {
+       hubService.hubConnection.On("HighlightAdded", async (HighlightModel highlight) =>
+       {
+           Console.WriteLine("HighlightAdded triggered!");
+           bookAnalysis.Highlights.Add(highlight);
+           StateHasChanged();
+       });
+
+       hubService.hubConnection.On("HighlightUpdated", async (HighlightModel highlight) =>
+       {
+           var highlightToEdit = bookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlight.Id);
+           if(highlightToEdit is not null)
+           {
+               bookAnalysis.Highlights.Remove(highlightToEdit);
+               bookAnalysis.Highlights.Add(highlight);
+               StateHasChanged();
+           }
+       });
+
+       hubService.hubConnection.On("HighlightRemoved", async (int highlightId) =>
+       {
+           var highlightToDelete = bookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlightId);
+           if(highlightToDelete is not null)
+           {
+               bookAnalysis.Highlights.Remove(highlightToDelete);
+               StateHasChanged();
+           }
+       });
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var loadedBookByteArray = await appStorage.GetStoredBook();
@@ -255,6 +287,9 @@
         userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
 
         initializingComponent = false;
+
+        await hubService.JoinAnalysisEditGroup(bookAnalysis.Id.ToString());
+        await RegisterHub();
 
         StateHasChanged(); 
     }

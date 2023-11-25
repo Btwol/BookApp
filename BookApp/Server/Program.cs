@@ -26,7 +26,7 @@ builder.Services.AddSignalR();
 
 configuration = builder.Configuration;
 
-var app = builder.Build();
+ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
