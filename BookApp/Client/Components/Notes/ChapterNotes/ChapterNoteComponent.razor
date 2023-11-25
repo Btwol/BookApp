@@ -47,8 +47,6 @@
     private async Task DeleteChapterNote(int noteId)
     {
         await _chapterNoteClientService.DeleteNote(noteId, bookAnalysisId);
-        var noteToRemove = ChapterNotes.FirstOrDefault(n => n.Id == noteId);
-        ChapterNotes.Remove(noteToRemove);
     }
 
     private async Task ShowManageTagsModal(ChapterNoteModel note)

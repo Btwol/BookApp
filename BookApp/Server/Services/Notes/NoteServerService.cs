@@ -32,7 +32,7 @@ namespace BookApp.Server.Services.Notes
             var noteSaveStatus = await SaveNote(noteModel);
             if(noteSaveStatus.SuccessStatus)
             {
-                await _hubServerService.NoteCreated(bookAnalysisId, noteModel);
+                await _hubServerService.NoteCreated(bookAnalysisId, noteSaveStatus.Content);
             }
 
             return noteSaveStatus;
@@ -53,7 +53,7 @@ namespace BookApp.Server.Services.Notes
             }
             await _noteRepository.Delete(noteToDelete);
 
-            await _hubServerService.NoteDeleted(bookAnalysisId, noteId);
+            await _hubServerService.NoteDeleted(bookAnalysisId, noteId, noteToDelete.GetType().Name.Replace("Model", string.Empty));
             return ServiceResponse.Success("Note deleted.");
         }
 
@@ -101,7 +101,7 @@ namespace BookApp.Server.Services.Notes
             return ServiceResponse.Success();
         }
 
-        protected virtual async Task<ServiceResponse> SaveNote(C noteModel)
+        protected virtual async Task<ServiceResponse<C>> SaveNote(C noteModel)
         {
             var mappedNote = await _noteMapper.MapToDbModel(noteModel);
             var savedNote = await _noteRepository.Create(mappedNote);

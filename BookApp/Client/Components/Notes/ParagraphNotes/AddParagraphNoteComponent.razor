@@ -56,8 +56,7 @@
         newParagraphNote.TextNodeNumber = textNodeIndex;
         newParagraphNote.PageNumber = pageNumber;
 
-        var newNote = await _paragraphNoteClientService.AddNote(newParagraphNote);
-        ParagraphNotes.Add(newNote);
+        await _paragraphNoteClientService.AddNote(newParagraphNote);
 
         await Close();
     }

@@ -57,8 +57,6 @@
     private async Task DeleteParagraphNote(int noteId)
     {
         await _paragraphNoteClientService.DeleteNote(noteId, bookAnalysisId);
-        var noteToRemove = ParagraphNotes.FirstOrDefault(n => n.Id == noteId);
-        ParagraphNotes.Remove(noteToRemove);
     }
 
     private async Task ShowManageTagsModal(ParagraphNoteModel note)

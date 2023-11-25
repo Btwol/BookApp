@@ -244,37 +244,6 @@
         }
     }
 
-    async Task RegisterHub()
-    {
-       hubService.hubConnection.On("HighlightAdded", async (HighlightModel highlight) =>
-       {
-           Console.WriteLine("HighlightAdded triggered!");
-           bookAnalysis.Highlights.Add(highlight);
-           StateHasChanged();
-       });
-
-       hubService.hubConnection.On("HighlightUpdated", async (HighlightModel highlight) =>
-       {
-           var highlightToEdit = bookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlight.Id);
-           if(highlightToEdit is not null)
-           {
-               bookAnalysis.Highlights.Remove(highlightToEdit);
-               bookAnalysis.Highlights.Add(highlight);
-               StateHasChanged();
-           }
-       });
-
-       hubService.hubConnection.On("HighlightRemoved", async (int highlightId) =>
-       {
-           var highlightToDelete = bookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlightId);
-           if(highlightToDelete is not null)
-           {
-               bookAnalysis.Highlights.Remove(highlightToDelete);
-               StateHasChanged();
-           }
-       });
-    }
-
     protected override async Task OnInitializedAsync()
     {
         var loadedBookByteArray = await appStorage.GetStoredBook();
@@ -288,8 +257,7 @@
 
         initializingComponent = false;
 
-        await hubService.JoinAnalysisEditGroup(bookAnalysis.Id.ToString());
-        await RegisterHub();
+        await hubService.RegisterReaderHub(this);
 
         StateHasChanged(); 
     }

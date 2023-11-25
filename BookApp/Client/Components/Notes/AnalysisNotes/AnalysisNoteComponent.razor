@@ -68,8 +68,6 @@
     private async Task DeleteAnalysisNote(int noteId)
     {
         await _analysisNoteClientService.DeleteNote(noteId, bookAnalysisId);
-        var noteToRemove = AnalysisNotes.FirstOrDefault(n => n.Id == noteId);
-        AnalysisNotes.Remove(noteToRemove);
     }
 
     protected async override Task OnInitializedAsync()

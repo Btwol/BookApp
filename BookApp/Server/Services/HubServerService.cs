@@ -1,4 +1,5 @@
 ﻿using BookApp.Server.Hubs;
+using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BookApp.Server.Services
@@ -57,19 +58,24 @@ namespace BookApp.Server.Services
         public async Task NoteCreated(int bookAnalysisId, INoteClientModel noteModel)
         {
             await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(bookAnalysisId))
-                .SendAsync("NoteCreated", noteModel);
+                .SendAsync($"{GetNoteType(noteModel)}Created", noteModel);
         }
 
-        public async Task NoteDeleted(int bookAnalysisId, int noteId)
+        public async Task NoteDeleted(int bookAnalysisId, int noteId, string noteType)
         {
             await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(bookAnalysisId))
-                .SendAsync("NoteDeleted", noteId);
+                .SendAsync($"{noteType}Deleted", noteId);
         }
 
         public async Task NoteUpdated(int bookAnalysisId, INoteClientModel noteModel)
         {
             await _hubContext.Clients.Group(BookAnalysisHub.GetAnalysisEditRoomName(bookAnalysisId))
-                .SendAsync("NoteUpdated", noteModel);
+                .SendAsync($"{GetNoteType(noteModel)}Updated", noteModel);
+        }
+
+        private string GetNoteType(INoteClientModel noteModel)
+        {
+            return noteModel.GetType().Name.Replace("Model", string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         public async Task TagAdded(int bookAnalysisId, int tagId, int taggedId)

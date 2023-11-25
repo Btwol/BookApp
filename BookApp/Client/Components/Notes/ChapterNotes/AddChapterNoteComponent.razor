@@ -52,7 +52,6 @@
         newChapterNote.ChapterNumber = pageNumber;
 
         var newNote = await _chapterNoteClientService.AddNote(newChapterNote);
-        ChapterNotes.Add(newNote);
 
         await Close();
     }

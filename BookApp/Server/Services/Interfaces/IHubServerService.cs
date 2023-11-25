@@ -16,6 +16,6 @@
         public Task TagDeleted(int bookAnalysisId, int tagId);
         public Task NoteCreated(int bookAnalysisId, INoteClientModel noteModel);
         public Task NoteUpdated(int bookAnalysisId, INoteClientModel noteModel);
-        public Task NoteDeleted(int bookAnalysisId, int noteId);
+        public Task NoteDeleted(int bookAnalysisId, int noteId, string noteType);
     }
 }
