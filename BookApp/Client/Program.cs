@@ -4,8 +4,10 @@ using BookApp.Client.Services;
 using BookApp.Client.Services.Interfaces;
 using BookApp.Client.Services.Interfaces.Notes;
 using BookApp.Client.Services.Notes;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.SignalR.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -24,13 +26,25 @@ builder.Services.AddScoped(typeof(IChapterNoteClientService), typeof(ChapterNote
 builder.Services.AddScoped(typeof(IHighlightNoteClientService), typeof(HighlightNoteClientService));
 builder.Services.AddScoped(typeof(IAnalysisMembershipClientService), typeof(AnalysisMembershipClientService));
 builder.Services.AddScoped(typeof(IAppUserClientService), typeof(AppUserClientService));
+builder.Services.AddScoped(typeof(IAccountClientService), typeof(AccountClientService));
+builder.Services.AddScoped(typeof(IHubClientService), typeof(HubClientService));
 builder.Services.AddScoped<IAppStorage, AppStorage>();
 
 builder.Services.AddBlazoredModal();
 
+builder.Services.AddSingleton<HubConnection>(sp =>
+{
+    var navigationManager = sp.GetRequiredService<NavigationManager>();
+    return new HubConnectionBuilder()
+      .WithUrl(navigationManager.ToAbsoluteUri("/bookAnalysisHub"))
+      .WithAutomaticReconnect()
+      .Build();
+});
+
 clientConfiguration = builder.Configuration;
 
 var app = builder.Build();
+
 
 await app.RunAsync();
 

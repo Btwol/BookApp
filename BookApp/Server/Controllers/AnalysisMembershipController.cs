@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Controllers
+﻿using BookApp.Shared.Enums;
+
+namespace BookApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -17,7 +19,7 @@
         {
             return await _analysisMembershipService.ChangeMemberStatus(bookAnalysisId, memberUserId, newMemberType);
         }
-        
+
         [HttpPost("InviteUser/{bookAnalysisId}/{invitedUserId}")]
         public async Task<ServiceResponse> InviteUser(int bookAnalysisId, int invitedUserId)
         {
@@ -37,7 +39,7 @@
         }
 
         [HttpDelete("DeclineInvite/{bookAnalysisId}")]
-        public async Task<ServiceResponse> DeclineInvite(int bookAnalysisId) 
+        public async Task<ServiceResponse> DeclineInvite(int bookAnalysisId)
         {
             return await _analysisMembershipService.DeclineInvite(bookAnalysisId);
         }

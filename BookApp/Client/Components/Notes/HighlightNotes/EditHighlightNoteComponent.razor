@@ -42,8 +42,7 @@
     {
         awaitingResponse = true;
 
-        var editedNote = await _highlightNoteClientService.EditNote(currentHighlightNote);
-        HighlightNote = editedNote;
+        await _highlightNoteClientService.EditNote(currentHighlightNote);
 
         await Close();
     }

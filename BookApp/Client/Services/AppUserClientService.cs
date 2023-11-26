@@ -21,5 +21,12 @@ namespace BookApp.Client.Services
             var response = await http.GetAsync($"Users/GetUserByEmail/{email}");
             return await HelperService.HandleResponse<AppUserModel>(response);
         }
+
+        public async Task<AppUserModel> GetUserById(int userId)
+        {
+            await HelperService.AddTokenToRequest(http, _jsRuntime);
+            var response = await http.GetAsync($"Users/GetUserById/{userId}");
+            return await HelperService.HandleResponse<AppUserModel>(response);
+        }
     }
 }

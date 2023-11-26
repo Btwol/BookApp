@@ -1,16 +1,16 @@
 ﻿@page "/analysisDetails"
 
-@using System.Text.RegularExpressions
 @inject IModalService Modal
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IAppStorage appStorage
 @inject IAnalysisMembershipClientService analysisMembershipClientService
 @inject IAppUserClientService appUserClientService
 @inject NavigationManager Navigation
+@inject IJSRuntime _jsRuntime
+@inject IHubClientService hubService
 
 <ErrorHandlerComponent ChildComponentName="Analysis details">
     <ChildContent>
-
 <div style="width:fit-content;">
     <b>Analysis Title: </b>
     <p>@bookAnalysis.AnalysisTitle</p>
@@ -158,11 +158,7 @@
     [Parameter]
     public string bookAnalysisId { get; set; }
 
-    //[Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; } = new();
-
-    //[Parameter]
-    //public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
 
     private AppUserModel userToInvite;
     public AppUserModel currentUser = new();
@@ -188,15 +184,11 @@
     private async Task AcceptInvite(int bookAnalysisId)
     {
         await analysisMembershipClientService.AcceptInvite(bookAnalysisId);
-        await ChangeMembershipType((await appStorage.GetStoredUser()).Id, MemberType.Viewer);
-        StateHasChanged();
     }
 
     private async Task DeclineInvite(int bookAnalysisId)
     {
         await analysisMembershipClientService.DeclineInvite(bookAnalysisId);
-        await ChangeMembershipType((await appStorage.GetStoredUser()).Id, null);
-        StateHasChanged();
     }
 
     private async Task InviteUser(int bookAnalysisId)
@@ -204,14 +196,12 @@
         if (userToInvite is not null)
         {
             await analysisMembershipClientService.InviteUser(bookAnalysisId, userToInvite.Id);
-            bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(userToInvite, MemberType.Invited));
         }
     }
 
     private async Task KickUser(int bookAnalysisId, int kickedUserId)
     {
         await analysisMembershipClientService.RemoveUser(bookAnalysisId, kickedUserId);
-        await ChangeMembershipType(kickedUserId, null);
     }
 
     private async Task ChangeMemberType(int bookAnalysisId, int memberId)
@@ -219,18 +209,6 @@
         if (memberType is not null)
         {
             await analysisMembershipClientService.ChangeMemberStatus(bookAnalysisId, memberId, (MemberType)memberType);
-            await ChangeMembershipType(memberId, memberType);
-            StateHasChanged();
-        }
-    }
-
-    private async Task ChangeMembershipType(int userId, MemberType? newMemberType)
-    {
-        var userMembership = bookAnalysis.Members.FirstOrDefault(m => m.Key.Id == userId);
-        bookAnalysis.Members.Remove(userMembership);
-        if (newMemberType is not null)
-        {
-            bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(userMembership.Key, (MemberType)newMemberType));
         }
     }
 
@@ -259,9 +237,56 @@
         || userMembershipType == MemberType.Moderator
         || userMembershipType == MemberType.Editor) ? true : false;
 
+        await hubService.LeaveAnalysisEditGroup();
         await appStorage.StoreBookAnalysis(bookAnalysis, editorialRights);
 
         Navigation.NavigateTo("redirect?reader");
+    }
+
+    async Task RegisterHub()
+    {
+        hubService.hubConnection.On("AnalysisSummaryUpdated", async (BookAnalysisSummaryModel updatedTask) =>
+        {
+            bookAnalysis.AnalysisTitle = updatedTask.AnalysisTitle;
+            StateHasChanged();
+        });
+
+       hubService.hubConnection.On("AnalysisMemberAdded", async (int userId) =>
+       {
+           AppUserModel newUser = new();
+           try
+           {
+               newUser = await appUserClientService.GetUserById(userId);
+           }
+           catch { }
+
+           if(newUser is not null)
+           {
+               bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(newUser, MemberType.Invited));
+               StateHasChanged();
+           }
+       });
+
+       hubService.hubConnection.On("AnalysisMemberModified", async (int userId, MemberType memberType) =>
+       {
+           if(bookAnalysis.Members.Any(m => m.Key.Id == userId))
+           {
+                var updatedUser = bookAnalysis.Members.FirstOrDefault(m => m.Key.Id == userId);
+               bookAnalysis.Members.Remove(updatedUser);
+               bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(updatedUser.Key, memberType));
+               StateHasChanged();
+           }
+       });
+
+        hubService.hubConnection.On("AnalysisMemberRemoved", async (int userId) =>
+        {
+            if (bookAnalysis.Members.Any(m => m.Key.Id == userId))
+            {
+                var removedUser = bookAnalysis.Members.FirstOrDefault(m => m.Key.Id == userId);
+                bookAnalysis.Members.Remove(removedUser);
+                StateHasChanged();
+            }
+        });
     }
 
     protected async override Task OnInitializedAsync()
@@ -276,7 +301,7 @@
         bookAnalysisId = uri.Query.TrimStart('?');
         if(string.IsNullOrEmpty(bookAnalysisId))
         {
-           bookAnalysisId = await appStorage.GetStoredBookAnalysisId();
+            bookAnalysisId = await appStorage.GetStoredBookAnalysisId();
         }
 
         if(!int.TryParse(bookAnalysisId, out int _bookAnalysisId))
@@ -284,5 +309,8 @@
             throw new Exception("Invalid book analysis Id.");
         }
         bookAnalysis = await _bookAnalysisClientService.GetAnalysisById(_bookAnalysisId);
+
+        await RegisterHub();
+        await hubService.JoinAnalysisEditGroup(bookAnalysisId);
     }
 }

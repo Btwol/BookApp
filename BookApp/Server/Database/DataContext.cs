@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-namespace BookApp.Server.Database
+﻿namespace BookApp.Server.Database
 {
     public class DataContext : IdentityDbContext<AppUser, AppRole, int>
     {
@@ -150,13 +148,6 @@ namespace BookApp.Server.Database
             x => x.HasOne<Tag>().WithMany().OnDelete(DeleteBehavior.NoAction),
             x => x.HasOne<HighlightNote>().WithMany().OnDelete(DeleteBehavior.NoAction)
         );
-
-            modelBuilder.Entity<HighlightNote>()
-                .HasOne(n => n.Highlight)
-                .WithMany(h => h.HighlightNotes)
-                .HasForeignKey(n => n.HighlightId)
-                .IsRequired(true)
-                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

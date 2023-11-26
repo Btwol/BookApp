@@ -32,7 +32,6 @@
             return await _highlightNoteService.EditNote(highlightNoteModel, highlightNoteModel.BookAnalysisId);
         }
 
-
         [HttpPost("AddTag/{noteId}/{tagId}")]
         public async Task<ServiceResponse> AddTag(int noteId, int tagId)
         {
@@ -44,6 +43,5 @@
         {
             return await _tagService.RemoveTag(noteId, tagId);
         }
-
     }
 }

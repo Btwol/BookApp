@@ -45,8 +45,7 @@
             NewHighlightNote.HighlightId = currentHighlightId;
             NewHighlightNote.BookAnalysisId = bookAnalysisId;
 
-            var newNote = await _highlightNoteClientService.AddNote(NewHighlightNote);
-            HighlightNotes.Add(newNote);
+            await _highlightNoteClientService.AddNote(NewHighlightNote);
         }
     }
 
@@ -60,9 +59,6 @@
     private async Task DeleteHighlightNote(int noteId)
     {
         await _highlightNoteClientService.DeleteNote(noteId, bookAnalysisId);
-
-        var noteToRemove = HighlightNotes.FirstOrDefault(n => n.Id == noteId);
-        HighlightNotes.Remove(noteToRemove);
     }
 
     private async Task ShowManageTagsModal(HighlightNoteModel note)

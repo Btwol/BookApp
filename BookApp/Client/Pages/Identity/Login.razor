@@ -1,8 +1,6 @@
 ﻿@page "/login"
-@inject HttpClient Http
-@inject IJSRuntime JSRuntime
-@inject IAppStorage appStorage
 @inject NavigationManager Navigation
+@inject IAccountClientService accountService
 
 <EditForm Model="@loginRequest" OnValidSubmit="@LoginUser" class="form">
     <DataAnnotationsValidator />
@@ -29,29 +27,14 @@
 
 @code {
     public LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "User3", Password = "@Aa12345" };
-    bool loginSuccessful = true;
-    string loginRequestResponseMessage = "";
     bool awaitingResponse = false;
 
     public async Task LoginUser()
     {
         awaitingResponse = true;
-        var response = await Http.PostAsJsonAsync<LoginRequest>($"Account/Login", loginRequest);
-
-        if (response.IsSuccessStatusCode)
-        {
-            var user = await HelperService.HandleResponse<LoginResponse>(response);
-            await appStorage.StoreUser(user);
-            Navigation.NavigateTo("/redirect");
-        }
-        else
-        {
-            loginSuccessful = false;
-            var responseMessage = await HelperService.HandleResponse(response);
-            loginRequestResponseMessage = responseMessage.Message;
-        }
-
+        await accountService.Login(loginRequest);
         awaitingResponse = false;
-        StateHasChanged();
+
+        Navigation.NavigateTo("/redirect");
     }
 }

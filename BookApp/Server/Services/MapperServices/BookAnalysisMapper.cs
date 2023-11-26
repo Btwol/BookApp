@@ -1,9 +1,11 @@
-﻿namespace BookApp.Server.Services.MapperServices
+﻿using BookApp.Shared.Enums;
+
+namespace BookApp.Server.Services.MapperServices
 {
     public class BookAnalysisMapper : MapperService<BookAnalysis, BookAnalysisSummaryModel>, IBookAnalysisMapperService
     {
         private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
-        private readonly IAppUserMapperService _appUserMapperService; 
+        private readonly IAppUserMapperService _appUserMapperService;
 
         public BookAnalysisMapper(IMapper mapper, IBookAnalysisUserRepository bookAnalysisUserRepository, IAppUserMapperService appUserMapperService) : base(mapper)
         {
@@ -23,7 +25,7 @@
             return mappedAnalysis;
         }
 
-        public async override Task<BookAnalysisSummaryModel> MapToClientModel(BookAnalysis dbModel)
+        public override async Task<BookAnalysisSummaryModel> MapToClientModel(BookAnalysis dbModel)
         {
             var mappedAnalysis = await base.MapToClientModel(dbModel);
             await IncludeMembers(dbModel, mappedAnalysis);
@@ -34,11 +36,11 @@
         {
             foreach (var member in bookAnalysis.Users)
             {
-                mapped.Members.Add(new KeyValuePair<Shared.Models.Identity.AppUserModel, MemberType> 
+                mapped.Members.Add(new KeyValuePair<Shared.Models.Identity.AppUserModel, MemberType>
                 (
                     await _appUserMapperService.MapGetApiUserResponseDto(member),
                     (await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == member.Id && au.BookAnalysisId == bookAnalysis.Id)).MemberType)
-                );    
+                );
             }
         }
     }

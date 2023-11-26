@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services
+﻿using BookApp.Shared.Enums;
+
+namespace BookApp.Server.Services
 {
     public class BookAnalysisServerService : IBookAnalysisServerService
     {
@@ -7,18 +9,21 @@
         private readonly IAppUserService _userService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IBookAnalysisUserRepository _bookAnalysisUserRepository;
+        private readonly IHubServerService _hubServerService;
 
         public BookAnalysisServerService(IBookAnalysisMapperService bookAnalysisMapper,
             IBookAnalysisRepository bookAnalysisRepository,
             IAppUserService userService,
             UserManager<AppUser> userManager,
-            IBookAnalysisUserRepository bookAnalysisUserRepository)
+            IBookAnalysisUserRepository bookAnalysisUserRepository,
+            IHubServerService hubServerService)
         {
             _bookAnalysisMapper = bookAnalysisMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
             _userService = userService;
             _userManager = userManager;
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
+            _hubServerService = hubServerService;
         }
 
         public async Task<ServiceResponse> CreateBookAnalysis(BookAnalysisSummaryModel newAnalysisModel)
@@ -91,6 +96,7 @@
             _bookAnalysisMapper.MapEditBookAnalysis(analysistoUpdate, updatedBookAnalysisModel);
             await _bookAnalysisRepository.Edit(analysistoUpdate);
 
+            await _hubServerService.AnalysisSummaryUpdated(updatedBookAnalysisModel);
             return ServiceResponse.Success("Analysis updated.");
         }
 

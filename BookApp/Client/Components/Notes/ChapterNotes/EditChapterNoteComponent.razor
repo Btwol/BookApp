@@ -42,8 +42,7 @@
     {
         awaitingResponse = true;
 
-        var editedNote = await _chapterNoteClientService.EditNote(currentChapterNote);
-        ChapterNote = editedNote;
+        await _chapterNoteClientService.EditNote(currentChapterNote);
 
         await Close();
     }

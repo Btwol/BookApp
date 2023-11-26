@@ -1,5 +1,5 @@
 ﻿using BookApp.Client.Services.Interfaces;
-using BookApp.Shared.Models.Enums;
+using BookApp.Shared.Enums;
 using Microsoft.JSInterop;
 
 namespace BookApp.Client.Services

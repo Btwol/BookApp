@@ -1,10 +1,8 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Identity;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Text;
 
 namespace BookApp.Client.Services
@@ -22,11 +20,16 @@ namespace BookApp.Client.Services
 
         private readonly IJSRuntime _jSRuntime;
         private readonly IBookAnalysisClientService _bookAnalysisClientService;
+        //private readonly HubConnection hubConnection;
 
         public AppStorage(IJSRuntime jSRuntime, IBookAnalysisClientService bookAnalysisClientService)
         {
             _jSRuntime = jSRuntime;
             _bookAnalysisClientService = bookAnalysisClientService;
+            //this.hubConnection = new HubConnectionBuilder()
+            //    .WithUrl(Program.baseUri + "bookAnalysisHub")
+            //    .WithAutomaticReconnect()
+            //    .Build();
         }
 
         public async Task StoreBook(byte[] bookArray, string bookHash)
@@ -52,7 +55,7 @@ namespace BookApp.Client.Services
         public async Task<byte[]> GetStoredBook()
         {
             var book = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookKey);
-            
+
             var reArray = book.ToString().Split(new string[] { " " }, StringSplitOptions.None).ToList();
             reArray.Remove("");
             byte[] reByte = new byte[reArray.Count];
@@ -73,7 +76,11 @@ namespace BookApp.Client.Services
         public async Task<BookAnalysisDetailedModel> GetStoredBookAnalysis()
         {
             var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
-            if (bookAnalysisId is null) throw new Exception("Book analysis not loaded.");
+            if (bookAnalysisId is null)
+            {
+                throw new Exception("Book analysis not loaded.");
+            }
+
             return await _bookAnalysisClientService.GetAnalysisById(int.Parse(bookAnalysisId));
         }
 
@@ -88,6 +95,8 @@ namespace BookApp.Client.Services
 
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", UserCanEditLoadedAnalysis, userHasEditorRights.ToString());
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisIdKey, bookAnalysis.Id);
+
+            //await JoinAnalysisEditGroup(bookAnalysis.Id);
         }
 
         public async Task DeleteAnalysisFromStorage()
@@ -99,8 +108,14 @@ namespace BookApp.Client.Services
         public async Task<bool> AnalysisIsStored()
         {
             var bookAnalysis = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
-            if (bookAnalysis is null) return false;
-            else return true;
+            if (bookAnalysis is null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public async Task StoreUser(LoginResponse loginResponse)

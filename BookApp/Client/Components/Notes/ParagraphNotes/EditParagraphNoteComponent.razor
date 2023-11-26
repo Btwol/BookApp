@@ -42,8 +42,7 @@
     {
         awaitingResponse = true;
 
-        var editedNote = await _paragraphNoteClientService.EditNote(currentParagraphNote);
-        ParagraphNote = editedNote;
+        await _paragraphNoteClientService.EditNote(currentParagraphNote);
 
         await Close();
     }

@@ -401,6 +401,20 @@
             });
         }
 
+        ////script to register signalR in AnalysisDetailsComponent
+        //window.registerSignalR = function (dotnetReference) {
+        //    var connection = new signalR.HubConnectionBuilder()
+        //        .withUrl("/taskHub")
+        //        .build();
+
+        //    connection.on("TaskUpdated", function (updatedTask) {
+        //        dotnetReference.invokeMethodAsync("TaskUpdated", updatedTask);
+        //    });
+
+        //    connection.start().then(function () {
+        //        console.log("SignalR connected");
+        //    });
+        //};
 
         //Script to determine which text node was clicked
         let lastSelectedNodeIndex = -1;

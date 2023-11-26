@@ -6,7 +6,7 @@
         {
         }
 
-        public async override Task DeleteById(int id)
+        public override async Task DeleteById(int id)
         {
             var tagToDelete = await FindByConditionsFirstOrDefault(t => t.Id == id);
 
@@ -26,7 +26,8 @@
                 .Include(t => t.AnalysisNotes)
                 .Include(t => t.ParagraphNotes)
                 .Include(t => t.ChapterNotes)
-                .Include(t => t.Highlights);
+                .Include(t => t.Highlights)
+                .Include(t => t.HighlightNotes);
         }
     }
 }

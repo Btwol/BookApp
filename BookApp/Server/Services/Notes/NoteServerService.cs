@@ -1,4 +1,4 @@
-﻿using BookApp.Server.Repositories.Interfaces.Notes;
+﻿using BookApp.Shared.Enums;
 
 namespace BookApp.Server.Services.Notes
 {
@@ -8,14 +8,16 @@ namespace BookApp.Server.Services.Notes
         protected readonly IBookAnalysisRepository _bookAnalysisRepository;
         protected readonly IBookAnalysisServerService _bookAnalysisServerService;
         protected readonly INoteMapper<D, C> _noteMapper;
+        private readonly IHubServerService _hubServerService;
 
         protected NoteServerService(INoteMapper<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService)
+            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService)
         {
             _noteMapper = noteMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
             _noteRepository = noteRepository;
             _bookAnalysisServerService = bookAnalysisServerService;
+            _hubServerService = hubServerService;
         }
 
         public async Task<ServiceResponse> AddNote(C noteModel, int bookAnalysisId)
@@ -26,7 +28,13 @@ namespace BookApp.Server.Services.Notes
                 return validationResult;
             }
 
-            return await SaveNote(noteModel);
+            var noteSaveStatus = await SaveNote(noteModel);
+            if (noteSaveStatus.SuccessStatus)
+            {
+                await _hubServerService.NoteCreated(bookAnalysisId, noteSaveStatus.Content);
+            }
+
+            return noteSaveStatus;
         }
 
         public async Task<ServiceResponse> DeleteNote(int noteId, int bookAnalysisId)
@@ -42,8 +50,9 @@ namespace BookApp.Server.Services.Notes
             {
                 return validationResult;
             }
-
             await _noteRepository.Delete(noteToDelete);
+
+            await _hubServerService.NoteDeleted(bookAnalysisId, noteId, noteToDelete.GetType().Name.Replace("Model", string.Empty));
             return ServiceResponse.Success("Note deleted.");
         }
 
@@ -65,6 +74,8 @@ namespace BookApp.Server.Services.Notes
 
             await _noteRepository.Edit(noteToEdit);
             noteModel = await _noteMapper.MapToClientModel(noteToEdit);
+
+            await _hubServerService.NoteUpdated(bookAnalysisId, noteModel);
             return ServiceResponse<C>.Success(noteModel, "Note edited.");
         }
 
@@ -89,7 +100,7 @@ namespace BookApp.Server.Services.Notes
             return ServiceResponse.Success();
         }
 
-        protected virtual async Task<ServiceResponse> SaveNote(C noteModel)
+        protected virtual async Task<ServiceResponse<C>> SaveNote(C noteModel)
         {
             var mappedNote = await _noteMapper.MapToDbModel(noteModel);
             var savedNote = await _noteRepository.Create(mappedNote);

@@ -48,7 +48,6 @@
         newAnalysisNote.BookAnalysisId = bookAnalysisId;
         
         var newNote = await _analysisNoteClientService.AddNote(newAnalysisNote);
-        AnalysisNotes.Add(newNote);
         await Close();
     }
 

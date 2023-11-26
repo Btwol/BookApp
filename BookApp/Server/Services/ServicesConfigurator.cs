@@ -1,5 +1,4 @@
-﻿using BookApp.Server.Repositories.Interfaces.Notes;
-using BookApp.Server.Repositories.Notes;
+﻿using BookApp.Server.Repositories.Notes;
 using BookApp.Server.Services.Identity;
 using BookApp.Server.Services.Notes;
 using Microsoft.OpenApi.Models;
@@ -111,6 +110,14 @@ namespace BookApp.Server.Services
 
             services.AddScoped(typeof(IBookAnalysisUserRepository), typeof(BookAnalysisUserRepository));
             services.AddScoped(typeof(IAnalysisMembershipServerService), typeof(AnalysisMembershipServerService));
+
+            services.AddScoped(typeof(IHubServerService), typeof(HubServerService));
+
+            services.AddScoped(typeof(ITaggableRepository<>), typeof(TaggableRepository<>));
+
+            services.AddScoped(typeof(IAnalysisNoteRepository), typeof(AnalysisNoteRepository));
+            services.AddScoped(typeof(IParagraphNoteRepository), typeof(ParagraphNoteRepository));
+            services.AddScoped(typeof(IChapterNoteRepository), typeof(ChapterNoteRepository));
 
             services.AddAutoMapper(typeof(Program));
         }

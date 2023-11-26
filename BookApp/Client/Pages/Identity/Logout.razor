@@ -1,15 +1,13 @@
 ﻿@page "/logout"
 @inject NavigationManager Navigation
-@inject IAppStorage appStorage
+@inject IAccountClientService accountService
 
 <b>Logging out...</b>
 
 @code {
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        await appStorage.DeleteUserFromStorage();
-        await appStorage.DeleteAnalysisFromStorage();
-        await appStorage.DeleteBookFromStorage();
+        await accountService.Logout();
         Navigation.NavigateTo("/redirect");
     }
 }

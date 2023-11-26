@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 
 namespace BookApp.Client.Services.Notes
 {
-    public abstract class NoteClientService<T> : INoteClientService<T>  where T : NoteModel
+    public abstract class NoteClientService<T> : INoteClientService<T> where T : NoteModel
     {
         protected readonly HttpClient _http;
         protected readonly string noteType;
