@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services.Interfaces
+﻿using BookApp.Shared.Enums;
+
+namespace BookApp.Server.Services.Interfaces
 {
     public interface IHubServerService
     {

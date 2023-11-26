@@ -23,16 +23,16 @@ namespace BookApp.Client.Services
             {
                 await hubConnection.StartAsync();
             }
-            bookAnalysisId = (string.IsNullOrEmpty(bookAnalysisId)) ? await _appStorage.GetStoredBookAnalysisId() : bookAnalysisId;
+            bookAnalysisId = string.IsNullOrEmpty(bookAnalysisId) ? await _appStorage.GetStoredBookAnalysisId() : bookAnalysisId;
             await hubConnection.SendAsync("JoinAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
         }
 
         public async Task LeaveAnalysisEditGroup()
         {
-            if(hubConnection.State != HubConnectionState.Disconnected)
+            if (hubConnection.State != HubConnectionState.Disconnected)
             {
                 var bookAnalysisId = await _appStorage.GetStoredBookAnalysisId();
-                if(!string.IsNullOrEmpty(bookAnalysisId))
+                if (!string.IsNullOrEmpty(bookAnalysisId))
                 {
                     await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
                 }
@@ -88,7 +88,7 @@ namespace BookApp.Client.Services
             hubConnection.On("HighlightNoteCreated", async (HighlightNoteModel noteModel) =>
             {
                 var highlight = textBox.bookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
-                if(highlight is not null)
+                if (highlight is not null)
                 {
                     AddNote(highlight.HighlightNotes, noteModel, textBox);
                 }
@@ -151,7 +151,7 @@ namespace BookApp.Client.Services
             hubConnection.On("TagUpdated", async (TagModel tagModel) =>
             {
                 var tagToUpdate = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagModel.Id);
-                if(tagToUpdate is not null)
+                if (tagToUpdate is not null)
                 {
                     textBox.bookAnalysis.Tags.Remove(tagToUpdate);
                     textBox.bookAnalysis.Tags.Add(tagModel);
@@ -172,10 +172,10 @@ namespace BookApp.Client.Services
             hubConnection.On("TagAdded", async (int tagId, int taggedId, string taggedType) =>
             {
                 ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, textBox.bookAnalysis);
-                
+
                 var tag = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
 
-                if(taggedItem is not null && tag is not null)
+                if (taggedItem is not null && tag is not null)
                 {
                     AddTag(taggedItem, tag, textBox);
                 }
@@ -231,7 +231,7 @@ namespace BookApp.Client.Services
         private void RemoveTag<T>(T taggedItem, TagModel tag, TextBox textBox) where T : ITagableItemModel
         {
             var tagToRemove = taggedItem.Tags.FirstOrDefault(t => t.Id == tag.Id);
-            if(tagToRemove is not null)
+            if (tagToRemove is not null)
             {
                 taggedItem.Tags.Remove(tagToRemove);
                 textBox.ReRender();

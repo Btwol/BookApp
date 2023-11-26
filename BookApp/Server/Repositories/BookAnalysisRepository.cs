@@ -1,7 +1,4 @@
-﻿using BookApp.Server.Models;
-using BookApp.Server.Models.Notes;
-
-namespace BookApp.Server.Repositories
+﻿namespace BookApp.Server.Repositories
 {
     public class BookAnalysisRepository : BaseRepository<BookAnalysis>, IBookAnalysisRepository
     {
@@ -10,7 +7,7 @@ namespace BookApp.Server.Repositories
 
         }
 
-        public async override Task Delete(BookAnalysis bookAnalysisToDelete)
+        public override async Task Delete(BookAnalysis bookAnalysisToDelete)
         {
             var tags = bookAnalysisToDelete.Tags;
             var analysisNotes = bookAnalysisToDelete.AnalysisNotes;

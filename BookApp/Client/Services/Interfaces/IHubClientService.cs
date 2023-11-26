@@ -1,5 +1,4 @@
 ﻿using BookApp.Client.Components;
-using BookApp.Shared.Models.ClientModels;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace BookApp.Client.Services.Interfaces

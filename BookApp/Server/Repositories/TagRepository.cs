@@ -6,7 +6,7 @@
         {
         }
 
-        public async override Task DeleteById(int id)
+        public override async Task DeleteById(int id)
         {
             var tagToDelete = await FindByConditionsFirstOrDefault(t => t.Id == id);
 

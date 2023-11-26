@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Services
+﻿using BookApp.Shared.Enums;
+
+namespace BookApp.Server.Services
 {
     public class AnalysisMembershipServerService : IAnalysisMembershipServerService
     {
@@ -21,7 +23,7 @@
         public async Task<ServiceResponse> ChangeMemberStatus(int bookAnalysisId, int memberUserId, MemberType newMemberType)
         {
             var modifiedUserMembership = await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == memberUserId && au.BookAnalysisId == bookAnalysisId);
-            if(modifiedUserMembership is null)
+            if (modifiedUserMembership is null)
             {
                 return ServiceResponse.Error("User not a member of analysis.");
             }
@@ -83,8 +85,8 @@
                     break;
             }
 
-            
-            if(!successStatus)
+
+            if (!successStatus)
             {
                 responseMessage = string.IsNullOrEmpty(responseMessage) ? "There was an error while changing the member type" : responseMessage;
                 return ServiceResponse.Error(responseMessage);
@@ -99,7 +101,7 @@
 
         public async Task<ServiceResponse> InviteUser(int bookAnalysisId, int invitedUserId)
         {
-            if(await _bookAnalysisUserRepository.CheckIfExists(au => au.BookAnalysisId == bookAnalysisId && au.UsersId == invitedUserId))
+            if (await _bookAnalysisUserRepository.CheckIfExists(au => au.BookAnalysisId == bookAnalysisId && au.UsersId == invitedUserId))
             {
                 return ServiceResponse.Error("User already invited to analysis.");
             }
@@ -148,7 +150,7 @@
 
             if (requestorUserId == removedUserId)
             {
-                if(requestorMemberType == MemberType.Administrator)
+                if (requestorMemberType == MemberType.Administrator)
                 {
                     return ServiceResponse.Error("You cannot leave the analysis if you are the administrator.");
                 }
@@ -165,13 +167,13 @@
                 return ServiceResponse.Error("Only the administrator or moderators can remove users.");
             }
 
-            switch(modifiedUserMembership.MemberType)
+            switch (modifiedUserMembership.MemberType)
             {
                 case MemberType.Administrator:
                     return ServiceResponse.Error("You cannot remove the administrator.");
 
                 case MemberType.Moderator:
-                    if(requestorMemberType == MemberType.Administrator)
+                    if (requestorMemberType == MemberType.Administrator)
                     {
                         await _bookAnalysisUserRepository.Delete(modifiedUserMembership);
                         await _hubServerService.AnalysisMemberRemoved(bookAnalysisId, removedUserId);
@@ -192,9 +194,9 @@
         public async Task<ServiceResponse> AcceptInvite(int bookAnalysisId)
         {
             var userInvitation = await _bookAnalysisUserRepository
-                .FindByConditionsFirstOrDefault(au => 
-                   au.UsersId == _appUserService.GetCurrentUserId() 
-                && au.BookAnalysisId == bookAnalysisId 
+                .FindByConditionsFirstOrDefault(au =>
+                   au.UsersId == _appUserService.GetCurrentUserId()
+                && au.BookAnalysisId == bookAnalysisId
                 && au.MemberType == MemberType.Invited);
 
             if (userInvitation is null)

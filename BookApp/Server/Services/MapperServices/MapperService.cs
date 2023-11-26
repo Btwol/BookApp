@@ -9,13 +9,13 @@
             _mapper = mapper;
         }
 
-        public async virtual Task<C> MapToClientModel(D dbModel)
+        public virtual async Task<C> MapToClientModel(D dbModel)
 
         {
             return _mapper.Map<C>(dbModel);
         }
 
-        public async virtual Task<D> MapToDbModel(C clientModel)
+        public virtual async Task<D> MapToDbModel(C clientModel)
         {
             return _mapper.Map<D>(clientModel);
         }

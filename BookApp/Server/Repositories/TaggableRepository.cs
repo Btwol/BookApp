@@ -1,6 +1,4 @@
-﻿using BookApp.Server.Repositories.Interfaces;
-
-namespace BookApp.Server.Repositories
+﻿namespace BookApp.Server.Repositories
 {
     public class TaggableRepository<T> : BaseRepository<T>, ITaggableRepository<T> where T : class, ITaggable
     {

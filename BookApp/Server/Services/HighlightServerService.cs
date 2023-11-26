@@ -26,7 +26,7 @@
         public async Task<ServiceResponse> DeleteHighlight(int highlightId)
         {
             var highlightToDelete = await _highlightRepository.FindByConditionsFirstOrDefault(h => h.Id == highlightId);
-            if(highlightToDelete is null)
+            if (highlightToDelete is null)
             {
                 return ServiceResponse.Error("Highlight not found.");
             }

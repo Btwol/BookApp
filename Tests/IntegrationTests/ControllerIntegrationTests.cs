@@ -1,7 +1,7 @@
 ﻿using BookApp.Server.Models;
 using BookApp.Server.Models.Identity;
+using BookApp.Shared.Enums;
 using BookApp.Shared.Models.ClientModels;
-using BookApp.Shared.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

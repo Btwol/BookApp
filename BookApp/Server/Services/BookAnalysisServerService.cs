@@ -1,6 +1,4 @@
-﻿using BookApp.Server.Hubs;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
+﻿using BookApp.Shared.Enums;
 
 namespace BookApp.Server.Services
 {

@@ -3,7 +3,7 @@
     public class ChapterNoteServerService : NoteServerService<ChapterNote, ChapterNoteModel>, IChapterNoteServerService
     {
         public ChapterNoteServerService(IChapterNoteMapper noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            IChapterNoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService) 
+            IChapterNoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService)
             : base(noteMapper, bookAnalysisRepository, noteRepository, bookAnalysisServerService, hubServerService)
         {
         }

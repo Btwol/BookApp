@@ -1,7 +1,6 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.Identity;
 using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services
 {

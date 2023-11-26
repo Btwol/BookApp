@@ -1,5 +1,4 @@
-﻿using BookApp.Server.Repositories.Interfaces.Notes;
-using BookApp.Shared.Models.ClientModels.Notes;
+﻿using BookApp.Shared.Enums;
 
 namespace BookApp.Server.Services.Notes
 {
@@ -30,7 +29,7 @@ namespace BookApp.Server.Services.Notes
             }
 
             var noteSaveStatus = await SaveNote(noteModel);
-            if(noteSaveStatus.SuccessStatus)
+            if (noteSaveStatus.SuccessStatus)
             {
                 await _hubServerService.NoteCreated(bookAnalysisId, noteSaveStatus.Content);
             }

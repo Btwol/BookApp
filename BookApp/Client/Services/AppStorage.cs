@@ -3,9 +3,6 @@ using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Text;
 
 namespace BookApp.Client.Services
@@ -58,7 +55,7 @@ namespace BookApp.Client.Services
         public async Task<byte[]> GetStoredBook()
         {
             var book = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookKey);
-            
+
             var reArray = book.ToString().Split(new string[] { " " }, StringSplitOptions.None).ToList();
             reArray.Remove("");
             byte[] reByte = new byte[reArray.Count];
@@ -79,7 +76,11 @@ namespace BookApp.Client.Services
         public async Task<BookAnalysisDetailedModel> GetStoredBookAnalysis()
         {
             var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
-            if (bookAnalysisId is null) throw new Exception("Book analysis not loaded.");
+            if (bookAnalysisId is null)
+            {
+                throw new Exception("Book analysis not loaded.");
+            }
+
             return await _bookAnalysisClientService.GetAnalysisById(int.Parse(bookAnalysisId));
         }
 
@@ -107,8 +108,14 @@ namespace BookApp.Client.Services
         public async Task<bool> AnalysisIsStored()
         {
             var bookAnalysis = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
-            if (bookAnalysis is null) return false;
-            else return true;
+            if (bookAnalysis is null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public async Task StoreUser(LoginResponse loginResponse)

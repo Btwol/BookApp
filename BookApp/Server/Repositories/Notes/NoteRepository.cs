@@ -1,6 +1,4 @@
-﻿using BookApp.Server.Repositories.Interfaces.Notes;
-
-namespace BookApp.Server.Repositories.Notes
+﻿namespace BookApp.Server.Repositories.Notes
 {
     public class NoteRepository<T> : BaseRepository<T>, INoteRepository<T> where T : Note
     {

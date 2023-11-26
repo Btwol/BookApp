@@ -1,5 +1,4 @@
-﻿using BookApp.Shared.Models.Enums;
-using BookApp.Shared.Models.Services;
+﻿using BookApp.Shared.Enums;
 
 namespace BookApp.Client.Services.Interfaces
 {

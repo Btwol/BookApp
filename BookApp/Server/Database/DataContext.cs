@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-namespace BookApp.Server.Database
+﻿namespace BookApp.Server.Database
 {
     public class DataContext : IdentityDbContext<AppUser, AppRole, int>
     {
