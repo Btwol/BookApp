@@ -8,6 +8,7 @@ global using BookApp.Server.Models.Interfaces;
 global using BookApp.Server.Models.Notes;
 global using BookApp.Server.Repositories;
 global using BookApp.Server.Repositories.Interfaces;
+global using BookApp.Server.Repositories.Interfaces.Notes;
 global using BookApp.Server.Services;
 global using BookApp.Server.Services.Interfaces;
 global using BookApp.Server.Services.Interfaces.Identity;

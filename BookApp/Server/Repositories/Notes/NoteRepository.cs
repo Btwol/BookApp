@@ -12,5 +12,11 @@ namespace BookApp.Server.Repositories.Notes
         {
             return querry.Include(n => n.Tags);
         }
+
+        public override Task Delete(T model)
+        {
+            model.Tags.Clear();
+            return base.Delete(model);
+        }
     }
 }

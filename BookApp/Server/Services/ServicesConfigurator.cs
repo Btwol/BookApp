@@ -118,6 +118,10 @@ namespace BookApp.Server.Services
 
             services.AddScoped(typeof(ITaggableRepository<>), typeof(TaggableRepository<>));
 
+            services.AddScoped(typeof(IAnalysisNoteRepository), typeof(AnalysisNoteRepository));
+            services.AddScoped(typeof(IParagraphNoteRepository), typeof(ParagraphNoteRepository));
+            services.AddScoped(typeof(IChapterNoteRepository), typeof(ChapterNoteRepository));
+
             services.AddAutoMapper(typeof(Program));
         }
     }

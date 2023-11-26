@@ -26,7 +26,8 @@
                 .Include(t => t.AnalysisNotes)
                 .Include(t => t.ParagraphNotes)
                 .Include(t => t.ChapterNotes)
-                .Include(t => t.Highlights);
+                .Include(t => t.Highlights)
+                .Include(t => t.HighlightNotes);
         }
     }
 }
