@@ -56,9 +56,9 @@
             </div>
 
             <ErrorHandlerComponent ChildComponentName="Notes component">
-                <ChildContent><NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
-                        @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
+                <ChildContent><NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" ChapterNotes="bookAnalysis.ChapterNotes"
+                        ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                        bookAnalysisId="bookAnalysis.Id" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
                         Tags="bookAnalysis.Tags"/>
                 </ChildContent>
             </ErrorHandlerComponent>
@@ -86,6 +86,8 @@
 
 </ChildContent>
     </ErrorHandlerComponent>
+
+        
 
 @code{
     EpubBook book;

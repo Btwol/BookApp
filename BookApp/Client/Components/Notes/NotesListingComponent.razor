@@ -3,35 +3,30 @@
 @inject IAppStorage appStorage
 
 <div style="border-width:2px; border-style: solid; border-color: black;">
-    <p>000 Analysis Notes:</p>
+    <p>@newNote.GetType().Name</p>
     @if (userCanEdit)
     {
         <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
             <DataAnnotationsValidator />
             <ValidationSummary class="validation-summary" />
-
             <div class="form-group">
                 <label for="title">Note content:</label>
                 <InputText @bind-Value="newNote!.Content" class="form-control" />
             </div>
-
             <button type="submit" class="button-action">Submit</button>
-
         </EditForm>
-        //<button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
     }
 
-    @foreach (NoteModel note in AnalysisNotes)
+    @foreach (NoteModel note in Notes)
     {
-        //<div class="note-holder">
-        //style="width: 200px; height: 100px; overflow-y: auto"
-        <textarea class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
-            @*<input type="text" @onchange="() => EditNote(note)" placeholder="Search Tags..." class="form-control" />@note.Content*@
-        //</div>
         @if (userCanEdit)
         {
-            //<button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
+            <textarea class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
             <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+        }
+        else
+        {
+            <div class="note-holder">@note.Content</div>
         }
         <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
     }
@@ -39,7 +34,7 @@
 
 @code {
     [Parameter]
-    public IEnumerable<NoteModel> AnalysisNotes { get; set; }
+    public IEnumerable<INoteClientModel> Notes { get; set; }
     [Parameter]
     public int bookAnalysisId { get; set; }
     [Parameter]
@@ -47,7 +42,7 @@
     [Parameter]
     public INoteClientModel newNote { get; set; }
     [Parameter]
-    public INoteClientService_1 _noteClientService { get; set; }
+    public INoteClientService _noteClientService { get; set; }
     [Parameter]
     public CreateNoteDelegate createNoteDelegate { get; set; }
 
@@ -72,8 +67,6 @@
         newNote = createNoteDelegate(newNote);
         await _noteClientService.AddNote(newNote);
     }
-
-    
 
     private async Task ShowManageTagsModal(INoteClientModel note)
     {

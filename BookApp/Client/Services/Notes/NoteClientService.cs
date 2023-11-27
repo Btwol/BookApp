@@ -1,11 +1,12 @@
-﻿using BookApp.Client.Services.Interfaces.Notes;
+﻿using BookApp.Client.Services.Interfaces;
+using BookApp.Client.Services.Interfaces.Notes;
 using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
 
 namespace BookApp.Client.Services.Notes
 {
-    public abstract class NoteClientService<T> : INoteClientService where T : class, INoteClientModel
+    public abstract class NoteClientService<T> : ITagManagerClientService, INoteClientService where T : class, INoteClientModel
     {
         protected readonly HttpClient _http;
         protected readonly string noteType;
