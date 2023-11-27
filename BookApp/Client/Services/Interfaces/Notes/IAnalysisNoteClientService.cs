@@ -2,7 +2,7 @@
 
 namespace BookApp.Client.Services.Interfaces.Notes
 {
-    public interface IAnalysisNoteClientService : INoteClientService<AnalysisNoteModel>
+    public interface IAnalysisNoteClientService : INoteClientService
     {
     }
 }

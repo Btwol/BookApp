@@ -1,4 +1,7 @@
-﻿<div id="noteContainer" class="vertical-bar">
+﻿@using BookApp.Client.Delegates
+@inject IAnalysisNoteClientService analysisNoteService
+
+<div id="noteContainer" class="vertical-bar">
 
     <ErrorHandlerComponent ChildComponentName="Highlight Notes">
         <ChildContent>
@@ -25,9 +28,16 @@
 
     <hr />
 
-    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+@*    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
         <ChildContent>
             <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags"/>
+        </ChildContent>
+    </ErrorHandlerComponent>*@
+
+    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+        <ChildContent>
+            <NotesListingComponent AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="newNote" _noteClientService="analysisNoteService" 
+                createNoteDelegate="analysisCreateNoteDelegate"/>
         </ChildContent>
     </ErrorHandlerComponent>
 
@@ -35,10 +45,8 @@
 
 @code {
     [Parameter]
-    public List<AnalysisNoteModel> AnalysisNotes { get; set; }
-    [Parameter]
-    public EventCallback<List<AnalysisNoteModel>> AnalysisNotesChanged { get; set; }
-
+    public IEnumerable<AnalysisNoteModel> AnalysisNotes { get; set; }
+    private AnalysisNoteModel newNote = new();
     [Parameter]
     public List<ChapterNoteModel> ChapterNotes { get; set; }
     [Parameter]
@@ -68,4 +76,13 @@
 
     [Parameter]
     public int lastClickedTextNodeIndex { get; set; }
+
+    public CreateNoteDelegate analysisCreateNoteDelegate => CreateAnalysisNoteModel;
+
+    public INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
+    {
+        AnalysisNoteModel newNote = (AnalysisNoteModel)note;
+        newNote.BookAnalysisId = bookAnalysisId;
+        return newNote;
+    }
 }

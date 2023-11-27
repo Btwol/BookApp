@@ -1,0 +1,99 @@
+﻿@using BookApp.Client.Delegates
+@inject IModalService Modal
+@inject IAppStorage appStorage
+
+<div style="border-width:2px; border-style: solid; border-color: black;">
+    <p>000 Analysis Notes:</p>
+    @if (userCanEdit)
+    {
+        <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+
+            <div class="form-group">
+                <label for="title">Note content:</label>
+                <InputText @bind-Value="newNote!.Content" class="form-control" />
+            </div>
+
+            <button type="submit" class="button-action">Submit</button>
+
+        </EditForm>
+        //<button class="button-action" @onclick="ShowAddAnalysisNoteModal">Add Analysis Note</button>
+    }
+
+    @foreach (NoteModel note in AnalysisNotes)
+    {
+        //<div class="note-holder">
+        //style="width: 200px; height: 100px; overflow-y: auto"
+        <textarea class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
+            @*<input type="text" @onchange="() => EditNote(note)" placeholder="Search Tags..." class="form-control" />@note.Content*@
+        //</div>
+        @if (userCanEdit)
+        {
+            //<button class="button-action" @onclick="() => ShowEditAnalysisNoteModal(note)">Edit</button>
+            <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+        }
+        <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<NoteModel> AnalysisNotes { get; set; }
+    [Parameter]
+    public int bookAnalysisId { get; set; }
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
+    [Parameter]
+    public INoteClientModel newNote { get; set; }
+    [Parameter]
+    public INoteClientService_1 _noteClientService { get; set; }
+    [Parameter]
+    public CreateNoteDelegate createNoteDelegate { get; set; }
+
+    private bool userCanEdit = false;
+
+    private async Task EditNote(INoteClientModel note, ChangeEventArgs e)
+    {
+        var newContent = e.Value.ToString();
+        if (!string.IsNullOrEmpty(newContent))
+        {
+            note.Content = newContent;
+            await _noteClientService.EditNote(note);
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
+
+    public async Task AddNote()
+    {
+        newNote = createNoteDelegate(newNote);
+        await _noteClientService.AddNote(newNote);
+    }
+
+    
+
+    private async Task ShowManageTagsModal(INoteClientModel note)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysisId)
+        .Add(nameof(ManageTagsComponent.Tags), Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), note)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), _noteClientService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Note Tags", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteAnalysisNote(int noteId)
+    {
+        await _noteClientService.DeleteNote(noteId, bookAnalysisId);
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
+    }
+}

@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS1503: Argument 1: cannot convert from 'BookApp.Client.Services.Interfaces.Notes.INoteClientService<BookApp.Shared.Models.ClientModels.Notes.AnalysisNoteModel>' to 'BookApp.Client.Services.Interfaces.Notes.INoteClientService<BookApp.Shared.Models.ClientModels.Notes.INoteClientModel>'
+dotnet_diagnostic.CS1503.severity = error
