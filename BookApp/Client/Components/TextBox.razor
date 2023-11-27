@@ -44,6 +44,7 @@
         @if (!initializingComponent)
         {
             <div class="highlight-textbox-wrapper">
+                <div id="paragraphSelectionId" style="position: absolute;"></div>
                 <div id="highlightContainer" class="highlight-container"></div>
                 <div class="font-size-override light-mode text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
                     @if (html is not null)
@@ -87,7 +88,7 @@
 </ChildContent>
     </ErrorHandlerComponent>
 
-        
+
 
 @code{
     EpubBook book;
@@ -149,9 +150,8 @@
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
-        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
+        //await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
         StateHasChanged();
     }
 
@@ -233,6 +233,11 @@
             }
 
             await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+
+            if(lastClickedTextNodeIndex != -1)
+            {
+                await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex);
+            }
 
             List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
 

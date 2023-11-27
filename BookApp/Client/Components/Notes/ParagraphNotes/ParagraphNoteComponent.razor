@@ -1,7 +1,7 @@
 ﻿@inject IModalService Modal
 @inject IParagraphNoteClientService _paragraphNoteClientService
 
-<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>
+@*<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>*@
 <h3>Paragraph Notes:</h3>
 @foreach (ParagraphNoteModel note in GetCurrentParagraphNotes())
 {

@@ -3,17 +3,16 @@
 @inject IAppStorage appStorage
 
 <div style="border-width:2px; border-style: solid; border-color: black;">
-    <p>@newNote.GetType().Name</p>
+    <p style="text-align:center; font-size:20px">@newNote.GetType().Name.Replace("Model", "").Insert(newNote.GetType().Name.Length - "NoteModel".Length, " ")s</p>
     @if (userCanEdit)
     {
         <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
             <DataAnnotationsValidator />
             <ValidationSummary class="validation-summary" />
             <div class="form-group">
-                <label for="title">Note content:</label>
                 <InputText @bind-Value="newNote!.Content" class="form-control" />
             </div>
-            <button type="submit" class="button-action">Submit</button>
+            <button type="submit" class="button-action">Add new note</button>
         </EditForm>
     }
 
@@ -65,7 +64,10 @@
     public async Task AddNote()
     {
         newNote = createNoteDelegate(newNote);
-        await _noteClientService.AddNote(newNote);
+        if(newNote != null)
+        {
+            await _noteClientService.AddNote(newNote);
+        }
     }
 
     private async Task ShowManageTagsModal(INoteClientModel note)

@@ -19,13 +19,16 @@
         </ChildContent>
     </ErrorHandlerComponent>
 
-@*    <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
-        <ChildContent>
-            <NotesListingComponent Notes="ParagraphNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
+    @if(lastClickedTextNodeIndex > 0)
+    {
+        <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+            <ChildContent>
+                <NotesListingComponent Notes="ParagraphNotes.Where(n => n.PageNumber == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
                                    createNoteDelegate="CreateParagraphNoteModel" />
-        </ChildContent>
-    </ErrorHandlerComponent>*@
-
+            </ChildContent>
+        </ErrorHandlerComponent>
+    }
+    
     <ErrorHandlerComponent ChildComponentName="Highlight Notes">
         <ChildContent>
             <NotesListingComponent Notes="HighlightNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
@@ -33,7 +36,7 @@
         </ChildContent>
     </ErrorHandlerComponent>
 
-    <button id="add-paragraph-note-button" class="add-paragraph-note" >+</button>
+    @*<button id="add-paragraph-note-button" class="add-paragraph-note" >+</button>*@
     @*<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>*@
 </div>
 
@@ -71,6 +74,11 @@
 
     public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
     {
+        if (lastClickedTextNodeIndex == -1)
+        {
+            return null;
+        }
+
         ParagraphNoteModel newNote = (ParagraphNoteModel)note;
         newNote.BookAnalysisId = bookAnalysisId;
         newNote.TextNodeNumber = lastClickedTextNodeIndex;
