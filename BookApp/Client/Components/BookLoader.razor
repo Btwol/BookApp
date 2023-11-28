@@ -4,6 +4,13 @@
 @inject IAppStorage appStorage
 @inject IJSRuntime jsRuntime
 
+<style>
+    .class-test {
+        /*display:block;*/
+    }
+</style>
+
+<div class="class-test">
 <ErrorHandlerComponent ChildComponentName="Book Loader">
     <ChildContent>
 @if (checkingIfLoaded)
@@ -67,7 +74,7 @@ else
     }
     </ChildContent>
 </ErrorHandlerComponent>
-
+</div>
 @code {
     private bool checkingIfLoaded = true;
     private bool awaitingResponse = false;

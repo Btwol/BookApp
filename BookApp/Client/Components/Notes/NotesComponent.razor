@@ -4,7 +4,36 @@
 @inject IChapterNoteClientService chapterNoteService
 @inject IHighlightNoteClientService highlightNoteService
 
-<div id="noteContainer" class="vertical-bar">
+<style>
+    .vertical-bar-002,
+    .vertical-bar {
+        height: 80%;
+        background-color: #555555;
+        color: #fff;
+        overflow-y: auto;
+        position: fixed;
+        top:40px;
+        width:20%;
+    }
+
+    .vertical-bar {
+        right: 0%;
+        max-width: 20%;
+    }
+
+    .vertical-bar-002 {
+        left: 0%;
+        
+        max-width: 20%;
+    }
+
+            .notes-component-container {
+                width:100%;
+        }
+</style>
+
+<div id="noteContainer" class="notes-component-container">
+    <div class="vertical-bar">
     <ErrorHandlerComponent ChildComponentName="Analysis Notes">
         <ChildContent>
             <NotesListingComponent Notes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new AnalysisNoteModel()" _noteClientService="analysisNoteService"
@@ -18,7 +47,8 @@
                                    createNoteDelegate="CreateChapterNoteModel" />
         </ChildContent>
     </ErrorHandlerComponent>
-
+    </div>
+    <div class="vertical-bar-002">
     @if(lastClickedTextNodeIndex > 0)
     {
         <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
@@ -35,9 +65,7 @@
                                    createNoteDelegate="CreateHighlightNoteModel" />
         </ChildContent>
     </ErrorHandlerComponent>
-
-    @*<button id="add-paragraph-note-button" class="add-paragraph-note" >+</button>*@
-    @*<button id="add-paragraph-note-button" class="add-paragraph-note" @onclick="ShowAddParagraphNoteModal">+</button>*@
+    </div>
 </div>
 
 @code {

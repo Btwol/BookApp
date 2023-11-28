@@ -37,6 +37,19 @@
     .font-size-override * {
         font-size: 20px;
     }
+            .highlight-container {
+            position: absolute;
+        }
+    
+        .highlight-textbox-wrapper {
+            position: sticky;
+            height: 100%;
+            width: 60%;
+            top: 0;
+            left:20%;
+            padding:5px;
+        }
+
 </style>
 
 
@@ -46,13 +59,15 @@
             <div class="highlight-textbox-wrapper">
                 <div id="paragraphSelectionId" style="position: absolute;"></div>
                 <div id="highlightContainer" class="highlight-container"></div>
-                <div class="font-size-override light-mode text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
+                <div class="light-mode" style="width: 100%; height:100%">
+                <div class="font-size-override  text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
                     @if (html is not null)
                     {
                         @(
                             (MarkupString)html[currentCount].TextContent
                             )
                     }
+                </div>
                 </div>
             </div>
 
