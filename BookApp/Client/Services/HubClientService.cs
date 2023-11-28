@@ -249,8 +249,7 @@ namespace BookApp.Client.Services
             var noteToUpdate = notes.FirstOrDefault(n => n.Id == note.Id);
             if (noteToUpdate is not null)
             {
-                notes.Remove(noteToUpdate);
-                notes.Add(note);
+                noteToUpdate.Content = note.Content;
                 textBox.ReRender();
             }
         }

@@ -1,58 +1,83 @@
-﻿<div id="noteContainer" class="vertical-bar">
+﻿@using BookApp.Client.Delegates
+@inject IAnalysisNoteClientService analysisNoteService
+@inject IParagraphNoteClientService paragraphNoteService
+@inject IChapterNoteClientService chapterNoteService
+@inject IHighlightNoteClientService highlightNoteService
 
-    <ErrorHandlerComponent ChildComponentName="Highlight Notes">
+<style>
+    .vertical-bar-002,
+    .vertical-bar {
+        
+        background-color: #555555;
+        color: #fff;
+        overflow-y: auto;
+        position: fixed;
+        top:40px;
+        width:20%;
+    }
+
+    .vertical-bar {
+        right: 0%;
+        height: 80%;
+        max-width: 20%;
+    }
+
+    .vertical-bar-002 {
+        left: 0%;
+        height: 100%;
+        max-width: 20%;
+    }
+
+            .notes-component-container {
+                width:100%;
+        }
+</style>
+
+<div id="noteContainer" class="notes-component-container">
+    <div class="vertical-bar">
+    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
         <ChildContent>
-            <HighlightNoteComponent @bind-HighlightNotes="HighlightNotes" bookAnalysisId="bookAnalysisId" currentHighlightId="currentHighlightId" Tags="Tags" />
+            <NotesListingComponent Notes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new AnalysisNoteModel()" _noteClientService="analysisNoteService"
+                                   createNoteDelegate="CreateAnalysisNoteModel" />
         </ChildContent>
     </ErrorHandlerComponent>
-
-    <hr />
-
-    <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
-        <ChildContent>
-            <ParagraphNoteComponent @bind-ParagraphNotes="ParagraphNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount"
-                                    lastClickedTextNodeIndex="lastClickedTextNodeIndex" Tags="Tags" />
-        </ChildContent>
-    </ErrorHandlerComponent>
-
-    <hr />
 
     <ErrorHandlerComponent ChildComponentName="Chapter Notes">
         <ChildContent>
-            <ChapterNoteComponent @bind-ChapterNotes="ChapterNotes" bookAnalysisId="bookAnalysisId" currentCount="currentCount" Tags="Tags" />
+            <NotesListingComponent Notes="ChapterNotes.Where(n => n.ChapterNumber == currentCount)" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new ChapterNoteModel()" _noteClientService="chapterNoteService"
+                                   createNoteDelegate="CreateChapterNoteModel" />
         </ChildContent>
     </ErrorHandlerComponent>
-
-    <hr />
-
-    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+    </div>
+    <div class="vertical-bar-002">
+    @if(lastClickedTextNodeIndex > 0)
+    {
+        <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+            <ChildContent>
+                <NotesListingComponent Notes="ParagraphNotes.Where(n => n.PageNumber == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
+                                   createNoteDelegate="CreateParagraphNoteModel" />
+            </ChildContent>
+        </ErrorHandlerComponent>
+    }
+    
+    <ErrorHandlerComponent ChildComponentName="Highlight Notes">
         <ChildContent>
-            <AnalysisNoteComponent @bind-AnalysisNotes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags"/>
+            <NotesListingComponent Notes="HighlightNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
+                                   createNoteDelegate="CreateHighlightNoteModel" />
         </ChildContent>
     </ErrorHandlerComponent>
-
+    </div>
 </div>
 
 @code {
     [Parameter]
-    public List<AnalysisNoteModel> AnalysisNotes { get; set; }
+    public IEnumerable<AnalysisNoteModel> AnalysisNotes { get; set; }
     [Parameter]
-    public EventCallback<List<AnalysisNoteModel>> AnalysisNotesChanged { get; set; }
-
+    public IEnumerable<ChapterNoteModel> ChapterNotes { get; set; }
     [Parameter]
-    public List<ChapterNoteModel> ChapterNotes { get; set; }
+    public IEnumerable<ParagraphNoteModel> ParagraphNotes { get; set; }
     [Parameter]
-    public EventCallback<List<ChapterNoteModel>> ChapterNotesChanged { get; set; }
-
-    [Parameter]
-    public List<ParagraphNoteModel> ParagraphNotes { get; set; }
-    [Parameter]
-    public EventCallback<List<ParagraphNoteModel>> ParagraphNotesChanged { get; set; }
-
-    [Parameter]
-    public List<HighlightNoteModel> HighlightNotes { get; set; }
-    [Parameter]
-    public EventCallback<List<HighlightNoteModel>> HighlightNotesChanged { get; set; }
+    public IEnumerable<HighlightNoteModel> HighlightNotes { get; set; }
 
     [Parameter]
     public List<TagModel> Tags { get; set; }
@@ -68,4 +93,41 @@
 
     [Parameter]
     public int lastClickedTextNodeIndex { get; set; }
+
+    public INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
+    {
+        AnalysisNoteModel newNote = (AnalysisNoteModel)note;
+        newNote.BookAnalysisId = bookAnalysisId;
+        return newNote;
+    }
+
+    public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
+    {
+        if (lastClickedTextNodeIndex == -1)
+        {
+            return null;
+        }
+
+        ParagraphNoteModel newNote = (ParagraphNoteModel)note;
+        newNote.BookAnalysisId = bookAnalysisId;
+        newNote.TextNodeNumber = lastClickedTextNodeIndex;
+        newNote.PageNumber = currentCount;
+        return newNote;
+    }
+
+    public INoteClientModel CreateChapterNoteModel(INoteClientModel note)
+    {
+        ChapterNoteModel newNote = (ChapterNoteModel)note;
+        newNote.BookAnalysisId = bookAnalysisId;
+        newNote.ChapterNumber = currentCount;
+        return newNote;
+    }
+
+    public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
+    {
+        HighlightNoteModel newNote = (HighlightNoteModel)note;
+        newNote.BookAnalysisId = bookAnalysisId;
+        newNote.HighlightId = currentHighlightId;
+        return newNote;
+    }
 }

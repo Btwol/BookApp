@@ -445,7 +445,34 @@
             range.setEnd(textNode, 0);
             var rect = range.getBoundingClientRect();
 
+            renderParagraphHighlight(lastSelectedNodeIndex);
+
             dotNet.invokeMethodAsync("onTextNodeClick", lastSelectedNodeIndex, rect.left, rect.top);
+        }
+
+        //renders a box around last selected paragraph
+        function renderParagraphHighlight(lastSelectedNodeIndex) {
+            //enables a box around the paragraph
+            var element = document.getElementById('textContainer');
+            var textNode = getTextNodes(element)[lastSelectedNodeIndex];
+
+            var paragraphSelection = document.getElementById('paragraphSelectionId');
+            while (paragraphSelection.firstChild) {
+                paragraphSelection.removeChild(paragraphSelection.firstChild);
+            }
+            var newSelection = document.createElement("div");
+            newSelection.className = "paragraphSelection";
+
+            const nodeRange = document.createRange();
+            nodeRange.selectNodeContents(textNode);
+
+            var ParagraphRect = nodeRange.getBoundingClientRect();
+            // Position the highlight element on top of the specified text
+            newSelection.style.left = ParagraphRect.left + "px";
+            newSelection.style.top = ParagraphRect.top + "px";
+            newSelection.style.width = ParagraphRect.width + "px";
+            newSelection.style.height = ParagraphRect.height + "px";
+            paragraphSelection.appendChild(newSelection);
         }
 
         // Attach event listener to the parent div
@@ -472,12 +499,13 @@
             dotNetNavMenuReference.invokeMethodAsync("ReRenderNavMenu");
         }
 
-        function setAddParagraphNotePosition(left, top, elementId) {
-            element = document.getElementById(elementId);
-            element.style.left = left-100 + 'px';
-            element.style.top = top + 'px';
-            element.style.display = 'block';
-        }
+        //sets the position of the blue + button used for opening add paragraph note modal
+        //function setAddParagraphNotePosition(left, top, elementId) {
+        //    element = document.getElementById(elementId);
+        //    element.style.left = left-100 + 'px';
+        //    element.style.top = top + 'px';
+        //    element.style.display = 'block';
+        //}
 
         function getNodeIndex(node) {
             let index = 0;

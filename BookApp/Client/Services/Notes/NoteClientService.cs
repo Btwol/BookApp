@@ -1,11 +1,12 @@
-﻿using BookApp.Client.Services.Interfaces.Notes;
+﻿using BookApp.Client.Services.Interfaces;
+using BookApp.Client.Services.Interfaces.Notes;
 using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
 
 namespace BookApp.Client.Services.Notes
 {
-    public abstract class NoteClientService<T> : INoteClientService<T> where T : NoteModel
+    public abstract class NoteClientService<T> : ITagManagerClientService, INoteClientService where T : class, INoteClientModel
     {
         protected readonly HttpClient _http;
         protected readonly string noteType;
@@ -18,10 +19,10 @@ namespace BookApp.Client.Services.Notes
             this._jsRuntime = jSRuntime;
         }
 
-        public virtual async Task<T> AddNote(T noteModel)
+        public virtual async Task<INoteClientModel> AddNote(INoteClientModel noteModel)
         {
             await HelperService.AddTokenToRequest(_http, _jsRuntime);
-            var response = await _http.PostAsJsonAsync($"{noteType}/Add{noteType}", noteModel);
+            var response = await _http.PostAsJsonAsync($"{noteType}/Add{noteType}", (T)noteModel);
             return await HelperService.HandleResponse<T>(response);
         }
 
@@ -32,10 +33,10 @@ namespace BookApp.Client.Services.Notes
             await HelperService.HandleResponse(response);
         }
 
-        public virtual async Task<T> EditNote(T noteModel)
+        public virtual async Task<INoteClientModel> EditNote(INoteClientModel noteModel)
         {
             await HelperService.AddTokenToRequest(_http, _jsRuntime);
-            var response = await _http.PutAsJsonAsync($"{noteType}/Edit{noteType}", noteModel);
+            var response = await _http.PutAsJsonAsync($"{noteType}/Edit{noteType}", (T)noteModel);
             return await HelperService.HandleResponse<T>(response);
         }
 

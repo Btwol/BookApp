@@ -1,12 +1,11 @@
 ﻿<Blazored.Modal.CascadingBlazoredModal DisableBackgroundCancel="true">
 <style>
-        .highlight-container {
-            position: absolute;
-        }
+
 
         .highlight {
             position: fixed;
             background-color: rgba(1, 1, 255, 0.3);
+            border-radius:5px;
             z-index: 99;
         }
 
@@ -17,19 +16,12 @@
         .texbox-wrapper {
         }
 
-        .highlight-textbox-wrapper {
-            position: relative;
-            height: 100%;
-            width: 70%;
-            top: 0;
-            left: 0;
-        }
 
         .text-box {
-            position: absolute;
+            /*position: absolute;*/
             height: 100%;
             width: 100%;
-            padding: 5px;
+            padding: 30px;
         }
 
         .note-container {
@@ -115,6 +107,7 @@
             color: #fff;
             padding: 10px 0;
             text-align: center;
+            border: 2px solid black;
             /*transform: translateX(-50%);
             z-index: 100; /* Ensure it's above other content */*/
         }
@@ -193,16 +186,6 @@
                 background-color: #0056b3; /* Change the background color on hover */
             }
 
-        .vertical-bar {
-            position: fixed;
-            top: 0;
-            right: 0%;
-            width: 20%;
-            height: 85%;
-            background-color: #555555;
-            color: #fff;
-            overflow-y: auto; /* Make the vertical bar scrollable when content exceeds height */
-        }
 
         .vertical-bar-2 {
             position: fixed; /* Fixed position to keep it on the screen */
@@ -216,7 +199,7 @@
 
         .note-holder {
         width: 100%;
-            height: auto;
+            height: fit-content;
             max-height: 20%;
             padding: 5px;
             margin: 0 auto;
@@ -229,6 +212,14 @@
             word-wrap: break-word;
 }
 
+        .paragraphSelection {
+                        position: fixed;
+                                border: 1px solid #000;
+                    border-radius: 5px;
+            background-color: rgba(1, 1, 255, 0.1);
+                    z-index: 99;
+                    pointer-events: none; 
+        }
 </style>
 
 <Router AppAssembly="@typeof(App).Assembly">

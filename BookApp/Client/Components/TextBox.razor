@@ -37,29 +37,47 @@
     .font-size-override * {
         font-size: 20px;
     }
+            .highlight-container {
+            position: absolute;
+        }
+    
+        .highlight-textbox-wrapper {
+            position: sticky;
+            height: 100%;
+            width: 60%;
+            top: 0;
+            left:20%;
+            padding:5px;
+        }
+
 </style>
 
 
-    <ErrorHandlerComponent ChildComponentName="Text Box"><ChildContent>
+<ErrorHandlerComponent ChildComponentName="Text Box">
+    <ChildContent>
         @if (!initializingComponent)
         {
             <div class="highlight-textbox-wrapper">
+                <div id="paragraphSelectionId" style="position: absolute;"></div>
                 <div id="highlightContainer" class="highlight-container"></div>
-                <div class="font-size-override light-mode text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
-                    @if (html is not null)
-                    {
-                        @(
-                            (MarkupString)html[currentCount].TextContent
-                            )
-                    }
+                <div class="light-mode" style="width: 100%; height:100%">
+                    <div class="font-size-override  text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
+                        @if (html is not null)
+                        {
+                            @(
+                                (MarkupString)html[currentCount].TextContent
+                                )
+                        }
+                    </div>
                 </div>
             </div>
 
             <ErrorHandlerComponent ChildComponentName="Notes component">
-                <ChildContent><NotesComponent @bind-AnalysisNotes="bookAnalysis.AnalysisNotes" @bind-ChapterNotes="bookAnalysis.ChapterNotes"
-                        @bind-ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                        bookAnalysisId="bookAnalysis.Id" @bind-HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
-                        Tags="bookAnalysis.Tags"/>
+                <ChildContent>
+                    <NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" ChapterNotes="bookAnalysis.ChapterNotes"
+                                ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                                bookAnalysisId="bookAnalysis.Id" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
+                                Tags="bookAnalysis.Tags" />
                 </ChildContent>
             </ErrorHandlerComponent>
 
@@ -71,21 +89,24 @@
             else
             {
                 <ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
-    <ChildContent>
-        <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag"/>
-    </ChildContent>
-</ErrorHandlerComponent>
-}
+                    <ChildContent>
+                        <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" />
+                    </ChildContent>
+                </ErrorHandlerComponent>
+            }
 
-<ErrorHandlerComponent ChildComponentName="Text Box Bar">
-    <ChildContent>
-        <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight"/>
-    </ChildContent>
-</ErrorHandlerComponent>
+            <ErrorHandlerComponent ChildComponentName="Text Box Bar">
+                <ChildContent>
+                    <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight" />
+                </ChildContent>
+            </ErrorHandlerComponent>
         }
-
-</ChildContent>
-    </ErrorHandlerComponent>
+        else 
+        {
+            <h3>Loading reader...</h3>
+        }
+    </ChildContent>
+</ErrorHandlerComponent>
 
 @code{
     EpubBook book;
@@ -147,9 +168,8 @@
     [JSInvokableAttribute("onTextNodeClick")]
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
-
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
-        await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
+        //await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
         StateHasChanged();
     }
 
@@ -231,6 +251,11 @@
             }
 
             await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+
+            if(lastClickedTextNodeIndex != -1)
+            {
+                await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex);
+            }
 
             List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
 

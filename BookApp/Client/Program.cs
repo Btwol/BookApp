@@ -4,6 +4,7 @@ using BookApp.Client.Services;
 using BookApp.Client.Services.Interfaces;
 using BookApp.Client.Services.Interfaces.Notes;
 using BookApp.Client.Services.Notes;
+using BookApp.Shared.Models.ClientModels.Notes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -29,6 +30,7 @@ builder.Services.AddScoped(typeof(IAppUserClientService), typeof(AppUserClientSe
 builder.Services.AddScoped(typeof(IAccountClientService), typeof(AccountClientService));
 builder.Services.AddScoped(typeof(IHubClientService), typeof(HubClientService));
 builder.Services.AddScoped<IAppStorage, AppStorage>();
+
 
 builder.Services.AddBlazoredModal();
 
