@@ -15,12 +15,13 @@
             <button type="submit" class="button-action">Add new note</button>
         </EditForm>
     }
-
+    <hr style="margin:3px; border:2px solid white;" />
     @foreach (NoteModel note in Notes)
     {
+        <div style="margin:2px;">
         @if (userCanEdit)
         {
-            <textarea class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
+            <textarea style="margin:0px;" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
             <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
         }
         else
@@ -28,6 +29,8 @@
             <div class="note-holder">@note.Content</div>
         }
         <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+        </div>
+        <hr style="margin:3px; border:2px solid white;" />
     }
 </div>
 

@@ -10,9 +10,9 @@
     }
 </style>
 
-<div class="class-test">
 <ErrorHandlerComponent ChildComponentName="Book Loader">
     <ChildContent>
+            <div style="margin:15px">
 @if (checkingIfLoaded)
 {
     <h3>Loading...</h3>
@@ -72,9 +72,9 @@ else
 
 
     }
+            </div>
     </ChildContent>
 </ErrorHandlerComponent>
-</div>
 @code {
     private bool checkingIfLoaded = true;
     private bool awaitingResponse = false;
