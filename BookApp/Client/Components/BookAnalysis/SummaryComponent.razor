@@ -1,5 +1,6 @@
 ﻿@page "/summary"
-@inject IAppStorage bookAnalysisStorage
+@inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
 
 <p>Include Tag</p>
 @*<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />*@
@@ -18,16 +19,17 @@
 <hr />
 
 <h3>Highlights</h3>
+<div>
 @foreach(var highlight in filteredHighlights)
 {
-    <div class="highlight">@highlight.Id</div>
+    <div class="highlight" style="position:relative">@HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value</div>
     <h5>Notes:</h5>
     @foreach(var note in highlight.HighlightNotes)
     {
         <p>@note.Content</p>
     }
 }
-
+</div>
 <h3>Analysis Notes</h3>
 @foreach (var note in filteredAnalysisNotes)
 {
@@ -46,7 +48,22 @@
     <p>@note.Content</p>
 }
 
+<div style="display:none">
+    @if (html is not null)
+    {
+        @for (int i = 0; i < html.Count; i++)
+        {
+            <div id=@GetTextContainerId(i)>
+                @((MarkupString)html[i].TextContent)
+            </div>
+        }
+    }
+</div>
+
 @code {
+    List<KeyValuePair<int, string>> HighlightTexts = new();
+    EpubBook book;
+    List<EpubTextFile> html;
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
     private List<HighlightModel> filteredHighlights { get; set; } = new();
     private List<HighlightNoteModel> filteredHighlightNotes { get; set; } = new();
@@ -59,6 +76,8 @@
     private string tagSearchKeyword = "";
     private string buttonToggle = "";
     private string disabledButtonStyle = "pointer-events: none; background-color: gray";
+
+    private string GetTextContainerId(int i) => $"textContainer_{i}";
 
     private void FilterTags(ChangeEventArgs e)
     {
@@ -100,8 +119,37 @@
 
     protected async override Task OnInitializedAsync()
     {
-        bookAnalysis = await bookAnalysisStorage.GetStoredBookAnalysis();
+        bookAnalysis = await appStorage.GetStoredBookAnalysis();
         filteredTags = bookAnalysis.Tags;
         FilterByTag();
+
+        var loadedBookByteArray = await appStorage.GetStoredBook();
+        book = EpubReader.Read(loadedBookByteArray);
+        bookAnalysis = await appStorage.GetStoredBookAnalysis();
+        if (book is not null)
+        {
+            html = book.Resources.Html.ToList();
+            StateHasChanged();
+        }
+
+        foreach(var highlight in bookAnalysis.Highlights)
+        {
+            List<string> highlightTexts = new();
+            int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex;
+
+            highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                 null));
+
+            if(nodeCount > 2)
+            {
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, null,
+                 null));
+            }
+
+            highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, null,
+                 highlight.LastNodeCharIndex));
+
+            HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));
+        }
     }
 }

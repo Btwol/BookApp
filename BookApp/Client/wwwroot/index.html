@@ -221,6 +221,29 @@
 
 
         let placeholderString = "a";
+
+        function GetHighlightText(elementId, nodeIndex, firstNodeCharIndex, lastNodeCharIndex) {
+
+            var element = document.getElementById(elementId);
+            var textNode = getTextNodes(element)[nodeIndex];
+            var text = textNode.textContent;
+
+            startOffset = firstNodeCharIndex;
+            endOffset = lastNodeCharIndex;
+
+            if (startOffset == null) {
+                startOffset = 0;
+            }
+            if (endOffset == null) {
+                endOffset = text.length - 1;
+            }
+
+            // Find the specific text using the location values
+            var selectedText = text.substring(startOffset, endOffset);
+
+            return selectedText;
+        }
+
         //FirstNodeIndex, FirstNodeCharIndex, LastNodeIndex, LastNodeCharIndex, RawArray
         function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, dotNetHelper, highlightId) {
 
