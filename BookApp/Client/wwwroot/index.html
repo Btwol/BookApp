@@ -222,6 +222,20 @@
 
         let placeholderString = "a";
 
+        //gets current scroll position - to set in reader
+        function getScrollPosition() {
+            console.log("SCROLL POSITION: " + window.scrollY);
+            return window.scrollY;
+        }
+
+        //scrolls to set reader position
+        function scrollToPosition(scrollPosition) {
+            window.scrollTo({
+                top: scrollPosition,
+                behavior: 'instant'
+            });
+        }
+
         function GetHighlightText(elementId, nodeIndex, firstNodeCharIndex, lastNodeCharIndex) {
 
             var element = document.getElementById(elementId);
