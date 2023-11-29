@@ -18,8 +18,9 @@
     }
     .text-box-container
     {
+        min-height:90vh;
         height:fit-content; 
-        width:fit-content;
+        width:inherit;
         border-style:solid; 
         border-width:2px; 
         border-color:black; 
@@ -58,16 +59,13 @@
         @if (!initializingComponent)
         {
             <div class="highlight-textbox-wrapper">
-                <button @onclick="GoToN">GOTO NAO</button>
                 <div id="paragraphSelectionId" style="position: absolute;"></div>
                 <div id="highlightContainer" class="highlight-container"></div>
                 <div class="light-mode" style="width: 100%; height:100%">
                     <div class="font-size-override  text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
                         @if (html is not null)
                         {
-                            @(
-                                (MarkupString)html[currentCount].TextContent
-                                )
+                            @((MarkupString)html[currentCount].TextContent)
                         }
                     </div>
                 </div>
@@ -98,7 +96,7 @@
 
             <ErrorHandlerComponent ChildComponentName="Text Box Bar">
                 <ChildContent>
-                    <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight" />
+                    <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight" totalPages="html.Count()" />
                 </ChildContent>
             </ErrorHandlerComponent>
         }
@@ -110,29 +108,9 @@
 </ErrorHandlerComponent>
 
 @code{
-    async Task GoToN()
-    {
-        double a = 1.2;
-
-        var scrollPoistion = await jsRuntime.InvokeAsync<string>("getElementScrollPosition", "pernamentHighlight_31_s");
-        var __scrollPosition = scrollPoistion.Replace("px", "");
-        //__scrollPosition = __scrollPosition.Replace(",", ".");
-        //__scrollPosition = __scrollPosition.Replace("'", "");
-
-        var dotIndex = __scrollPosition.IndexOf('.');
-        var scroll = __scrollPosition.Substring(0, dotIndex);
-
-        if(double.TryParse(scroll , out double _scrollPosition))
-        {
-            await jsRuntime.InvokeVoidAsync("scrollToPosition", _scrollPosition-200);
-        }
-    }
-
-    EpubBook book;
-
     [Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
-
+    EpubBook book;
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
     private HighlightModel currentHighlight = new HighlightModel();
@@ -149,6 +127,7 @@
     bool initializingComponent = true;
     bool firstComponentRender = true;
     private bool userHasEditRights = false;
+    ReaderPosition readerPosition = new();
 
     [JSInvokableAttribute("ReRender")]
     public async void ReRender()
@@ -175,11 +154,7 @@
                 var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
                 editedSelection.Update(newSelection);
                 await _highlightClientService.UpdateHighlight(editedSelection);
-                //await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), editedSelection.NodeCount);
-                //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
             }
-
-            //else 
             highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
         }
     }
@@ -188,7 +163,6 @@
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
-        //await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
         StateHasChanged();
     }
 
@@ -205,36 +179,7 @@
     {
         currentHighlight = new HighlightModel();
         StateHasChanged();
-        //currentHighlightId = idToString;
-        //currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
-        //await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
-
-    ////img upload test
-    //public void SaveImages(byte[] imageData, string extension)
-    //{
-    //    string basePath = AppDomain.CurrentDomain.BaseDirectory;
-    //    Console.WriteLine(basePath);
-    //    string imageDirectory = System.IO.Path.Combine(basePath, "wwwroot");
-    //    Console.WriteLine(imageDirectory);
-    //    //var imagePath = "images"; // Create a directory under "wwwroot" to store images
-    //    //var imageDirectory = Path.Combine(webRootPath, imagePath);
-
-    //    if (!Directory.Exists(imageDirectory))
-    //    {
-    //        return;
-    //        //Directory.CreateDirectory(imageDirectory);
-    //    }
-
-    //    var uniqueFileName = $"{Guid.NewGuid()}.{extension}";
-    //    var filePath = Path.Combine(imageDirectory, uniqueFileName);
-
-    //    using (var imageStream = new MemoryStream(imageData))
-    //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-    //    {
-    //        imageStream.CopyTo(fileStream);
-    //    }
-    //}
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -245,45 +190,14 @@
                 firstComponentRender = false;
                 await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
 
-                if (book is not null)
-                {
-                    html = book.Resources.Html.ToList();
-                    css = book.Resources.Css;
-                    images = book.Resources.Images;
-                    //fonts = book.Resources.Fonts;
-                    ////Image cover = book.CoverImage;
-                    //ICollection<EpubChapter> chapters = book.TableOfContents;
-                    readerPosition = await appStorage.GetLastReaderPosition();
-                    currentCount = readerPosition.Page;
-                    isLoading = false;
-                    StateHasChanged();
-                }
-
-                foreach (EpubByteFile im in images)
-                {
-                    //SaveImages(im.Content, im.ContentType.ToString());
-                    //Console.WriteLine("image data:");
-                    //Console.WriteLine(im.FileName);
-                    //Console.WriteLine(im.ContentType);
-                    //Console.WriteLine(im.MimeType);
-                    //Console.WriteLine(im.Content);
-                }
-
                 await RenderHighlights();
 
                 readerPosition = await appStorage.GetLastReaderPosition();
 
                 if(!string.IsNullOrEmpty(readerPosition.ElementIdToScrollTo))
                 {
-                    double a = 1.2;
-
                     var scrollPoistion = await jsRuntime.InvokeAsync<string>("getElementScrollPosition", readerPosition.ElementIdToScrollTo);
-                    var __scrollPosition = scrollPoistion.Replace("px", "");
-                    //__scrollPosition = __scrollPosition.Replace(",", ".");
-                    //__scrollPosition = __scrollPosition.Replace("'", "");
-
-                    var dotIndex = __scrollPosition.IndexOf('.');
-                    var scroll = __scrollPosition.Substring(0, dotIndex);
+                    var scroll = scrollPoistion.Replace("px", "").Substring(0, scrollPoistion.Replace("px", "").IndexOf('.'));
 
                     if(double.TryParse(scroll , out double _scrollPosition))
                     {
@@ -294,7 +208,6 @@
                 {
                     await jsRuntime.InvokeVoidAsync("scrollToPosition", readerPosition.ScrollPosition);
                 }
-
             }
 
             await RenderHighlights();
@@ -309,26 +222,25 @@
 
     async Task RenderHighlights()
     {
-        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
-            if(lastClickedTextNodeIndex != -1)
+            if (lastClickedTextNodeIndex != -1)
             {
                 await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex);
             }
 
-            List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
-
-            foreach (HighlightModel highlight in currentHighlights)
+            foreach (HighlightModel highlight in bookAnalysis.Highlights)
             {
                 if (highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
                 {
                     await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
                 }
             }
+        }
+        catch { }
     }
-
-    ReaderPosition readerPosition = new();
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -342,6 +254,17 @@
         userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
 
         await hubService.RegisterReaderHub(this);
+
+        if (book is not null)
+        {
+            html = book.Resources.Html.ToList();
+            css = book.Resources.Css;
+            images = book.Resources.Images;
+            readerPosition = await appStorage.GetLastReaderPosition();
+            currentCount = readerPosition.Page;
+            isLoading = false;
+            StateHasChanged();
+        }
 
         initializingComponent = false;
         StateHasChanged(); 
