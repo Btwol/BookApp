@@ -1,6 +1,8 @@
 ﻿@page "/summary"
+@using BookApp.Client.Models
 @inject IAppStorage appStorage
 @inject IJSRuntime jsRuntime
+@inject NavigationManager navigation
 
 <p>Include Tag</p>
 @*<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />*@
@@ -22,7 +24,7 @@
 <div>
 @foreach(var highlight in filteredHighlights)
 {
-    <div class="highlight" style="position:relative">@HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value</div>
+    <div class="highlight" @ondblclick="() => GoToHighlight(highlight)" style="position:relative">@HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value</div>
     <h5>Notes:</h5>
     @foreach(var note in highlight.HighlightNotes)
     {
@@ -93,7 +95,6 @@
     private void FilterByTag()
     {
         filteredHighlights = bookAnalysis.Highlights.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
-        //filteredHighlightNotes = bookAnalysis.Highlights.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
         filteredAnalysisNotes = bookAnalysis.AnalysisNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
         filteredParagraphNotes = bookAnalysis.ParagraphNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
         filteredChapterNotes = bookAnalysis.ChapterNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
@@ -117,6 +118,12 @@
         FilterByTag();
     }
 
+    public async Task GoToHighlight(HighlightModel highlight)
+    {
+        await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.PageNumber });
+        navigation.NavigateTo("/reader");
+    }
+
     protected async override Task OnInitializedAsync()
     {
         bookAnalysis = await appStorage.GetStoredBookAnalysis();
@@ -135,18 +142,21 @@
         foreach(var highlight in bookAnalysis.Highlights)
         {
             List<string> highlightTexts = new();
-            int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex;
+            int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex + 1;
 
             highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
                  null));
 
             if(nodeCount > 2)
             {
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, null,
+                for(int i=1; i<nodeCount - 1; i++)
+                {
+                    highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex+i, null,
                  null));
+                }
             }
 
-            highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, null,
+            highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.LastNodeIndex, null,
                  highlight.LastNodeCharIndex));
 
             HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));

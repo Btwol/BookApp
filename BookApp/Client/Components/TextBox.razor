@@ -53,12 +53,12 @@
 
 </style>
 
-
 <ErrorHandlerComponent ChildComponentName="Text Box">
     <ChildContent>
         @if (!initializingComponent)
         {
             <div class="highlight-textbox-wrapper">
+                <button @onclick="GoToN">GOTO NAO</button>
                 <div id="paragraphSelectionId" style="position: absolute;"></div>
                 <div id="highlightContainer" class="highlight-container"></div>
                 <div class="light-mode" style="width: 100%; height:100%">
@@ -110,6 +110,24 @@
 </ErrorHandlerComponent>
 
 @code{
+    async Task GoToN()
+    {
+        double a = 1.2;
+
+        var scrollPoistion = await jsRuntime.InvokeAsync<string>("getElementScrollPosition", "pernamentHighlight_31_s");
+        var __scrollPosition = scrollPoistion.Replace("px", "");
+        //__scrollPosition = __scrollPosition.Replace(",", ".");
+        //__scrollPosition = __scrollPosition.Replace("'", "");
+
+        var dotIndex = __scrollPosition.IndexOf('.');
+        var scroll = __scrollPosition.Substring(0, dotIndex);
+
+        if(double.TryParse(scroll , out double _scrollPosition))
+        {
+            await jsRuntime.InvokeVoidAsync("scrollToPosition", _scrollPosition-200);
+        }
+    }
+
     EpubBook book;
 
     [Parameter]
@@ -235,7 +253,8 @@
                     //fonts = book.Resources.Fonts;
                     ////Image cover = book.CoverImage;
                     //ICollection<EpubChapter> chapters = book.TableOfContents;
-
+                    readerPosition = await appStorage.GetLastReaderPosition();
+                    currentCount = readerPosition.Page;
                     isLoading = false;
                     StateHasChanged();
                 }
@@ -250,12 +269,47 @@
                     //Console.WriteLine(im.Content);
                 }
 
-                var readerPosition = await appStorage.GetLastReaderPosition();
-        await jsRuntime.InvokeVoidAsync("scrollToPosition", readerPosition.ScrollPosition);
-        currentCount = readerPosition.Page;
+                await RenderHighlights();
+
+                readerPosition = await appStorage.GetLastReaderPosition();
+
+                if(!string.IsNullOrEmpty(readerPosition.ElementIdToScrollTo))
+                {
+                    double a = 1.2;
+
+                    var scrollPoistion = await jsRuntime.InvokeAsync<string>("getElementScrollPosition", readerPosition.ElementIdToScrollTo);
+                    var __scrollPosition = scrollPoistion.Replace("px", "");
+                    //__scrollPosition = __scrollPosition.Replace(",", ".");
+                    //__scrollPosition = __scrollPosition.Replace("'", "");
+
+                    var dotIndex = __scrollPosition.IndexOf('.');
+                    var scroll = __scrollPosition.Substring(0, dotIndex);
+
+                    if(double.TryParse(scroll , out double _scrollPosition))
+                    {
+                        await jsRuntime.InvokeVoidAsync("scrollToPosition", _scrollPosition-200);
+                    }
+                }
+                else
+                {
+                    await jsRuntime.InvokeVoidAsync("scrollToPosition", readerPosition.ScrollPosition);
+                }
+
             }
 
-            await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
+            await RenderHighlights();
+
+            await appStorage.SetReaderPosition(new ReaderPosition 
+                { 
+                    Page = currentCount,
+                    ScrollPosition = await jsRuntime.InvokeAsync<double>("getScrollPosition") 
+                });
+        }
+    }
+
+    async Task RenderHighlights()
+    {
+        await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
             if(lastClickedTextNodeIndex != -1)
             {
@@ -271,15 +325,9 @@
                     await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
                 }
             }
-
-                await appStorage.SetReaderPosition(new ReaderPosition 
-                { 
-                    Page = currentCount,
-                    ScrollPosition = await jsRuntime.InvokeAsync<double>("getScrollPosition") 
-                });
-
-        }
     }
+
+    ReaderPosition readerPosition = new();
 
 
     protected override async Task OnInitializedAsync()
@@ -293,10 +341,9 @@
         var currentUser = await appStorage.GetStoredUser();
         userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
 
-        initializingComponent = false;
-
         await hubService.RegisterReaderHub(this);
 
+        initializingComponent = false;
         StateHasChanged(); 
     }
 }

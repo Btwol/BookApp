@@ -222,9 +222,40 @@
 
         let placeholderString = "a";
 
+        ////used to navigate to a double-clicked highlight from summary to reader
+        ////window.deletePernamentHighlight = function (elementId, nodes) {
+        //function scrollToElement(elementId) {
+        //    console.log(elementId);
+        //    var element = document.getElementById(elementId);
+        //    console.log("first: " + element);
+        //    console.log(elementId + '_f');
+        //    if (element == null) {
+        //        element = document.getElementById(elementId);
+        //        console.log("second: " + element);
+        //        console.log(elementId + '_s');
+        //    }
+        //    console.log(element);
+        //    if (element) {
+        //        console.log("scrolling!");
+        //        /*element.scrollIntoView({ behavior: "instant" });*/
+        //        console.log(element.style.top);
+        //        scrollToPosition(element.style.top);
+        //    }
+        //}
+
+        function getElementScrollPosition(elementId) {
+            var element = document.getElementById(elementId + '_f');
+            if (element == null) {
+                element = document.getElementById(elementId + '_s');
+            }
+            console.log(element);
+            if (element) {
+                return element.style.top.toString();
+            }
+        }
+
         //gets current scroll position - to set in reader
         function getScrollPosition() {
-            console.log("SCROLL POSITION: " + window.scrollY);
             return window.scrollY;
         }
 
@@ -242,8 +273,11 @@
             var textNode = getTextNodes(element)[nodeIndex];
             var text = textNode.textContent;
 
-            startOffset = firstNodeCharIndex;
-            endOffset = lastNodeCharIndex;
+            var startOffset = firstNodeCharIndex;
+            var endOffset = lastNodeCharIndex;
+
+            console.log(startOffset);
+            console.log(endOffset);
 
             if (startOffset == null) {
                 startOffset = 0;
@@ -251,6 +285,9 @@
             if (endOffset == null) {
                 endOffset = text.length - 1;
             }
+
+            console.log(startOffset);
+            console.log(endOffset);
 
             // Find the specific text using the location values
             var selectedText = text.substring(startOffset, endOffset);

@@ -177,7 +177,7 @@ namespace BookApp.Client.Services
             }
             else
             {
-                return new ReaderPosition { Page = 0, ScrollPosition = 0 };
+                return new ReaderPosition();
             }
         }
     }
