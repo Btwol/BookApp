@@ -1,7 +1,11 @@
 ﻿@using BookApp.Client.Delegates
+@using BookApp.Client.Models
 @inject IHighlightNoteClientService highlightNoteService
 @inject IHighlightClientService highlightService
 @inject IModalService Modal
+@inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navigation
 
 <style>
     .highlight-holder {
@@ -29,55 +33,105 @@
     }
 </style>
 
-<div class="highlight-holder" style="">
-    <div style="flex:0.1; display:flex; flex-direction:row">
-        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(Highlight.Id)">Delete</button>
-        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(Highlight)">Tags</button>
-        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(Highlight)">Go To Reader</button>
-    </div>
-    <textarea readonly rows="" cols="40" class="highlight-textarea" style="">
-        @HighlightTexts.FirstOrDefault(ht => ht.Key == Highlight.Id).Value
-        </textarea>
-        <div style="flex:0.2">
-    <ErrorHandlerComponent ChildComponentName="Highlight Notes">
-        <ChildContent>
-            <NotesListingComponent Notes="Highlight.HighlightNotes" bookAnalysisId="Highlight.BookAnalysisId" Tags="Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
-                                       createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="true" />
-        </ChildContent>
-    </ErrorHandlerComponent>
-    </div>
+
+<div style="display:flex; width:10%; justify-items:left">
+    <h3 style="flex:auto">Highlights</h3>
+    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => {if(displayHighlights) displayHighlights = false; else displayHighlights = true; StateHasChanged();}">@displayHighlightButtonText</button>
+</div>
+<div style="@displayHighlightStyle" class="summary-section">
+    @foreach (var highlight in SummaryComponent.GetFilteredByTag(BookAnalysis.Highlights, includedTags))
+    {
+        <div class="highlight-holder" style="">
+            <div style="flex:0.1; display:flex; flex-direction:row">
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(highlight.Id)">Delete</button>
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(highlight)">Tags</button>
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => {selectedHighlight = highlight; GoToHighlight(highlight);}">Go To Reader</button>
+            </div>
+            <textarea readonly rows="" cols="40" class="highlight-textarea" style="">
+                @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
+            </textarea>
+            <div style="flex:0.2">
+                <ErrorHandlerComponent ChildComponentName="Highlight Notes">
+                    <ChildContent>
+                        <NotesListingComponent Notes="highlight.HighlightNotes" bookAnalysisId="highlight.BookAnalysisId" Tags="BookAnalysis.Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
+                                           createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="true" />
+                    </ChildContent>
+                </ErrorHandlerComponent>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
     [Parameter]
-    public HighlightModel Highlight { get; set; }
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
 
     [Parameter]
-    public GoToHighlight GoToHighlight { get; set; }
+    public List<TagModel> includedTags { get; set; }
 
-    [Parameter]
-    public List<KeyValuePair<int, string>> HighlightTexts { get; set; } = new();
+    private HighlightModel selectedHighlight = new();
 
-    [Parameter]
-    public List<TagModel> Tags { get; set; }
+    bool displayHighlights = true;
+    private string displayHighlightStyle { get { if (displayHighlights) return "display:grid"; else return "display:none"; } }
+    private string displayHighlightButtonText { get { if (displayHighlights) return "Hide"; else return "Show"; } }
+    List<KeyValuePair<int, string>> HighlightTexts = new();
 
     public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
     {
         HighlightNoteModel newNote = (HighlightNoteModel)note;
-        newNote.BookAnalysisId = Highlight.BookAnalysisId;
-        newNote.HighlightId = Highlight.Id;
+        newNote.BookAnalysisId = BookAnalysis.Id;
+        newNote.HighlightId = selectedHighlight.Id;
         return newNote;
     }
 
     private async Task ShowManageTagsModal(HighlightModel highlight)
     {
         var parameters = new ModalParameters()
-        .Add(nameof(ManageTagsComponent.bookAnalysisId), Highlight.BookAnalysisId)
-        .Add(nameof(ManageTagsComponent.Tags), Tags)
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), highlight)
         .Add(nameof(ManageTagsComponent.tagManagerClientService), highlightService);
 
         var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
         await modal.Result;
+    }
+
+    public async Task GoToHighlight(HighlightModel highlight)
+    {
+        await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.PageNumber });
+        navigation.NavigateTo("/reader");
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        foreach (var highlight in BookAnalysis.Highlights)
+        {
+            List<string> highlightTexts = new();
+            int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex + 1;
+
+            if (nodeCount == 1)
+            {
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                 highlight.LastNodeCharIndex));
+            }
+            else
+            {
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                     null));
+
+                if (nodeCount > 2)
+                {
+                    for (int i = 1; i < nodeCount - 1; i++)
+                    {
+                        highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex + i, null,
+                     null));
+                    }
+                }
+
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.LastNodeIndex, null,
+                     highlight.LastNodeCharIndex));
+            }
+            HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));
+        }
     }
 }

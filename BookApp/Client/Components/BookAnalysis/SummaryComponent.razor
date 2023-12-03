@@ -42,21 +42,9 @@ else
 </div>
 
 <hr />
-
-<div style="display:flex; width:10%; justify-items:left">
-<h3 style="flex:auto">Highlights</h3>
-<button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => {if(displayHighlights) displayHighlights = false; else displayHighlights = true; StateHasChanged();}">@displayHighlightButtonText</button>
-</div >
-<div style="@displayHighlightStyle" class="summary-section">
-        @foreach (var highlight in GetFilteredByTag(BookAnalysis.Highlights))
-    {
-        <ErrorHandlerComponent ChildComponentName="Summary Highlight">
-            <ChildContent><SummaryHighlightComponent GoToHighlight="GoToHighlight" Highlight="highlight" 
-                HighlightTexts="HighlightTexts" Tags="BookAnalysis.Tags"></SummaryHighlightComponent></ChildContent>
+        <ErrorHandlerComponent ChildComponentName="Highlights Summary">
+            <ChildContent><SummaryHighlightComponent BookAnalysis="BookAnalysis" includedTags="includedTags"></SummaryHighlightComponent></ChildContent>
         </ErrorHandlerComponent>
-    }
-</div>
-
 <hr/>
 
 <div class="summary-section">
@@ -68,7 +56,7 @@ else
         <div style="@displayAnalysisNotesStyle">
             <ErrorHandlerComponent ChildComponentName="Analysis Notes">
                 <ChildContent>
-                    <NotesListingComponent Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes)" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new AnalysisNoteModel()" _noteClientService="analysisNoteService"
+                    <NotesListingComponent Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes, includedTags)" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new AnalysisNoteModel()" _noteClientService="analysisNoteService"
                                        createNoteDelegate="CreateAnalysisNoteModel"  />
                 </ChildContent>
             </ErrorHandlerComponent>
@@ -86,7 +74,7 @@ else
                     <h3>Chapter @(isInChapter.Key)</h3>
                     <ErrorHandlerComponent ChildComponentName="Chapter Notes">
                         <ChildContent>
-                            <NotesListingComponent Notes="GetFilteredByTag(GetChapterNotesInChapter(isInChapter.Key))" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new ChapterNoteModel()" _noteClientService="chapterNoteService"
+                            <NotesListingComponent Notes="GetFilteredByTag(GetChapterNotesInChapter(isInChapter.Key), includedTags)" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new ChapterNoteModel()" _noteClientService="chapterNoteService"
                                        createNoteDelegate="new CreateNoteDelegate((INoteClientModel note) => null)" enableAddingNewNotes="false" />
                         </ChildContent>
                     </ErrorHandlerComponent>
@@ -106,7 +94,7 @@ else
                     <h3>Chapter @(isInChapter.Key)</h3>
                     <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
                         <ChildContent>
-                            <NotesListingComponent Notes="GetFilteredByTag(GetParagraphNotesInChapter(isInChapter.Key))" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
+                            <NotesListingComponent Notes="GetFilteredByTag(GetParagraphNotesInChapter(isInChapter.Key), includedTags)" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
                                        createNoteDelegate="new CreateNoteDelegate((INoteClientModel note) => null)" enableAddingNewNotes="false" />
                         </ChildContent>
                     </ErrorHandlerComponent>
@@ -147,7 +135,7 @@ else
 </div>
 
 @code {
-    List<KeyValuePair<int, string>> HighlightTexts = new();
+    
     EpubBook book;
     List<EpubTextFile> html;
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
@@ -164,17 +152,15 @@ else
     private string buttonToggle = "";
     private string disabledButtonStyle = "pointer-events: none; background-color: gray";
 
-    private bool displayHighlights = true, displayAnalysisNotes = true, displayParagraphNotes = true, displayChapterNotes = true;
-    private string displayHighlightStyle { get { if (displayHighlights) return "display:grid"; else return "display:none"; } }
+    private bool displayAnalysisNotes = true, displayParagraphNotes = true, displayChapterNotes = true;
     private string displayAnalysisNotesStyle { get { if (displayAnalysisNotes) return "display:block"; else return "display:none"; } }
     private string displayParagraphNotesStyle { get { if (displayParagraphNotes) return "display:block"; else return "display:none"; } }
     private string displayChapterNotesStyle { get { if (displayChapterNotes) return "display:block"; else return "display:none"; } }
-    private string displayHighlightButtonText { get { if (displayHighlights) return "Hide"; else return "Show"; } }
     private string displayAnalysisButtonText { get { if (displayAnalysisNotes) return "Hide"; else return "Show"; } }
     private string displayParagraphButtonText { get { if (displayParagraphNotes) return "Hide"; else return "Show"; } }
     private string displayChapterButtonText { get { if (displayChapterNotes) return "Hide"; else return "Show"; } }    
 
-    private string GetTextContainerId(int i) => $"textContainer_{i}";
+    public static string GetTextContainerId(int i) => $"textContainer_{i}";
 
     private void FilterTags(ChangeEventArgs e)
     {
@@ -190,7 +176,7 @@ else
     private Dictionary<int, bool> ChapterNotesPresentInChapter = new();
     private Dictionary<int,bool> ParagraphNotesPresentInChapter = new();
 
-    private IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems) where T : ITagableItemModel => tagableItems.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    public static IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems, IEnumerable<TagModel> tags) where T : ITagableItemModel => tagableItems.Where(h => tags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
     private IEnumerable<ChapterNoteModel> GetChapterNotesInChapter(int chapterNumber) => BookAnalysis.ChapterNotes.Where(n => n.ChapterNumber == chapterNumber);
     private IEnumerable<ParagraphNoteModel> GetParagraphNotesInChapter(int chapterNumber) => BookAnalysis.ParagraphNotes.Where(n => n.PageNumber == chapterNumber);
 
@@ -223,11 +209,7 @@ else
         StateHasChanged();
     }
 
-    public async Task GoToHighlight(HighlightModel highlight)
-    {
-        await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.PageNumber });
-        navigation.NavigateTo("/reader");
-    }
+
 
     public async Task ReRender()
     {
@@ -264,35 +246,7 @@ else
             StateHasChanged();
         }
 
-        foreach(var highlight in BookAnalysis.Highlights)
-        {
-            List<string> highlightTexts = new();
-            int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex + 1;
-
-            if (nodeCount == 1)
-            {
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
-                 highlight.LastNodeCharIndex));
-            }
-            else
-            {
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
-                     null));
-
-                if (nodeCount > 2)
-                {
-                    for (int i = 1; i < nodeCount - 1; i++)
-                    {
-                        highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex + i, null,
-                     null));
-                    }
-                }
-
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.LastNodeIndex, null,
-                     highlight.LastNodeCharIndex));
-            }
-            HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));
-        }
+        
 
         await hubService.RegisterReaderHub(this);
 
