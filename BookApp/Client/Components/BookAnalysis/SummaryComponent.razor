@@ -1,11 +1,33 @@
 ﻿@page "/summary"
+@using BookApp.Client.Delegates
 @using BookApp.Client.Models
 @inject IAppStorage appStorage
 @inject IJSRuntime jsRuntime
 @inject NavigationManager navigation
+@inject IHubClientService hubService
+@inject IAnalysisNoteClientService analysisNoteService
+@inject IParagraphNoteClientService paragraphNoteService
+@inject IChapterNoteClientService chapterNoteService
 
-<p>Include Tag</p>
-@*<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />*@
+<style>
+    .summary-section {
+        width: 95%;
+        position: sticky;
+        grid-template-columns: 33% 33% 33%;
+        margin:20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+@if(loading)
+{
+    <h3>Loading...</h3>
+}
+else
+{
+<div style="position:fixed; bottom:0; display:flex; z-index:999; border:1px solid black; border-radius:5px">
+<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />
 @foreach (TagModel tag in filteredTags)
 {
     @if (!includedTags.Any(t => t.Id == tag.Id))
@@ -17,39 +39,101 @@
         <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
     }
 }
+</div>
 
 <hr />
 
-<h3>Highlights</h3>
-<div>
-@foreach(var highlight in filteredHighlights)
-{
-    <div class="highlight" @ondblclick="() => GoToHighlight(highlight)" style="position:relative">@HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value</div>
-    <h5>Notes:</h5>
-    @foreach(var note in highlight.HighlightNotes)
+<div style="display:flex; width:10%; justify-items:left">
+<h3 style="flex:auto">Highlights</h3>
+<button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => {if(displayHighlights) displayHighlights = false; else displayHighlights = true; StateHasChanged();}">@displayHighlightButtonText</button>
+</div >
+<div style="@displayHighlightStyle" class="summary-section">
+        @foreach (var highlight in GetFilteredByTag(BookAnalysis.Highlights))
     {
-        <p>@note.Content</p>
+        <ErrorHandlerComponent ChildComponentName="Summary Highlight">
+            <ChildContent><SummaryHighlightComponent GoToHighlight="GoToHighlight" Highlight="highlight" 
+                HighlightTexts="HighlightTexts" Tags="BookAnalysis.Tags"></SummaryHighlightComponent></ChildContent>
+        </ErrorHandlerComponent>
     }
-}
 </div>
-<h3>Analysis Notes</h3>
-@foreach (var note in filteredAnalysisNotes)
-{
-    <p>@note.Content</p>
-}
 
+<hr/>
+
+<div class="summary-section">
+
+        <div style="display:flex; width:50%; justify-items:left">
+            <h3 style="flex:0.3">Analysis Notes</h3>
+            <button style="flex:0.1" class="button-action" @onclick="() => {if(displayAnalysisNotes) displayAnalysisNotes = false; else displayAnalysisNotes = true; StateHasChanged();}">@displayAnalysisButtonText</button>
+        </div>
+        <div style="@displayAnalysisNotesStyle">
+            <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+                <ChildContent>
+                    <NotesListingComponent Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes)" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new AnalysisNoteModel()" _noteClientService="analysisNoteService"
+                                       createNoteDelegate="CreateAnalysisNoteModel"  />
+                </ChildContent>
+            </ErrorHandlerComponent>
+        </div>
+
+        <div style="display:flex; width:50%; justify-items:left">
+            <h3 style="flex:0.3">Chapter Notes</h3>
+            <button style="flex:0.1" class="button-action" @onclick="() => {if(displayChapterNotes) displayChapterNotes = false; else displayChapterNotes = true; StateHasChanged();}">@displayChapterButtonText</button>
+        </div>
+        <div style="@displayChapterNotesStyle">
+            @foreach (var isInChapter in ChapterNotesPresentInChapter)
+            {
+                @if (isInChapter.Value)
+                {
+                    <h3>Chapter @(isInChapter.Key)</h3>
+                    <ErrorHandlerComponent ChildComponentName="Chapter Notes">
+                        <ChildContent>
+                            <NotesListingComponent Notes="GetFilteredByTag(GetChapterNotesInChapter(isInChapter.Key))" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new ChapterNoteModel()" _noteClientService="chapterNoteService"
+                                       createNoteDelegate="new CreateNoteDelegate((INoteClientModel note) => null)" enableAddingNewNotes="false" />
+                        </ChildContent>
+                    </ErrorHandlerComponent>
+                }
+            }
+        </div>
+
+        <div style="display:flex; width:50%; justify-items:left">
+            <h3 style="flex:0.3">Paragraph Notes</h3>
+            <button style="flex:0.1" class="button-action" @onclick="() => {if(displayParagraphNotes) displayParagraphNotes = false; else displayParagraphNotes = true; StateHasChanged();}">@displayParagraphButtonText</button>
+        </div>
+        <div style="@displayParagraphNotesStyle">
+            @foreach (var isInChapter in ParagraphNotesPresentInChapter)
+            {
+                @if (isInChapter.Value)
+                {
+                    <h3>Chapter @(isInChapter.Key)</h3>
+                    <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+                        <ChildContent>
+                            <NotesListingComponent Notes="GetFilteredByTag(GetParagraphNotesInChapter(isInChapter.Key))" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
+                                       createNoteDelegate="new CreateNoteDelegate((INoteClientModel note) => null)" enableAddingNewNotes="false" />
+                        </ChildContent>
+                    </ErrorHandlerComponent>
+                }
+            }
+        </div>
+</div>
+
+@*
 <h3>Chapter Notes</h3>
-@foreach (var note in filteredChapterNotes)
-{
-    <p>@note.Content</p>
-}
+    <ErrorHandlerComponent ChildComponentName="Chapter Notes">
+        <ChildContent>
+            <NotesListingComponent Notes="BookAnalysis.ChapterNotes" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new AnalysisNoteModel()" _noteClientService="chapterNoteService"
+                                   createNoteDelegate="CreateChapterNoteModel" />
+        </ChildContent>
+    </ErrorHandlerComponent>
 
 <h3>Paragraph Notes</h3>
-@foreach (var note in filteredParagraphNotes)
-{
-    <p>@note.Content</p>
-}
+    <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+        <ChildContent>
+            <NotesListingComponent Notes="BookAnalysis.ParagraphNotes" bookAnalysisId="BookAnalysis.Id" Tags="BookAnalysis.Tags" newNote="new AnalysisNoteModel()" _noteClientService="paragraphNoteService"
+                                   createNoteDelegate="CreateParagraphNoteModel" />
+        </ChildContent>
+    </ErrorHandlerComponent>*@
 
+    <div style="height:50px; width:100%"></div>
+}
 <div style="display:none">
     @if (html is not null)
     {
@@ -66,18 +150,29 @@
     List<KeyValuePair<int, string>> HighlightTexts = new();
     EpubBook book;
     List<EpubTextFile> html;
-    public BookAnalysisDetailedModel bookAnalysis { get; set; }
-    private List<HighlightModel> filteredHighlights { get; set; } = new();
-    private List<HighlightNoteModel> filteredHighlightNotes { get; set; } = new();
-    private List<AnalysisNoteModel> filteredAnalysisNotes { get; set; } = new();
-    private List<ParagraphNoteModel> filteredParagraphNotes { get; set; } = new();
-    private List<ChapterNoteModel> filteredChapterNotes { get; set; } = new();
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
+    //private IEnumerable<HighlightModel> filteredHighlights { get; set; }
+    //private IEnumerable<HighlightNoteModel> filteredHighlightNotes { get; set; }
+    //private IEnumerable<AnalysisNoteModel> filteredAnalysisNotes { get; set; }
+    //private IEnumerable<ParagraphNoteModel> filteredParagraphNotes { get; set; }
+    //private IEnumerable<ChapterNoteModel> filteredChapterNotes { get; set; }
     private List<TagModel> filteredTags { get; set; } = new();
     private List<TagModel> includedTags { get; set; } = new();
+    private bool loading = true;
 
     private string tagSearchKeyword = "";
     private string buttonToggle = "";
     private string disabledButtonStyle = "pointer-events: none; background-color: gray";
+
+    private bool displayHighlights = true, displayAnalysisNotes = true, displayParagraphNotes = true, displayChapterNotes = true;
+    private string displayHighlightStyle { get { if (displayHighlights) return "display:grid"; else return "display:none"; } }
+    private string displayAnalysisNotesStyle { get { if (displayAnalysisNotes) return "display:block"; else return "display:none"; } }
+    private string displayParagraphNotesStyle { get { if (displayParagraphNotes) return "display:block"; else return "display:none"; } }
+    private string displayChapterNotesStyle { get { if (displayChapterNotes) return "display:block"; else return "display:none"; } }
+    private string displayHighlightButtonText { get { if (displayHighlights) return "Hide"; else return "Show"; } }
+    private string displayAnalysisButtonText { get { if (displayAnalysisNotes) return "Hide"; else return "Show"; } }
+    private string displayParagraphButtonText { get { if (displayParagraphNotes) return "Hide"; else return "Show"; } }
+    private string displayChapterButtonText { get { if (displayChapterNotes) return "Hide"; else return "Show"; } }    
 
     private string GetTextContainerId(int i) => $"textContainer_{i}";
 
@@ -86,36 +181,46 @@
         tagSearchKeyword = e.Value.ToString();
         Console.WriteLine("current: " + e.Value);
         filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
-            ? bookAnalysis.Tags
-            : bookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+            ? BookAnalysis.Tags
+            : BookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        FilterByTag();
+        StateHasChanged();
     }
 
-    private void FilterByTag()
-    {
-        filteredHighlights = bookAnalysis.Highlights.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
-        filteredAnalysisNotes = bookAnalysis.AnalysisNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
-        filteredParagraphNotes = bookAnalysis.ParagraphNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
-        filteredChapterNotes = bookAnalysis.ChapterNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id))).ToList();
-    }
+    private Dictionary<int, bool> ChapterNotesPresentInChapter = new();
+    private Dictionary<int,bool> ParagraphNotesPresentInChapter = new();
+
+    private IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems) where T : ITagableItemModel => tagableItems.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    private IEnumerable<ChapterNoteModel> GetChapterNotesInChapter(int chapterNumber) => BookAnalysis.ChapterNotes.Where(n => n.ChapterNumber == chapterNumber);
+    private IEnumerable<ParagraphNoteModel> GetParagraphNotesInChapter(int chapterNumber) => BookAnalysis.ParagraphNotes.Where(n => n.PageNumber == chapterNumber);
+
+    //private void FilterByTag()
+    //{
+    //    filteredHighlights = BookAnalysis.Highlights.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    //    filteredAnalysisNotes = BookAnalysis.AnalysisNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    //    filteredParagraphNotes = BookAnalysis.ParagraphNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    //    filteredChapterNotes = BookAnalysis.ChapterNotes.Where(h => includedTags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    //    StateHasChanged();
+    //}
 
     public async Task AddTag(int tagId)
     {
         if (!includedTags.Any(t => t.Id == tagId))
         {
-            includedTags.Add(bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+            includedTags.Add(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
         }
-        FilterByTag();
+        RefreshChapters();
+        StateHasChanged();
     }
 
     public async Task RemoveTag(int tagId)
     {
         if (includedTags.Any(t => t.Id == tagId))
         {
-            includedTags.Remove(bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+            includedTags.Remove(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
         }
-        FilterByTag();
+        RefreshChapters();
+        StateHasChanged();
     }
 
     public async Task GoToHighlight(HighlightModel highlight)
@@ -124,42 +229,86 @@
         navigation.NavigateTo("/reader");
     }
 
+    public async Task ReRender()
+    {
+        StateHasChanged();
+    }
+
+    public INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
+    {
+        AnalysisNoteModel newNote = (AnalysisNoteModel)note;
+        newNote.BookAnalysisId = BookAnalysis.Id;
+        return newNote;
+    }
+
+    private void RefreshChapters()
+    {
+        for (int i = 0; i < html.Count; i++)
+        {
+            ChapterNotesPresentInChapter[i] = BookAnalysis.ChapterNotes.Any(n => n.ChapterNumber == i && includedTags.All(t => n.Tags.Any(nt => nt.Id == t.Id)));
+            ParagraphNotesPresentInChapter[i] = BookAnalysis.ParagraphNotes.Any(n => n.PageNumber == i && includedTags.All(t => n.Tags.Any(nt => nt.Id == t.Id)));
+        }
+    }
+
     protected async override Task OnInitializedAsync()
     {
-        bookAnalysis = await appStorage.GetStoredBookAnalysis();
-        filteredTags = bookAnalysis.Tags;
-        FilterByTag();
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
+        filteredTags = BookAnalysis.Tags;
 
         var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        bookAnalysis = await appStorage.GetStoredBookAnalysis();
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
         if (book is not null)
         {
             html = book.Resources.Html.ToList();
             StateHasChanged();
         }
 
-        foreach(var highlight in bookAnalysis.Highlights)
+        foreach(var highlight in BookAnalysis.Highlights)
         {
             List<string> highlightTexts = new();
             int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex + 1;
 
-            highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
-                 null));
-
-            if(nodeCount > 2)
+            if (nodeCount == 1)
             {
-                for(int i=1; i<nodeCount - 1; i++)
-                {
-                    highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex+i, null,
-                 null));
-                }
-            }
-
-            highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.LastNodeIndex, null,
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
                  highlight.LastNodeCharIndex));
+            }
+            else
+            {
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                     null));
 
+                if (nodeCount > 2)
+                {
+                    for (int i = 1; i < nodeCount - 1; i++)
+                    {
+                        highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex + i, null,
+                     null));
+                    }
+                }
+
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(highlight.PageNumber), highlight.LastNodeIndex, null,
+                     highlight.LastNodeCharIndex));
+            }
             HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));
         }
+
+        await hubService.RegisterReaderHub(this);
+
+        for (int i = 0; i < html.Count; i++)
+        {
+            ChapterNotesPresentInChapter.Add(
+                i,
+                BookAnalysis.ChapterNotes.Any(n => n.ChapterNumber == i)
+            );
+
+            ParagraphNotesPresentInChapter.Add(
+                i,
+                BookAnalysis.ParagraphNotes.Any(n => n.PageNumber == i)
+            );
+        }
+
+        loading = false;
     }
 }

@@ -7,7 +7,6 @@
 @inject IAppStorage appStorage
 @inject IHubClientService hubService
 
-
 <style>
     @if (css != null)
     {
@@ -73,10 +72,10 @@
 
             <ErrorHandlerComponent ChildComponentName="Notes component">
                 <ChildContent>
-                    <NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" ChapterNotes="bookAnalysis.ChapterNotes"
-                                ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                                bookAnalysisId="bookAnalysis.Id" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
-                                Tags="bookAnalysis.Tags" />
+                    <NotesComponent AnalysisNotes="BookAnalysis.AnalysisNotes" ChapterNotes="BookAnalysis.ChapterNotes"
+                                ParagraphNotes="BookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                                bookAnalysisId="BookAnalysis.Id" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
+                                Tags="BookAnalysis.Tags" />
                 </ChildContent>
             </ErrorHandlerComponent>
 
@@ -89,14 +88,14 @@
             {
                 <ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
                     <ChildContent>
-                        <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" />
+                        <HighlightContextMenuComponent bookAnalysis="BookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" />
                     </ChildContent>
                 </ErrorHandlerComponent>
             }
 
             <ErrorHandlerComponent ChildComponentName="Text Box Bar">
                 <ChildContent>
-                    <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight" totalPages="html.Count()" />
+                    <TextBoxBarComponent bookAnalysis="BookAnalysis" @bind-currentCount="currentCount" highlight="highlight" totalPages="html.Count()" />
                 </ChildContent>
             </ErrorHandlerComponent>
         }
@@ -109,7 +108,7 @@
 
 @code{
     [Parameter]
-    public BookAnalysisDetailedModel bookAnalysis { get; set; }
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
     EpubBook book;
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
@@ -130,7 +129,7 @@
     ReaderPosition readerPosition = new();
 
     [JSInvokableAttribute("ReRender")]
-    public async void ReRender()
+    public async Task ReRender()
     {
         StateHasChanged();
     }
@@ -150,12 +149,12 @@
             if (editFlag)
             {
                 editFlag = false;
-                var newSelection = new HighlightModel(bookAnalysis.Id, currentCount, items);
-                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
+                var newSelection = new HighlightModel(BookAnalysis.Id, currentCount, items);
+                var editedSelection = BookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
                 editedSelection.Update(newSelection);
                 await _highlightClientService.UpdateHighlight(editedSelection);
             }
-            highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
+            highlight = new HighlightModel(BookAnalysis.Id, currentCount, items);
         }
     }
 
@@ -169,7 +168,7 @@
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
+        currentHighlight = BookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
         await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
         StateHasChanged();
     }
@@ -231,7 +230,7 @@
                 await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex);
             }
 
-            foreach (HighlightModel highlight in bookAnalysis.Highlights)
+            foreach (HighlightModel highlight in BookAnalysis.Highlights)
             {
                 if (highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
                 {
@@ -246,7 +245,7 @@
     {
         var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        bookAnalysis = await appStorage.GetStoredBookAnalysis();
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
 
         dotNetRef = DotNetObjectReference.Create(this);
 

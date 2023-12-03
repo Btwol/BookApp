@@ -31,39 +31,48 @@
             .notes-component-container {
                 width:100%;
         }
+
+        .notes-title {
+            font-size:20px;
+            display:inline;
+        }
 </style>
 
 <div id="noteContainer" class="notes-component-container">
     <div class="vertical-bar">
+        <p class="notes-title">Analysis Notes</p>
     <ErrorHandlerComponent ChildComponentName="Analysis Notes">
         <ChildContent>
             <NotesListingComponent Notes="AnalysisNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new AnalysisNoteModel()" _noteClientService="analysisNoteService"
-                                   createNoteDelegate="CreateAnalysisNoteModel" />
+                                   createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes=true />
         </ChildContent>
     </ErrorHandlerComponent>
 
+        <p class="notes-title">Chapter Notes</p>
     <ErrorHandlerComponent ChildComponentName="Chapter Notes">
         <ChildContent>
             <NotesListingComponent Notes="ChapterNotes.Where(n => n.ChapterNumber == currentCount)" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new ChapterNoteModel()" _noteClientService="chapterNoteService"
-                                   createNoteDelegate="CreateChapterNoteModel" />
+                                       createNoteDelegate="CreateChapterNoteModel" enableAddingNewNotes=true />
         </ChildContent>
     </ErrorHandlerComponent>
     </div>
     <div class="vertical-bar-002">
     @if(lastClickedTextNodeIndex > 0)
     {
+            <p class="notes-title">Paragraph Notes</p>
         <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
             <ChildContent>
                 <NotesListingComponent Notes="ParagraphNotes.Where(n => n.PageNumber == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new ParagraphNoteModel()" _noteClientService="paragraphNoteService"
-                                   createNoteDelegate="CreateParagraphNoteModel" />
+                                       createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes=true />
             </ChildContent>
         </ErrorHandlerComponent>
     }
-    
+
+        <p class="notes-title">Highlight Notes</p>
     <ErrorHandlerComponent ChildComponentName="Highlight Notes">
         <ChildContent>
             <NotesListingComponent Notes="HighlightNotes" bookAnalysisId="bookAnalysisId" Tags="Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
-                                   createNoteDelegate="CreateHighlightNoteModel" />
+                                       createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes=true />
         </ChildContent>
     </ErrorHandlerComponent>
     </div>

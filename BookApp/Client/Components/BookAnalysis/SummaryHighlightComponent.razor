@@ -1,0 +1,83 @@
+﻿@using BookApp.Client.Delegates
+@inject IHighlightNoteClientService highlightNoteService
+@inject IHighlightClientService highlightService
+@inject IModalService Modal
+
+<style>
+    .highlight-holder {
+        text-align: justify;
+        margin: 5px;
+        height: 35vh;
+        max-height:fit-content;
+        justify-content: center;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 2px;
+        background-color: darkgray;
+        overflow-y: auto;
+    }
+
+    .highlight-textarea {
+        border: 1px solid black;
+        border-radius: 5px;
+        text-align: justify;
+        padding: 5px;
+        width: 100%;
+        overflow-y: auto;
+        resize: none;
+        min-height:75%;
+    }
+</style>
+
+<div class="highlight-holder" style="">
+    <div style="flex:0.1; display:flex; flex-direction:row">
+        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(Highlight.Id)">Delete</button>
+        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(Highlight)">Tags</button>
+        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(Highlight)">Go To Reader</button>
+    </div>
+    <textarea readonly rows="" cols="40" class="highlight-textarea" style="">
+        @HighlightTexts.FirstOrDefault(ht => ht.Key == Highlight.Id).Value
+        </textarea>
+        <div style="flex:0.2">
+    <ErrorHandlerComponent ChildComponentName="Highlight Notes">
+        <ChildContent>
+            <NotesListingComponent Notes="Highlight.HighlightNotes" bookAnalysisId="Highlight.BookAnalysisId" Tags="Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
+                                       createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="true" />
+        </ChildContent>
+    </ErrorHandlerComponent>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public HighlightModel Highlight { get; set; }
+
+    [Parameter]
+    public GoToHighlight GoToHighlight { get; set; }
+
+    [Parameter]
+    public List<KeyValuePair<int, string>> HighlightTexts { get; set; } = new();
+
+    [Parameter]
+    public List<TagModel> Tags { get; set; }
+
+    public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
+    {
+        HighlightNoteModel newNote = (HighlightNoteModel)note;
+        newNote.BookAnalysisId = Highlight.BookAnalysisId;
+        newNote.HighlightId = Highlight.Id;
+        return newNote;
+    }
+
+    private async Task ShowManageTagsModal(HighlightModel highlight)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), Highlight.BookAnalysisId)
+        .Add(nameof(ManageTagsComponent.Tags), Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), highlight)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), highlightService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
+        await modal.Result;
+    }
+}

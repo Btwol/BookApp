@@ -1,4 +1,5 @@
 ﻿using BookApp.Client.Components;
+using BookApp.Client.Interfaces;
 using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.ClientModels.Notes;
@@ -39,157 +40,157 @@ namespace BookApp.Client.Services
             }
         }
 
-        public async Task RegisterReaderHub(TextBox textBox)
+        public async Task RegisterReaderHub(IAnalysisComponent analysisComponent)
         {
-            await JoinAnalysisEditGroup(textBox.bookAnalysis.Id.ToString());
+            await JoinAnalysisEditGroup(analysisComponent.BookAnalysis.Id.ToString());
 
             hubConnection.On("HighlightAdded", async (HighlightModel highlight) =>
             {
-                textBox.bookAnalysis.Highlights.Add(highlight);
-                textBox.ReRender();
+                analysisComponent.BookAnalysis.Highlights.Add(highlight);
+                analysisComponent.ReRender();
             });
 
             hubConnection.On("HighlightUpdated", async (HighlightModel highlight) =>
             {
-                var highlightToEdit = textBox.bookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlight.Id);
+                var highlightToEdit = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlight.Id);
                 if (highlightToEdit is not null)
                 {
-                    textBox.bookAnalysis.Highlights.Remove(highlightToEdit);
-                    textBox.bookAnalysis.Highlights.Add(highlight);
-                    textBox.ReRender();
+                    analysisComponent.BookAnalysis.Highlights.Remove(highlightToEdit);
+                    analysisComponent.BookAnalysis.Highlights.Add(highlight);
+                    analysisComponent.ReRender();
                 }
             });
 
             hubConnection.On("HighlightRemoved", async (int highlightId) =>
             {
-                var highlightToDelete = textBox.bookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlightId);
+                var highlightToDelete = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.Id == highlightId);
                 if (highlightToDelete is not null)
                 {
-                    textBox.bookAnalysis.Highlights.Remove(highlightToDelete);
-                    textBox.ReRender();
+                    analysisComponent.BookAnalysis.Highlights.Remove(highlightToDelete);
+                    analysisComponent.ReRender();
                 }
             });
 
             hubConnection.On("AnalysisNoteCreated", async (AnalysisNoteModel noteModel) =>
             {
-                AddNote(textBox.bookAnalysis.AnalysisNotes, noteModel, textBox);
+                AddNote(analysisComponent.BookAnalysis.AnalysisNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ChapterNoteCreated", async (ChapterNoteModel noteModel) =>
             {
-                AddNote(textBox.bookAnalysis.ChapterNotes, noteModel, textBox);
+                AddNote(analysisComponent.BookAnalysis.ChapterNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ParagraphNoteCreated", async (ParagraphNoteModel noteModel) =>
             {
-                AddNote(textBox.bookAnalysis.ParagraphNotes, noteModel, textBox);
+                AddNote(analysisComponent.BookAnalysis.ParagraphNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("HighlightNoteCreated", async (HighlightNoteModel noteModel) =>
             {
-                var highlight = textBox.bookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
+                var highlight = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
                 if (highlight is not null)
                 {
-                    AddNote(highlight.HighlightNotes, noteModel, textBox);
+                    AddNote(highlight.HighlightNotes, noteModel, analysisComponent);
                 }
             });
 
             hubConnection.On("AnalysisNoteUpdated", async (AnalysisNoteModel noteModel) =>
             {
-                UpdateNote(textBox.bookAnalysis.AnalysisNotes, noteModel, textBox);
+                UpdateNote(analysisComponent.BookAnalysis.AnalysisNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ChapterNoteUpdated", async (ChapterNoteModel noteModel) =>
             {
-                UpdateNote(textBox.bookAnalysis.ChapterNotes, noteModel, textBox);
+                UpdateNote(analysisComponent.BookAnalysis.ChapterNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ParagraphNoteUpdated", async (ParagraphNoteModel noteModel) =>
             {
-                UpdateNote(textBox.bookAnalysis.ParagraphNotes, noteModel, textBox);
+                UpdateNote(analysisComponent.BookAnalysis.ParagraphNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("HighlightNoteUpdated", async (HighlightNoteModel noteModel) =>
             {
-                var highlight = textBox.bookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
+                var highlight = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
                 if (highlight is not null)
                 {
-                    UpdateNote(highlight.HighlightNotes, noteModel, textBox);
+                    UpdateNote(highlight.HighlightNotes, noteModel, analysisComponent);
                 }
             });
 
             hubConnection.On("AnalysisNoteDeleted", async (int noteId) =>
             {
-                DeleteNote(textBox.bookAnalysis.AnalysisNotes, noteId, textBox);
+                DeleteNote(analysisComponent.BookAnalysis.AnalysisNotes, noteId, analysisComponent);
             });
 
             hubConnection.On("ChapterNoteDeleted", async (int noteId) =>
             {
-                DeleteNote(textBox.bookAnalysis.ChapterNotes, noteId, textBox);
+                DeleteNote(analysisComponent.BookAnalysis.ChapterNotes, noteId, analysisComponent);
             });
 
             hubConnection.On("ParagraphNoteDeleted", async (int noteId) =>
             {
-                DeleteNote(textBox.bookAnalysis.ParagraphNotes, noteId, textBox);
+                DeleteNote(analysisComponent.BookAnalysis.ParagraphNotes, noteId, analysisComponent);
             });
 
             hubConnection.On("HighlightNoteDeleted", async (int noteId) =>
             {
-                var highlight = textBox.bookAnalysis.Highlights.FirstOrDefault(h => h.HighlightNotes.Any(n => n.Id == noteId));
+                var highlight = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.HighlightNotes.Any(n => n.Id == noteId));
                 if (highlight is not null)
                 {
-                    DeleteNote(highlight.HighlightNotes, noteId, textBox);
+                    DeleteNote(highlight.HighlightNotes, noteId, analysisComponent);
                 }
             });
 
             hubConnection.On("TagCreated", async (TagModel tagModel) =>
             {
-                textBox.bookAnalysis.Tags.Add(tagModel);
-                textBox.ReRender();
+                analysisComponent.BookAnalysis.Tags.Add(tagModel);
+                analysisComponent.ReRender();
             });
 
             hubConnection.On("TagUpdated", async (TagModel tagModel) =>
             {
-                var tagToUpdate = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagModel.Id);
+                var tagToUpdate = analysisComponent.BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagModel.Id);
                 if (tagToUpdate is not null)
                 {
-                    textBox.bookAnalysis.Tags.Remove(tagToUpdate);
-                    textBox.bookAnalysis.Tags.Add(tagModel);
-                    textBox.ReRender();
+                    analysisComponent.BookAnalysis.Tags.Remove(tagToUpdate);
+                    analysisComponent.BookAnalysis.Tags.Add(tagModel);
+                    analysisComponent.ReRender();
                 }
             });
 
             hubConnection.On("TagDeleted", async (int tagId) =>
             {
-                var tagToDelete = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+                var tagToDelete = analysisComponent.BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
                 if (tagToDelete is not null)
                 {
-                    textBox.bookAnalysis.Tags.Remove(tagToDelete);
-                    textBox.ReRender();
+                    analysisComponent.BookAnalysis.Tags.Remove(tagToDelete);
+                    analysisComponent.ReRender();
                 }
             });
 
             hubConnection.On("TagAdded", async (int tagId, int taggedId, string taggedType) =>
             {
-                ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, textBox.bookAnalysis);
+                ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, analysisComponent.BookAnalysis);
 
-                var tag = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+                var tag = analysisComponent.BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
 
                 if (taggedItem is not null && tag is not null)
                 {
-                    AddTag(taggedItem, tag, textBox);
+                    AddTag(taggedItem, tag, analysisComponent);
                 }
             });
 
             hubConnection.On("TagRemoved", async (int tagId, int taggedId, string taggedType) =>
             {
-                ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, textBox.bookAnalysis);
+                ITagableItemModel taggedItem = GetTaggedItem(taggedType, taggedId, analysisComponent.BookAnalysis);
 
-                var tag = textBox.bookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
+                var tag = analysisComponent.BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId);
 
                 if (taggedItem is not null && tag is not null)
                 {
-                    RemoveTag(taggedItem, tag, textBox);
+                    RemoveTag(taggedItem, tag, analysisComponent);
                 }
             });
         }
@@ -221,46 +222,46 @@ namespace BookApp.Client.Services
         }
 
 
-        private void AddTag<T>(T taggedItem, TagModel tag, TextBox textBox) where T : ITagableItemModel
+        private void AddTag<T>(T taggedItem, TagModel tag, IAnalysisComponent analysisComponent) where T : ITagableItemModel
         {
             Console.WriteLine("1");
             taggedItem.Tags.Add(tag);
-            textBox.ReRender();
+            analysisComponent.ReRender();
         }
 
-        private void RemoveTag<T>(T taggedItem, TagModel tag, TextBox textBox) where T : ITagableItemModel
+        private void RemoveTag<T>(T taggedItem, TagModel tag, IAnalysisComponent analysisComponent) where T : ITagableItemModel
         {
             var tagToRemove = taggedItem.Tags.FirstOrDefault(t => t.Id == tag.Id);
             if (tagToRemove is not null)
             {
                 taggedItem.Tags.Remove(tagToRemove);
-                textBox.ReRender();
+                analysisComponent.ReRender();
             }
         }
 
-        private void AddNote<T>(List<T> notes, T note, TextBox textBox) where T : INoteClientModel
+        private void AddNote<T>(List<T> notes, T note, IAnalysisComponent analysisComponent) where T : INoteClientModel
         {
             notes.Add(note);
-            textBox.ReRender();
+            analysisComponent.ReRender();
         }
 
-        private void UpdateNote<T>(List<T> notes, T note, TextBox textBox) where T : INoteClientModel
+        private void UpdateNote<T>(List<T> notes, T note, IAnalysisComponent analysisComponent) where T : INoteClientModel
         {
             var noteToUpdate = notes.FirstOrDefault(n => n.Id == note.Id);
             if (noteToUpdate is not null)
             {
                 noteToUpdate.Content = note.Content;
-                textBox.ReRender();
+                analysisComponent.ReRender();
             }
         }
 
-        private void DeleteNote<T>(List<T> notes, int noteId, TextBox textBox) where T : INoteClientModel
+        private void DeleteNote<T>(List<T> notes, int noteId, IAnalysisComponent analysisComponent) where T : INoteClientModel
         {
             var noteToDelete = notes.FirstOrDefault(n => n.Id == noteId);
             if (noteToDelete is not null)
             {
                 notes.Remove(noteToDelete);
-                textBox.ReRender();
+                analysisComponent.ReRender();
             }
         }
     }

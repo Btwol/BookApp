@@ -34,6 +34,7 @@ namespace BookApp.Client.Services
         {
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookHashKey);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", ReaderPoistionKey);
 
             StringBuilder bytesString = new StringBuilder();
             foreach (var bt in bookArray)
