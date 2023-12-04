@@ -70,14 +70,11 @@
                 </div>
             </div>
 
-            <ErrorHandlerComponent ChildComponentName="Notes component">
-                <ChildContent>
+            <ErrorHandlerComponent ChildComponentName="Notes component"><ChildContent>
                     <NotesComponent AnalysisNotes="BookAnalysis.AnalysisNotes" ChapterNotes="BookAnalysis.ChapterNotes"
                                 ParagraphNotes="BookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                                bookAnalysisId="BookAnalysis.Id" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
-                                Tags="BookAnalysis.Tags" />
-                </ChildContent>
-            </ErrorHandlerComponent>
+                                BookAnalysis="BookAnalysis" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"/>
+                </ChildContent></ErrorHandlerComponent>
 
 
             @if (isLoading)
@@ -109,24 +106,25 @@
 @code{
     [Parameter]
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
-    EpubBook book;
+
+    private EpubBook book;
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
     private HighlightModel currentHighlight = new HighlightModel();
-    public bool editFlag = false;
-    List<EpubTextFile> html;
-    ICollection<EpubTextFile> css;
-    ICollection<EpubByteFile> images;
-    ICollection<EpubByteFile> fonts;
-    public string selectedText = "none";
+    private List<EpubTextFile> html;
+    private ICollection<EpubTextFile> css;
+    private ICollection<EpubByteFile> images;
+    private ICollection<EpubByteFile> fonts;
+    private string selectedText = "none";
     private HighlightModel highlight;
     private int currentCount = 7;
-    public int lastClickedTextNodeIndex = -1;
+    private int lastClickedTextNodeIndex = -1;
+    private bool editFlag = false;
     private bool isLoading = true;
-    bool initializingComponent = true;
-    bool firstComponentRender = true;
+    private bool initializingComponent = true;
+    private bool firstComponentRender = true;
     private bool userHasEditRights = false;
-    ReaderPosition readerPosition = new();
+    private ReaderPosition readerPosition = new();
 
     [JSInvokableAttribute("ReRender")]
     public async Task ReRender()

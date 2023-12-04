@@ -1,0 +1,35 @@
+﻿@if (userCanEdit && enableAddingNewNotes)
+{
+    <div style="margin:5px;">
+    <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="validation-summary" />
+        <div style="display:flex">
+            <InputText style="flex:auto" @bind-Value="newNote!.Content" class="form-control" />
+            <button style="flex:0.2; max-width:fit-content;" type="submit" class="button-action">Add Note</button>
+        </div>
+    </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool enableAddingNewNotes { get; set; }
+    [Parameter]
+    public bool userCanEdit { get; set; }
+    [Parameter]
+    public INoteClientModel newNote { get; set; }
+    [Parameter]
+    public INoteClientService NoteClientService { get; set; }
+    [Parameter]
+    public CreateNoteDelegate createNoteDelegate { get; set; }
+
+    public async Task AddNote()
+    {
+        newNote = createNoteDelegate(newNote);
+        if (newNote != null)
+        {
+            await NoteClientService.AddNote(newNote);
+        }
+    }
+}

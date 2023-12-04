@@ -1,0 +1,164 @@
+﻿@page "/summary"
+@using BookApp.Client.Delegates
+@using BookApp.Client.Models
+@inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navigation
+@inject IHubClientService hubService
+
+@inject IParagraphNoteClientService paragraphNoteService
+@inject IChapterNoteClientService chapterNoteService
+
+<style>
+    .summary {
+        width: 95%;
+        position: sticky;
+        margin:20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+        .summary-section {
+            position:sticky;
+            display:grid;
+        grid-template-columns: 33% 33% 33%;
+        grid-gap:10px;
+        height: 100%;
+    }
+
+    .summary-section-element {
+        width:100%;
+        text-align: justify;
+        /*margin:5px;*/
+        height:30vh;
+        /*max-height: fit-content;*/
+        justify-content: center;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 2px;
+        background-color: darkgray;
+        overflow-y: auto;
+    }
+</style>
+
+@if(loading)
+{
+    <h3>Loading...</h3>
+}
+else
+{
+<div style="position:fixed; bottom:0; display:flex; z-index:999; border:1px solid black; border-radius:5px">
+<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />
+@foreach (TagModel tag in filteredTags)
+{
+    @if (!includedTags.Any(t => t.Id == tag.Id))
+    {
+        <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+    }
+    else
+    {
+        <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+    }
+}
+</div>
+    <div class="summary">
+    <hr />
+
+    <ErrorHandlerComponent ChildComponentName="Highlights Summary">
+        <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByTag(BookAnalysis.Highlights, includedTags)"></HighlightSummaryComponent></ChildContent>
+    </ErrorHandlerComponent>
+
+    <hr />
+
+    <ErrorHandlerComponent ChildComponentName="Analysis Notes Summary">
+            <ChildContent><AnalysisNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes, includedTags)" userCanEdit="userCanEdit"></AnalysisNoteSummaryComponent></ChildContent>
+    </ErrorHandlerComponent>
+
+    <hr />
+
+</div>
+
+<div style="height:50px; width:100%"></div>
+}
+<div style="display:none">
+    @if (html is not null)
+    {
+        @for (int i = 0; i < html.Count; i++)
+        {
+            <div id=@GetTextContainerId(i)>
+                @((MarkupString)html[i].TextContent)
+            </div>
+        }
+    }
+</div>
+
+@code {
+    EpubBook book;
+    List<EpubTextFile> html;
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
+    private List<TagModel> filteredTags { get; set; } = new();
+    private List<TagModel> includedTags { get; set; } = new();
+    private bool loading = true;
+    private bool userCanEdit;
+
+    private string tagSearchKeyword = "";
+
+    public static string GetTextContainerId(int i) => $"textContainer_{i}";
+
+    private void FilterTags(ChangeEventArgs e)
+    {
+        tagSearchKeyword = e.Value.ToString();
+        Console.WriteLine("current: " + e.Value);
+        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
+            ? BookAnalysis.Tags
+            : BookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        StateHasChanged();
+    }
+
+    public static IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems, IEnumerable<TagModel> tags) where T : ITagableItemModel => tagableItems.Where(h => tags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+
+    public async Task AddTag(int tagId)
+    {
+        if (!includedTags.Any(t => t.Id == tagId))
+        {
+            includedTags.Add(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+        }
+        StateHasChanged();
+    }
+
+    public async Task RemoveTag(int tagId)
+    {
+        if (includedTags.Any(t => t.Id == tagId))
+        {
+            includedTags.Remove(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+        }
+        StateHasChanged();
+    }
+
+    public async Task ReRender()
+    {
+        StateHasChanged();
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
+        filteredTags = BookAnalysis.Tags;
+
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
+
+        var loadedBookByteArray = await appStorage.GetStoredBook();
+        book = EpubReader.Read(loadedBookByteArray);
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
+        if (book is not null)
+        {
+            html = book.Resources.Html.ToList();
+            StateHasChanged();
+        }
+
+        await hubService.RegisterReaderHub(this);
+
+        loading = false;
+    }
+}

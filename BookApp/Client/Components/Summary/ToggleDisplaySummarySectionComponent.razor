@@ -1,0 +1,39 @@
+﻿<div style="display:flex; width:50%; justify-items:left">
+    <h3 style="flex:0.3">@SectionName</h3>
+    <button style="flex:0.1" class="button-action" @onclick="ToggleSection">@DisplayButtonText</button>
+</div>
+
+@code {
+    [Parameter]
+    public string DisplaySectionStyle { get; set; }
+    [Parameter]
+    public EventCallback<string> DisplaySectionStyleChanged { get; set; }
+    [Parameter]
+    public string SectionName { get; set; }
+
+    private string DisplayButtonText = "";
+    private bool displaySection = false;
+
+    private async Task ToggleSection()
+    {
+        if (displaySection)
+        {
+            displaySection = false;
+            DisplaySectionStyle = "display:none";
+            DisplayButtonText = "Show";
+        }
+        else
+        {
+            displaySection = true;
+            DisplaySectionStyle = "display:block";
+            DisplayButtonText = "Hide";
+        }
+        await DisplaySectionStyleChanged.InvokeAsync(DisplaySectionStyle);
+        StateHasChanged(); 
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ToggleSection();
+    }
+}

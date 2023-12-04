@@ -8,19 +8,6 @@
 @inject NavigationManager navigation
 
 <style>
-    .highlight-holder {
-        text-align: justify;
-        margin: 5px;
-        height: 35vh;
-        max-height:fit-content;
-        justify-content: center;
-        border: 1px solid black;
-        border-radius: 5px;
-        padding: 2px;
-        background-color: darkgray;
-        overflow-y: auto;
-    }
-
     .highlight-textarea {
         border: 1px solid black;
         border-radius: 5px;
@@ -33,33 +20,34 @@
     }
 </style>
 
-
-<div style="display:flex; width:10%; justify-items:left">
-    <h3 style="flex:auto">Highlights</h3>
-    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => {if(displayHighlights) displayHighlights = false; else displayHighlights = true; StateHasChanged();}">@displayHighlightButtonText</button>
-</div>
-<div style="@displayHighlightStyle" class="summary-section">
-    @foreach (var highlight in SummaryComponent.GetFilteredByTag(BookAnalysis.Highlights, includedTags))
+<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayHighlightStyle" SectionName="Highlights" />
+<div style="@displayHighlightStyle">
+    <div class="summary-section">
+    @foreach (var highlight in Highlights)
     {
-        <div class="highlight-holder" style="">
+        <div class="summary-section-element" >
             <div style="flex:0.1; display:flex; flex-direction:row">
                 <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(highlight.Id)">Delete</button>
                 <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(highlight)">Tags</button>
-                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => {selectedHighlight = highlight; GoToHighlight(highlight);}">Go To Reader</button>
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Go To Reader</button>
             </div>
-            <textarea readonly rows="" cols="40" class="highlight-textarea" style="">
+            <textarea readonly rows="" cols="40" class="highlight-textarea">
                 @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
             </textarea>
             <div style="flex:0.2">
-                <ErrorHandlerComponent ChildComponentName="Highlight Notes">
-                    <ChildContent>
-                        <NotesListingComponent Notes="highlight.HighlightNotes" bookAnalysisId="highlight.BookAnalysisId" Tags="BookAnalysis.Tags" newNote="new HighlightNoteModel()" _noteClientService="highlightNoteService"
-                                           createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="true" />
-                    </ChildContent>
-                </ErrorHandlerComponent>
+                <ErrorHandlerComponent ChildComponentName="Highlight Adding"><ChildContent>
+                        <AddNoteComponent createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="userCanEdit" newNote="new HighlightNoteModel(){ HighlightId = highlight.Id }" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+                </ChildContent></ErrorHandlerComponent>
+                @foreach(var note in highlight.HighlightNotes)
+                {
+                <ErrorHandlerComponent ChildComponentName="Highlight Notes"><ChildContent>
+                            <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></NoteContainerComponent>
+                </ChildContent></ErrorHandlerComponent>
+                }
             </div>
         </div>
     }
+    </div>
 </div>
 
 @code {
@@ -67,20 +55,16 @@
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
 
     [Parameter]
-    public List<TagModel> includedTags { get; set; }
+    public IEnumerable<HighlightModel> Highlights { get; set; }
 
-    private HighlightModel selectedHighlight = new();
-
-    bool displayHighlights = true;
-    private string displayHighlightStyle { get { if (displayHighlights) return "display:grid"; else return "display:none"; } }
-    private string displayHighlightButtonText { get { if (displayHighlights) return "Hide"; else return "Show"; } }
+    private bool userCanEdit;
+    private string displayHighlightStyle { get; set; }
     List<KeyValuePair<int, string>> HighlightTexts = new();
 
     public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
     {
         HighlightNoteModel newNote = (HighlightNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
-        newNote.HighlightId = selectedHighlight.Id;
         return newNote;
     }
 
@@ -133,5 +117,7 @@
             }
             HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));
         }
+
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
     }
 }

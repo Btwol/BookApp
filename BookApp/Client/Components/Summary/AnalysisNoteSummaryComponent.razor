@@ -1,0 +1,44 @@
+﻿@inject IAnalysisNoteClientService analysisNoteService
+
+<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayAnalysisNotesStyle" SectionName="Analysis Notes"/>
+<div style="@displayAnalysisNotesStyle" >
+    <ErrorHandlerComponent ChildComponentName="Analysis Note Adding">
+        <ChildContent>
+            <AddNoteComponent createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes="userCanEdit" newNote="new AnalysisNoteModel()" NoteClientService="analysisNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+        </ChildContent>
+    </ErrorHandlerComponent>
+    <div class="summary-section">
+        
+        @foreach (var note in Notes)
+        {
+                <div class="summary-section-element">
+            <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+                <ChildContent>
+                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit"></NoteContainerComponent>
+                </ChildContent>
+            </ErrorHandlerComponent>
+                </div>
+        }
+            
+    
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
+    [Parameter]
+    public IEnumerable<AnalysisNoteModel> Notes { get; set; }
+    [Parameter]
+    public bool userCanEdit { get; set; }
+
+    private string displayAnalysisNotesStyle { get; set; }
+
+    public INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
+    {
+        AnalysisNoteModel newNote = (AnalysisNoteModel)note;
+        newNote.BookAnalysisId = BookAnalysis.Id;
+        return newNote;
+    }
+}
