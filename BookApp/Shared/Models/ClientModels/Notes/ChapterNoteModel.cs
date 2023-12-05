@@ -1,7 +1,9 @@
-﻿namespace BookApp.Shared.Models.ClientModels.Notes
+﻿using BookApp.Shared.Interfaces.Model;
+
+namespace BookApp.Shared.Models.ClientModels.Notes
 {
-    public class ChapterNoteModel : NoteModel
+    public class ChapterNoteModel : NoteModel, IBoundToChapter
     {
-        public int ChapterNumber { get; set; }
+        public int Chapter { get; set; }
     }
 }

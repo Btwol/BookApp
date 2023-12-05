@@ -1,4 +1,5 @@
-﻿@inject IAnalysisNoteClientService analysisNoteService
+﻿@inject IModalService Modal
+@inject IAnalysisNoteClientService analysisNoteService
 
 <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayAnalysisNotesStyle" SectionName="Analysis Notes"/>
 <div style="@displayAnalysisNotesStyle" >
@@ -12,11 +13,18 @@
         @foreach (var note in Notes)
         {
                 <div class="summary-section-element">
+                    <div style="display:flex; flex-direction:row">
+                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await analysisNoteService.DeleteNote(note.Id, BookAnalysis.Id)">Delete</button>
+                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+                        <TagsDisplayComponent Tags="note.Tags" />
+                    </div>
+                <div style="height:85%;">
             <ErrorHandlerComponent ChildComponentName="Analysis Notes">
                 <ChildContent>
-                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit"></NoteContainerComponent>
+                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit" enableButtons="false"></NoteContainerComponent>
                 </ChildContent>
             </ErrorHandlerComponent>
+                </div>
                 </div>
         }
             
@@ -40,5 +48,17 @@
         AnalysisNoteModel newNote = (AnalysisNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
         return newNote;
+    }
+
+    private async Task ShowManageTagsModal(AnalysisNoteModel note)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), note)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), analysisNoteService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Analysis Note Tags", parameters);
+        await modal.Result;
     }
 }

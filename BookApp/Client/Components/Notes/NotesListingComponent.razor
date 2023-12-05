@@ -12,7 +12,7 @@
     @foreach (NoteModel note in Notes)
     {
         <ErrorHandlerComponent ChildComponentName="NoteContainer"><ChildContent>
-                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" userCanEdit="userCanEdit" NoteClientService="NoteClientService"></NoteContainerComponent>
+                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" userCanEdit="userCanEdit" NoteClientService="NoteClientService" enableButtons="true"></NoteContainerComponent>
         </ChildContent></ErrorHandlerComponent>
 
         <hr style="margin:3px; border:2px solid white;" />

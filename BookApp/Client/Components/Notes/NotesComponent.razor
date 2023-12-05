@@ -48,7 +48,7 @@
 
         <p class="notes-title">Chapter Notes</p>
         <ErrorHandlerComponent ChildComponentName="Chapter Notes"><ChildContent>
-                <NotesListingComponent Notes="ChapterNotes.Where(n => n.ChapterNumber == currentCount)" BookAnalysis="BookAnalysis" 
+                <NotesListingComponent Notes="ChapterNotes.Where(n => n.Chapter == currentCount)" BookAnalysis="BookAnalysis" 
                     newNote="new ChapterNoteModel()" NoteClientService="chapterNoteService"createNoteDelegate="CreateChapterNoteModel" 
                     enableAddingNewNotes=true />
         </ChildContent></ErrorHandlerComponent>
@@ -60,7 +60,7 @@
         <p class="notes-title">Paragraph Notes</p>
         <ErrorHandlerComponent ChildComponentName="Paragraph Notes"><ChildContent>
                     <NotesListingComponent 
-                        Notes="ParagraphNotes.Where(n => n.PageNumber == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)" 
+                        Notes="ParagraphNotes.Where(n => n.Chapter == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)" 
                         BookAnalysis="BookAnalysis" newNote="new ParagraphNoteModel()" NoteClientService="paragraphNoteService" 
                         createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes=true />
             </ChildContent></ErrorHandlerComponent>
@@ -109,7 +109,7 @@
         ParagraphNoteModel newNote = (ParagraphNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
         newNote.TextNodeNumber = lastClickedTextNodeIndex;
-        newNote.PageNumber = currentCount;
+        newNote.Chapter = currentCount;
         return newNote;
     }
 
@@ -117,7 +117,7 @@
     {
         ChapterNoteModel newNote = (ChapterNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
-        newNote.ChapterNumber = currentCount;
+        newNote.Chapter = currentCount;
         return newNote;
     }
 

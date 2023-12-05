@@ -1,36 +1,31 @@
 ﻿@page "/summary"
-@using BookApp.Client.Delegates
-@using BookApp.Client.Models
 @inject IAppStorage appStorage
 @inject IJSRuntime jsRuntime
 @inject NavigationManager navigation
 @inject IHubClientService hubService
 
-@inject IParagraphNoteClientService paragraphNoteService
-@inject IChapterNoteClientService chapterNoteService
-
 <style>
     .summary {
         width: 95%;
         position: sticky;
-        margin:20px;
+        margin: 20px;
         margin-left: auto;
         margin-right: auto;
     }
 
-        .summary-section {
-            position:sticky;
-            display:grid;
+    .summary-section {
+        position: sticky;
+        display: grid;
         grid-template-columns: 33% 33% 33%;
-        grid-gap:10px;
+        grid-gap: 10px;
         height: 100%;
     }
 
     .summary-section-element {
-        width:100%;
+        width: 100%;
         text-align: justify;
         /*margin:5px;*/
-        height:30vh;
+        height: 35vh;
         /*max-height: fit-content;*/
         justify-content: center;
         border: 1px solid black;
@@ -41,44 +36,59 @@
     }
 </style>
 
-@if(loading)
+@if (loading)
 {
     <h3>Loading...</h3>
 }
 else
 {
-<div style="position:fixed; bottom:0; display:flex; z-index:999; border:1px solid black; border-radius:5px">
-<input type="text" @oninput="FilterTags" placeholder="Search By Tags..." class="form-control" />
-@foreach (TagModel tag in filteredTags)
-{
-    @if (!includedTags.Any(t => t.Id == tag.Id))
-    {
-        <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
-    }
-    else
-    {
-        <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-    }
-}
-</div>
+    <div style="position:fixed; bottom:0; display:flex; z-index:999; flex-direction:column; width:100%; overflow-x:auto">
+        <div style="width:20%; border:1px solid black; border-radius:5px;">
+            <input type="text" @onchange="FilterChapters" placeholder="Filter By Chapter...(eg. 1, 3)" class="form-control" />
+        </div>
+        <div style="display:flex; flex-direction:row">
+        <div>
+                <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="FilterTags" placeholder="Search Tags..." class="form-control" />
+            </div>
+            <div>
+        @foreach (TagModel tag in filteredTags)
+        {
+            @if (!includedTags.Any(t => t.Id == tag.Id))
+            {
+                <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+            }
+            else
+            {
+                <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+            }
+        }
+            </div>
+        </div>
+    </div>
     <div class="summary">
-    <hr />
+        <hr />
 
-    <ErrorHandlerComponent ChildComponentName="Highlights Summary">
-        <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByTag(BookAnalysis.Highlights, includedTags)"></HighlightSummaryComponent></ChildContent>
-    </ErrorHandlerComponent>
+        <ErrorHandlerComponent ChildComponentName="Highlights Summary">
+            <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.Highlights, includedTags), includedChapters)"></HighlightSummaryComponent></ChildContent>
+        </ErrorHandlerComponent>
 
-    <hr />
+        <hr />
 
-    <ErrorHandlerComponent ChildComponentName="Analysis Notes Summary">
+        <ErrorHandlerComponent ChildComponentName="Analysis Notes Summary">
             <ChildContent><AnalysisNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes, includedTags)" userCanEdit="userCanEdit"></AnalysisNoteSummaryComponent></ChildContent>
-    </ErrorHandlerComponent>
+        </ErrorHandlerComponent>
 
-    <hr />
+        <hr />
 
-</div>
+        <ErrorHandlerComponent ChildComponentName="Chapter Notes Summary">
+            <ChildContent><ChapterNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ChapterNotes, includedTags), includedChapters)" userCanEdit="userCanEdit"></ChapterNoteSummaryComponent></ChildContent>
+        </ErrorHandlerComponent>
 
-<div style="height:50px; width:100%"></div>
+        <hr />
+
+    </div>
+
+    <div style="height:100px; width:100%"></div>
 }
 <div style="display:none">
     @if (html is not null)
@@ -98,12 +108,42 @@ else
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
     private List<TagModel> filteredTags { get; set; } = new();
     private List<TagModel> includedTags { get; set; } = new();
+    private List<int> includedChapters { get; set; } = new();
     private bool loading = true;
     private bool userCanEdit;
 
     private string tagSearchKeyword = "";
 
     public static string GetTextContainerId(int i) => $"textContainer_{i}";
+
+    private void FilterChapters(ChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Value.ToString()))
+        {
+            includedChapters.Clear();
+            return;
+        }
+
+        List<string> chapters = e.Value.ToString().Replace(" ", "").Split(",").ToList();
+        List<int> _includedChapters = new();
+        bool parseSuccesfull = true;
+        foreach(string chapter in chapters)
+        {
+            if(int.TryParse(chapter, out int _chapter))
+            {
+                _includedChapters.Add(_chapter);
+            }
+            else
+            {
+                parseSuccesfull = false;
+                break;
+            }
+        }
+        if (parseSuccesfull)
+        {
+            includedChapters = _includedChapters;
+        }
+    }
 
     private void FilterTags(ChangeEventArgs e)
     {
@@ -117,6 +157,7 @@ else
     }
 
     public static IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems, IEnumerable<TagModel> tags) where T : ITagableItemModel => tagableItems.Where(h => tags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
+    public static IEnumerable<T> GetFilteredByChapter<T>(IEnumerable<T> itemsBoundToChapter, IEnumerable<int> chapters) where T : IBoundToChapter => (chapters.Count() > 0) ? itemsBoundToChapter.Where(h => chapters.Any(c => c == h.Chapter)) : itemsBoundToChapter;
 
     public async Task AddTag(int tagId)
     {

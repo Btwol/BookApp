@@ -93,7 +93,7 @@
 
     private async Task CreatePermanentHighlight()
     {
-        if (highlight?.PageNumber == currentCount)
+        if (highlight?.Chapter == currentCount)
         {
             var newHighlight = await _highlightClientService.AddHighlight(highlight);
         }

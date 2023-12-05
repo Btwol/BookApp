@@ -1,13 +1,14 @@
-﻿using BookApp.Shared.Models.ClientModels.Notes;
+﻿using BookApp.Shared.Interfaces.Model;
+using BookApp.Shared.Models.ClientModels.Notes;
 using Newtonsoft.Json;
 
 namespace BookApp.Shared.Models.ClientModels
 {
-    public class HighlightModel : ITagableItemModel
+    public class HighlightModel : ITagableItemModel, IBoundToChapter
     {
         public int Id { get; set; } = 0;
         public int BookAnalysisId { get; set; }
-        public int PageNumber { get; set; }
+        public int Chapter { get; set; }
         public int NodeCount
         {
             get
@@ -31,7 +32,7 @@ namespace BookApp.Shared.Models.ClientModels
         public HighlightModel(int bookAnalysisId, int pageNumber, string rawPositionString)
         {
             BookAnalysisId = bookAnalysisId;
-            PageNumber = pageNumber;
+            Chapter = pageNumber;
             RawPositionString = rawPositionString;
             Update(this);
         }

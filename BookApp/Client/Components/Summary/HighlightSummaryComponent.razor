@@ -29,8 +29,15 @@
             <div style="flex:0.1; display:flex; flex-direction:row">
                 <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(highlight.Id)">Delete</button>
                 <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(highlight)">Tags</button>
-                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Go To Reader</button>
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Reader</button>
+                    <div style="height:inherit; width:fit-content; border:1px solid black; padding:1px; margin:2px; text-align: center; display: flex; align-items: center; justify-content: center; background-color:white">
+                        Ch[@highlight.Chapter]
+                    </div>
+                    <TagsDisplayComponent Tags="highlight.Tags" />
             </div>
+                @*<div>
+                    <TagsDisplayComponent Tags="highlight.Tags" />
+                </div>*@
             <textarea readonly rows="" cols="40" class="highlight-textarea">
                 @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
             </textarea>
@@ -41,7 +48,7 @@
                 @foreach(var note in highlight.HighlightNotes)
                 {
                 <ErrorHandlerComponent ChildComponentName="Highlight Notes"><ChildContent>
-                            <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></NoteContainerComponent>
+                            <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit" enableButtons="true"></NoteContainerComponent>
                 </ChildContent></ErrorHandlerComponent>
                 }
             </div>
@@ -82,7 +89,7 @@
 
     public async Task GoToHighlight(HighlightModel highlight)
     {
-        await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.PageNumber });
+        await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.Chapter });
         navigation.NavigateTo("/reader");
     }
 
@@ -95,24 +102,24 @@
 
             if (nodeCount == 1)
             {
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
                  highlight.LastNodeCharIndex));
             }
             else
             {
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
                      null));
 
                 if (nodeCount > 2)
                 {
                     for (int i = 1; i < nodeCount - 1; i++)
                     {
-                        highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.FirstNodeIndex + i, null,
+                        highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.FirstNodeIndex + i, null,
                      null));
                     }
                 }
 
-                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.PageNumber), highlight.LastNodeIndex, null,
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.LastNodeIndex, null,
                      highlight.LastNodeCharIndex));
             }
             HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));

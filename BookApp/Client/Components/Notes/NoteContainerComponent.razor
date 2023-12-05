@@ -19,11 +19,14 @@
     @if (userCanEdit)
     {
         <div style="display:flex; flex-direction:row; height:100%">
-            <textarea style="" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
-            <div style="display:flex; flex-direction:column; flex:auto">
-                <button style="flex:0.5; max-width:fit-content" class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+            <textarea maxlength="2000" style="" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
+            @if (enableButtons)
+            {
+                <div style="display:flex; flex-direction:column; flex:auto">
+                    <button style="flex:0.5; max-width:fit-content" class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
                 <button style="flex:0.5; max-width:inherit" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
             </div>
+            }
         </div>
     }
     else
@@ -38,6 +41,8 @@
     public NoteModel note { get; set; }
     [Parameter]
     public bool userCanEdit { get; set; }
+    [Parameter]
+    public bool enableButtons { get; set; }
     [Parameter]
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
     [Parameter]
