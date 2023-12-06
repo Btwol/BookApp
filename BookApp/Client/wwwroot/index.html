@@ -221,6 +221,95 @@
 
 
         let placeholderString = "a";
+
+        ////used to navigate to a double-clicked highlight from summary to reader
+        ////window.deletePernamentHighlight = function (elementId, nodes) {
+        //function scrollToElement(elementId) {
+        //    console.log(elementId);
+        //    var element = document.getElementById(elementId);
+        //    console.log("first: " + element);
+        //    console.log(elementId + '_f');
+        //    if (element == null) {
+        //        element = document.getElementById(elementId);
+        //        console.log("second: " + element);
+        //        console.log(elementId + '_s');
+        //    }
+        //    console.log(element);
+        //    if (element) {
+        //        console.log("scrolling!");
+        //        /*element.scrollIntoView({ behavior: "instant" });*/
+        //        console.log(element.style.top);
+        //        scrollToPosition(element.style.top);
+        //    }
+        //}
+
+        function getElementScrollPosition(elementId) {
+            var element = document.getElementById(elementId + '_f');
+            if (element == null) {
+                element = document.getElementById(elementId + '_s');
+            }
+            console.log(element);
+            if (element) {
+                return element.style.top.toString();
+            }
+        }
+
+        //gets scroll position of a textNode - navigation from summary paragraph note to text box
+        function getTextNodeScrollPosition(textboxId, textNodeIndex) {
+            var element = document.getElementById(textboxId);
+            var textNodes = getTextNodesInElement(element);
+            if (textNodeIndex < 0 || textNodeIndex >= textNodes.length) {
+                console.error("Invalid textNode index");
+                return;
+            }
+            var range = document.createRange();
+            range.setStart(textNodes[textNodeIndex].parentNode, 0);
+            range.setEnd(textNodes[textNodeIndex], 0);
+            var rect = range.getBoundingClientRect();
+            return (rect.top + window.scrollY).toString();
+        }
+
+        //gets current scroll position - to set in reader
+        function getScrollPosition() {
+            return window.scrollY;
+        }
+
+        //scrolls to set reader position
+        function scrollToPosition(scrollPosition) {
+            window.scrollTo({
+                top: scrollPosition,
+                behavior: 'instant'
+            });
+        }
+
+        function GetHighlightText(elementId, nodeIndex, firstNodeCharIndex, lastNodeCharIndex) {
+
+            var element = document.getElementById(elementId);
+            var textNode = getTextNodes(element)[nodeIndex];
+            var text = textNode.textContent;
+
+            var startOffset = firstNodeCharIndex;
+            var endOffset = lastNodeCharIndex;
+
+            console.log(startOffset);
+            console.log(endOffset);
+
+            if (startOffset == null) {
+                startOffset = 0;
+            }
+            if (endOffset == null) {
+                endOffset = text.length - 1;
+            }
+
+            console.log(startOffset);
+            console.log(endOffset);
+
+            // Find the specific text using the location values
+            var selectedText = text.substring(startOffset, endOffset);
+
+            return selectedText;
+        }
+
         //FirstNodeIndex, FirstNodeCharIndex, LastNodeIndex, LastNodeCharIndex, RawArray
         function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, dotNetHelper, highlightId) {
 

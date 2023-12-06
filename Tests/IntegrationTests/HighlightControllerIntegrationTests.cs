@@ -22,7 +22,7 @@ namespace Tests.IntegrationTests
                 LastNodeCharIndex = 2,
                 LastNodeIndex = 1,
                 FirstNodeIndex = 2,
-                PageNumber = 1,
+                Chapter = 1,
                 RawPositionString = "",
             };
 

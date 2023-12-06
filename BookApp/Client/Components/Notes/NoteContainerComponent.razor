@@ -1,0 +1,88 @@
+﻿@inject IModalService Modal
+
+<style>
+    .note-holder {
+        width: 100%;
+        height: 100%;
+        resize: none;
+        padding: 5px;
+        margin: 0 auto;
+        background-color: #FFFFE0;
+        color: #000;
+        border: 1px solid #000;
+        border-radius: 5px;
+        overflow-y: auto;
+    }
+</style>
+
+<div style="margin:2px; height:100%; border:2px solid black; border-radius:5px; padding:2px">
+    @if (userCanEdit)
+    {
+        <div style="display:flex; flex-direction:row; height:100%">
+            <textarea rows="5" maxlength="2000" style="" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
+            @if (enableButtons)
+            {
+                <div style="display:flex; flex-direction:column; flex:auto">
+                    <button style="flex:0.5; max-width:fit-content" class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
+                <button style="flex:0.5; max-width:inherit" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+            </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="note-holder">@note.Content</div>
+    }
+    @if(DisplayTags)
+    {
+        <div style="width: 99%">
+        <TagsDisplayComponent Tags="note.Tags" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public NoteModel note { get; set; }
+    [Parameter]
+    public bool userCanEdit { get; set; }
+    [Parameter]
+    public bool enableButtons { get; set; }
+    [Parameter]
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
+    [Parameter]
+    public INoteClientService NoteClientService { get; set; }
+    [Parameter]
+    public bool DisplayTags { get; set; } = true;
+
+    private async Task EditNote(INoteClientModel note, ChangeEventArgs e)
+    {
+        var newContent = e.Value.ToString();
+        if (!string.IsNullOrEmpty(newContent) && !string.IsNullOrWhiteSpace(newContent))
+        {
+            note.Content = newContent;
+            await NoteClientService.EditNote(note);
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowManageTagsModal(INoteClientModel note)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), note)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), NoteClientService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Note Tags", parameters);
+        await modal.Result;
+    }
+
+    private async Task DeleteAnalysisNote(int noteId)
+    {
+        await NoteClientService.DeleteNote(noteId, BookAnalysis.Id);
+    }
+}

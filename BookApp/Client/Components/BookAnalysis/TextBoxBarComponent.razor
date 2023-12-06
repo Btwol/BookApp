@@ -2,21 +2,68 @@
 @inject IJSRuntime jsRuntime
 @inject IHighlightClientService _highlightClientService
 
+<style>
+    .column {
+        
+    }
+
+    .left-arrow-button,
+    .right-arrow-button {
+        justify-self:center;
+        padding: 15px 15px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+    }
+
+
+        .left-arrow-button::before {
+            content: "";
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid white;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .right-arrow-button::before {
+            content: "";
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 8px solid white;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+</style>
+
 <div class="text-box-bar">
     @if(userCanEdit)
     {
         <button class="button-action" @onclick="CreatePermanentHighlight">Create Permanent Highlight</button>
     }
 
-    <div class="row">
-        <div class="col">
-            <button class="left-arrow-button" @onclick="() => ChangePage(-1)"></button>
+    <div style="display:flex; justify-content:center; margin:5px;">
+        <div class="column">
+            <button class="left-arrow-button" style=@leftArrowStyle @onclick="() => ChangePage(currentCount-1)"></button>
         </div>
-        <div class="col">
-            <p role="status">Current count: @currentCount</p>
+        <div class="column">
+            <input style="width:50%; text-align:center" @bind=currentCount @oninput=ChangePage role="status">@currentCount</input>
         </div>
-        <div class="col">
-            <button class="right-arrow-button" @onclick="() => ChangePage(1)"></button>
+        <div class="column">
+            <button class="right-arrow-button" style=@rightArrowStyle @onclick="() => ChangePage(currentCount+1)"></button>
         </div>
     </div>
 </div>
@@ -24,6 +71,8 @@
 @code {
     [Parameter]
     public int currentCount { get; set; }
+    [Parameter]
+    public int totalPages { get; set; }
     [Parameter]
     public EventCallback<int> currentCountChanged { get; set; }
 
@@ -35,23 +84,47 @@
 
     [Parameter]
     public DotNetObjectReference<TextBox> dotNetRef { get; set; }
+    private string leftArrowStyle = "";
+    private string rightArrowStyle = "";
+
+    private string disabledButtonStyle = "pointer-events: none; background-color: gray";
 
     private bool userCanEdit = false;
 
     private async Task CreatePermanentHighlight()
     {
-        if (highlight?.PageNumber == currentCount)
+        if (highlight?.Chapter == currentCount)
         {
             var newHighlight = await _highlightClientService.AddHighlight(highlight);
-            //var elementId = highlight.GetElementId();
-            //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, elementId);
-            //bookAnalysis.Highlights.Add(newHighlight);
         }
     }
 
-    private async void ChangePage(int page)
+    private async Task ChangePage(ChangeEventArgs e)
     {
-        currentCount += page;
+        if(int.TryParse(e.Value.ToString(), out int page) && (page >= 0 && page < totalPages))
+        {
+            await ChangePage(page);
+        }
+    }
+
+    private async Task ChangePage(int page)
+    {
+        if (page == 0)
+        {
+            leftArrowStyle = disabledButtonStyle;
+            rightArrowStyle = "";
+        }
+        else if (page > 0 && page < totalPages - 1)
+        {
+            leftArrowStyle = "";
+            rightArrowStyle = "";
+        }
+        else if (page == totalPages - 1)
+        {
+            leftArrowStyle = "";
+            rightArrowStyle = disabledButtonStyle;
+        }
+        currentCount = page;
         await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
         await currentCountChanged.InvokeAsync(currentCount);
     }

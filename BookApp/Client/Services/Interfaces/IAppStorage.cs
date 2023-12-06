@@ -1,4 +1,5 @@
-﻿using BookApp.Shared.Models.ClientModels;
+﻿using BookApp.Client.Models;
+using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Identity;
 
 namespace BookApp.Client.Services.Interfaces
@@ -21,5 +22,7 @@ namespace BookApp.Client.Services.Interfaces
         public Task<string> GetUserToken();
         public Task<bool> UserIsStored();
         public Task<AppUserModel> GetStoredUser();
+        public Task SetReaderPosition(ReaderPosition readerPosition);
+        public Task<ReaderPosition> GetLastReaderPosition();
     }
 }

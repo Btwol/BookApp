@@ -1,8 +1,10 @@
-﻿using BookApp.Client.Services.Interfaces;
+﻿using BookApp.Client.Models;
+using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.ClientModels;
 using BookApp.Shared.Models.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace BookApp.Client.Services
@@ -17,25 +19,22 @@ namespace BookApp.Client.Services
         public const string CurrentUserEmailKey = "currentUserEmail";
         public const string CurrentUserIdKey = "currentUserId";
         public const string UserCanEditLoadedAnalysis = "currentUserCanEditLoadedAnalysis";
+        public const string ReaderPoistionKey = "readerPosition";
 
         private readonly IJSRuntime _jSRuntime;
         private readonly IBookAnalysisClientService _bookAnalysisClientService;
-        //private readonly HubConnection hubConnection;
 
         public AppStorage(IJSRuntime jSRuntime, IBookAnalysisClientService bookAnalysisClientService)
         {
             _jSRuntime = jSRuntime;
             _bookAnalysisClientService = bookAnalysisClientService;
-            //this.hubConnection = new HubConnectionBuilder()
-            //    .WithUrl(Program.baseUri + "bookAnalysisHub")
-            //    .WithAutomaticReconnect()
-            //    .Build();
         }
 
         public async Task StoreBook(byte[] bookArray, string bookHash)
         {
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookHashKey);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", ReaderPoistionKey);
 
             StringBuilder bytesString = new StringBuilder();
             foreach (var bt in bookArray)
@@ -162,6 +161,25 @@ namespace BookApp.Client.Services
         public async Task<bool> UserHasStoredAnalysisEditorialRights()
         {
             return bool.Parse(await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", UserCanEditLoadedAnalysis));
+        }
+
+        public async Task SetReaderPosition(ReaderPosition readerPosition)
+        {
+            string jsonString = JsonConvert.SerializeObject(readerPosition);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", ReaderPoistionKey, jsonString);
+        }
+
+        public async Task<ReaderPosition> GetLastReaderPosition()
+        {
+            var jsonString = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", ReaderPoistionKey);
+            if(!string.IsNullOrEmpty(jsonString))
+            {
+                return JsonConvert.DeserializeObject<ReaderPosition>(jsonString);
+            }
+            else
+            {
+                return new ReaderPosition();
+            }
         }
     }
 }

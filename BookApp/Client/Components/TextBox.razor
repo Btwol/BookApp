@@ -1,11 +1,11 @@
 ﻿@page "/reader"
+@using BookApp.Client.Models
 @inject IBookAnalysisClientService _bookAnalysisClientService
 @inject IHighlightClientService _highlightClientService
 @inject IJSRuntime jsRuntime
 @inject ITagClientService _tagService
 @inject IAppStorage appStorage
 @inject IHubClientService hubService
-
 
 <style>
     @if (css != null)
@@ -17,8 +17,9 @@
     }
     .text-box-container
     {
+        min-height:90vh;
         height:fit-content; 
-        width:fit-content;
+        width:inherit;
         border-style:solid; 
         border-width:2px; 
         border-color:black; 
@@ -52,7 +53,6 @@
 
 </style>
 
-
 <ErrorHandlerComponent ChildComponentName="Text Box">
     <ChildContent>
         @if (!initializingComponent)
@@ -64,22 +64,17 @@
                     <div class="font-size-override  text-box text-box-container" id="textContainer" @onmouseup="GetSelectedText" @ref="textContainerRef">
                         @if (html is not null)
                         {
-                            @(
-                                (MarkupString)html[currentCount].TextContent
-                                )
+                            @((MarkupString)html[currentCount].TextContent)
                         }
                     </div>
                 </div>
             </div>
 
-            <ErrorHandlerComponent ChildComponentName="Notes component">
-                <ChildContent>
-                    <NotesComponent AnalysisNotes="bookAnalysis.AnalysisNotes" ChapterNotes="bookAnalysis.ChapterNotes"
-                                ParagraphNotes="bookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
-                                bookAnalysisId="bookAnalysis.Id" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"
-                                Tags="bookAnalysis.Tags" />
-                </ChildContent>
-            </ErrorHandlerComponent>
+            <ErrorHandlerComponent ChildComponentName="Notes component"><ChildContent>
+                    <NotesComponent AnalysisNotes="BookAnalysis.AnalysisNotes" ChapterNotes="BookAnalysis.ChapterNotes"
+                                ParagraphNotes="BookAnalysis.ParagraphNotes" currentCount="currentCount" lastClickedTextNodeIndex="lastClickedTextNodeIndex"
+                                BookAnalysis="BookAnalysis" HighlightNotes="currentHighlight.HighlightNotes" currentHighlightId="currentHighlight.Id"/>
+                </ChildContent></ErrorHandlerComponent>
 
 
             @if (isLoading)
@@ -90,14 +85,14 @@
             {
                 <ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
                     <ChildContent>
-                        <HighlightContextMenuComponent bookAnalysis="bookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" />
+                        <HighlightContextMenuComponent bookAnalysis="BookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" />
                     </ChildContent>
                 </ErrorHandlerComponent>
             }
 
             <ErrorHandlerComponent ChildComponentName="Text Box Bar">
                 <ChildContent>
-                    <TextBoxBarComponent bookAnalysis="bookAnalysis" @bind-currentCount="currentCount" highlight="highlight" />
+                    <TextBoxBarComponent bookAnalysis="BookAnalysis" @bind-currentCount="currentCount" highlight="highlight" totalPages="html.Count()" />
                 </ChildContent>
             </ErrorHandlerComponent>
         }
@@ -109,30 +104,30 @@
 </ErrorHandlerComponent>
 
 @code{
-    EpubBook book;
-
     [Parameter]
-    public BookAnalysisDetailedModel bookAnalysis { get; set; }
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
 
+    private EpubBook book;
     private DotNetObjectReference<TextBox> dotNetRef;
     private ElementReference textContainerRef;
     private HighlightModel currentHighlight = new HighlightModel();
-    public bool editFlag = false;
-    List<EpubTextFile> html;
-    ICollection<EpubTextFile> css;
-    ICollection<EpubByteFile> images;
-    ICollection<EpubByteFile> fonts;
-    public string selectedText = "none";
+    private List<EpubTextFile> html;
+    private ICollection<EpubTextFile> css;
+    private ICollection<EpubByteFile> images;
+    private ICollection<EpubByteFile> fonts;
+    private string selectedText = "none";
     private HighlightModel highlight;
     private int currentCount = 7;
-    public int lastClickedTextNodeIndex = -1;
+    private int lastClickedTextNodeIndex = -1;
+    private bool editFlag = false;
     private bool isLoading = true;
-    bool initializingComponent = true;
-    bool firstComponentRender = true;
+    private bool initializingComponent = true;
+    private bool firstComponentRender = true;
     private bool userHasEditRights = false;
+    private ReaderPosition readerPosition = new();
 
     [JSInvokableAttribute("ReRender")]
-    public async void ReRender()
+    public async Task ReRender()
     {
         StateHasChanged();
     }
@@ -147,21 +142,21 @@
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
         string items = selectionRange.ToString();
 
-        if (items != "-1")
+        if (!string.IsNullOrEmpty(items) && items != "-1" && !items.Contains("-1"))
         {
             if (editFlag)
             {
                 editFlag = false;
-                var newSelection = new HighlightModel(bookAnalysis.Id, currentCount, items);
-                var editedSelection = bookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
+                var newSelection = new HighlightModel(BookAnalysis.Id, currentCount, items);
+                var editedSelection = BookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
+                if(editedSelection is null)
+                {
+                    return;
+                }
                 editedSelection.Update(newSelection);
                 await _highlightClientService.UpdateHighlight(editedSelection);
-                //await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), editedSelection.NodeCount);
-                //await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", editedSelection.FirstNodeIndex, editedSelection.FirstNodeCharIndex, editedSelection.LastNodeIndex, editedSelection.LastNodeCharIndex, dotNetRef, editedSelection.GetElementId());
             }
-
-            //else 
-            highlight = new HighlightModel(bookAnalysis.Id, currentCount, items);
+            highlight = new HighlightModel(BookAnalysis.Id, currentCount, items);
         }
     }
 
@@ -169,14 +164,13 @@
     public async void onTextNodeClick(int lastSelectedNodeIndex, object left, object top)
     {
         lastClickedTextNodeIndex = lastSelectedNodeIndex;
-        //await jsRuntime.InvokeVoidAsync("setAddParagraphNotePosition", left, top, "add-paragraph-note-button");
         StateHasChanged();
     }
 
     [JSInvokableAttribute("onPernamentHighlightClick")]
     public async void onPernamentHighlightClick(string idToString)
     {
-        currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
+        currentHighlight = BookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
         await jsRuntime.InvokeVoidAsync("showContextMenu", dotNetRef);
         StateHasChanged();
     }
@@ -186,36 +180,7 @@
     {
         currentHighlight = new HighlightModel();
         StateHasChanged();
-        //currentHighlightId = idToString;
-        //currentHighlight = bookAnalysis.Highlights.FirstOrDefault(h => h.GetElementId() == idToString);
-        //await jsRuntime.InvokeVoidAsync("showContextMenu");
     }
-
-    ////img upload test
-    //public void SaveImages(byte[] imageData, string extension)
-    //{
-    //    string basePath = AppDomain.CurrentDomain.BaseDirectory;
-    //    Console.WriteLine(basePath);
-    //    string imageDirectory = System.IO.Path.Combine(basePath, "wwwroot");
-    //    Console.WriteLine(imageDirectory);
-    //    //var imagePath = "images"; // Create a directory under "wwwroot" to store images
-    //    //var imageDirectory = Path.Combine(webRootPath, imagePath);
-
-    //    if (!Directory.Exists(imageDirectory))
-    //    {
-    //        return;
-    //        //Directory.CreateDirectory(imageDirectory);
-    //    }
-
-    //    var uniqueFileName = $"{Guid.NewGuid()}.{extension}";
-    //    var filePath = Path.Combine(imageDirectory, uniqueFileName);
-
-    //    using (var imageStream = new MemoryStream(imageData))
-    //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-    //    {
-    //        imageStream.CopyTo(fileStream);
-    //    }
-    //}
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -226,64 +191,94 @@
                 firstComponentRender = false;
                 await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
 
-                if (book is not null)
-                {
-                    html = book.Resources.Html.ToList();
-                    css = book.Resources.Css;
-                    images = book.Resources.Images;
-                    //fonts = book.Resources.Fonts;
-                    ////Image cover = book.CoverImage;
-                    //ICollection<EpubChapter> chapters = book.TableOfContents;
+                await RenderHighlights();
 
-                    isLoading = false;
-                    StateHasChanged();
+                readerPosition = await appStorage.GetLastReaderPosition();
+
+                if(!string.IsNullOrEmpty(readerPosition.ElementIdToScrollTo))
+                {
+                    await ScrollToElementPosition(await jsRuntime.InvokeAsync<string>("getElementScrollPosition", readerPosition.ElementIdToScrollTo));
                 }
-
-                foreach (EpubByteFile im in images)
+                else if (readerPosition.TextNode is not null)
                 {
-                    //SaveImages(im.Content, im.ContentType.ToString());
-                    //Console.WriteLine("image data:");
-                    //Console.WriteLine(im.FileName);
-                    //Console.WriteLine(im.ContentType);
-                    //Console.WriteLine(im.MimeType);
-                    //Console.WriteLine(im.Content);
+                    await ScrollToElementPosition(await jsRuntime.InvokeAsync<string>
+                        ("getTextNodeScrollPosition", "textContainer", readerPosition.TextNode));
+                    lastClickedTextNodeIndex = (int)readerPosition.TextNode;
+                    await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex );
+                }
+                else
+                {
+                    await jsRuntime.InvokeVoidAsync("scrollToPosition", readerPosition.ScrollPosition);
                 }
             }
 
+            await RenderHighlights();
+
+            await appStorage.SetReaderPosition(new ReaderPosition 
+                { 
+                    Page = currentCount,
+                    ScrollPosition = await jsRuntime.InvokeAsync<double>("getScrollPosition") 
+                });
+        }
+    }
+
+    async Task ScrollToElementPosition(string scrollPoistion)
+    {
+        var scroll = scrollPoistion.Replace("px", "").Substring(0, scrollPoistion.Replace("px", "").IndexOf('.'));
+
+                            if(double.TryParse(scroll , out double _scrollPosition))
+                    {
+                        await jsRuntime.InvokeVoidAsync("scrollToPosition", _scrollPosition-200);
+                    }
+    }
+
+    async Task RenderHighlights()
+    {
+        try
+        {
             await jsRuntime.InvokeVoidAsync("clearDiv", "highlightContainer");
 
-            if(lastClickedTextNodeIndex != -1)
+            if (lastClickedTextNodeIndex != -1)
             {
                 await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex);
             }
 
-            List<HighlightModel> currentHighlights = bookAnalysis.Highlights ?? new List<HighlightModel>();
-
-            foreach (HighlightModel highlight in currentHighlights)
+            foreach (HighlightModel highlight in BookAnalysis.Highlights)
             {
-                if (highlight.PageNumber == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
+                if (highlight.Chapter == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
                 {
                     await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
                 }
             }
         }
+        catch { }
     }
 
     protected override async Task OnInitializedAsync()
     {
         var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        bookAnalysis = await appStorage.GetStoredBookAnalysis();
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
 
         dotNetRef = DotNetObjectReference.Create(this);
 
         var currentUser = await appStorage.GetStoredUser();
         userHasEditRights = await appStorage.UserHasStoredAnalysisEditorialRights();
 
-        initializingComponent = false;
-
         await hubService.RegisterReaderHub(this);
 
+        if (book is not null)
+        {
+            html = book.Resources.Html.ToList();
+            css = book.Resources.Css;
+            images = book.Resources.Images;
+            readerPosition = await appStorage.GetLastReaderPosition();
+            currentCount = readerPosition.Page;
+            isLoading = false;
+            StateHasChanged();
+        }
+
+        initializingComponent = false;
         StateHasChanged(); 
     }
 }

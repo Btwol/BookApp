@@ -1,34 +1,26 @@
 ﻿@using BookApp.Client.Delegates
-@inject IModalService Modal
+
 @inject IAppStorage appStorage
 
-<div style="border-width:2px; border-style: solid; border-color: black;">
-    <p style="text-align:center; font-size:20px">@newNote.GetType().Name.Replace("Model", "").Insert(newNote.GetType().Name.Length - "NoteModel".Length, " ")s</p>
-    @if (userCanEdit)
-    {
-        <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="validation-summary" />
-            <div class="form-group">
-                <InputText @bind-Value="newNote!.Content" class="form-control" />
-            </div>
-            <button type="submit" class="button-action">Add new note</button>
-        </EditForm>
+<style>
+    .note-container-component {
+        
     }
+</style>
+
+<div style="border-width:2px; border-style: solid; border-color: black;">
+    <ErrorHandlerComponent ChildComponentName="Add Note"><ChildContent>
+        <AddNoteComponent createNoteDelegate="createNoteDelegate" enableAddingNewNotes="enableAddingNewNotes" newNote="newNote" NoteClientService="NoteClientService" userCanEdit="userCanEdit"></AddNoteComponent>
+    </ChildContent></ErrorHandlerComponent>
+
     <hr style="margin:3px; border:2px solid white;" />
+
     @foreach (NoteModel note in Notes)
     {
-        <div style="margin:2px;">
-        @if (userCanEdit)
-        {
-            <textarea style="margin:0px;" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
-            <button class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
-        }
-        else
-        {
-            <div class="note-holder">@note.Content</div>
-        }
-        <button class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+        <div class="note-container-component">
+        <ErrorHandlerComponent ChildComponentName="NoteContainer"><ChildContent>
+                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" userCanEdit="userCanEdit" NoteClientService="NoteClientService" enableButtons="true"></NoteContainerComponent>
+        </ChildContent></ErrorHandlerComponent>
         </div>
         <hr style="margin:3px; border:2px solid white;" />
     }
@@ -38,57 +30,17 @@
     [Parameter]
     public IEnumerable<INoteClientModel> Notes { get; set; }
     [Parameter]
-    public int bookAnalysisId { get; set; }
-    [Parameter]
-    public List<TagModel> Tags { get; set; }
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
     [Parameter]
     public INoteClientModel newNote { get; set; }
     [Parameter]
-    public INoteClientService _noteClientService { get; set; }
+    public INoteClientService NoteClientService { get; set; }
     [Parameter]
     public CreateNoteDelegate createNoteDelegate { get; set; }
+    [Parameter]
+    public bool enableAddingNewNotes { get; set; }
 
     private bool userCanEdit = false;
-
-    private async Task EditNote(INoteClientModel note, ChangeEventArgs e)
-    {
-        var newContent = e.Value.ToString();
-        if (!string.IsNullOrEmpty(newContent))
-        {
-            note.Content = newContent;
-            await _noteClientService.EditNote(note);
-        }
-        else
-        {
-            StateHasChanged();
-        }
-    }
-
-    public async Task AddNote()
-    {
-        newNote = createNoteDelegate(newNote);
-        if(newNote != null)
-        {
-            await _noteClientService.AddNote(newNote);
-        }
-    }
-
-    private async Task ShowManageTagsModal(INoteClientModel note)
-    {
-        var parameters = new ModalParameters()
-        .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysisId)
-        .Add(nameof(ManageTagsComponent.Tags), Tags)
-        .Add(nameof(ManageTagsComponent.taggedItem), note)
-        .Add(nameof(ManageTagsComponent.tagManagerClientService), _noteClientService);
-
-        var modal = Modal.Show<ManageTagsComponent>("Manage Note Tags", parameters);
-        await modal.Result;
-    }
-
-    private async Task DeleteAnalysisNote(int noteId)
-    {
-        await _noteClientService.DeleteNote(noteId, bookAnalysisId);
-    }
 
     protected async override Task OnInitializedAsync()
     {

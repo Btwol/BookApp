@@ -1,0 +1,132 @@
+﻿@using BookApp.Client.Delegates
+@using BookApp.Client.Models
+@inject IHighlightNoteClientService highlightNoteService
+@inject IHighlightClientService highlightService
+@inject IModalService Modal
+@inject IAppStorage appStorage
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navigation
+
+<style>
+    .highlight-textarea {
+        border: 1px solid black;
+        border-radius: 5px;
+        text-align: justify;
+        padding: 5px;
+        width: 100%;
+        overflow-y: auto;
+        resize: none;
+        min-height:75%;
+    }
+</style>
+
+<div style="width:30%;">
+<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayHighlightStyle" SectionName="Highlights" />
+</div>
+<div style="@displayHighlightStyle">
+    <div class="summary-section">
+    @foreach (var highlight in Highlights)
+    {
+        <div class="summary-section-element" >
+            <div style="flex:0.1; display:flex; flex-direction:row">
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(highlight.Id)">Delete</button>
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(highlight)">Tags</button>
+                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Reader</button>
+                    <div style="height:inherit; width:fit-content; border:1px solid black; padding:1px; margin:2px; text-align: center; display: flex; align-items: center; justify-content: center; background-color:white">
+                        Ch[@highlight.Chapter]
+                    </div>
+                    <TagsDisplayComponent Tags="highlight.Tags" />
+            </div>
+                @*<div>
+                    <TagsDisplayComponent Tags="highlight.Tags" />
+                </div>*@
+            <textarea readonly rows="" cols="40" class="highlight-textarea">
+                @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
+            </textarea>
+            <div style="flex:0.2">
+                <ErrorHandlerComponent ChildComponentName="Highlight Adding"><ChildContent>
+                        <AddNoteComponent createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="userCanEdit" newNote="new HighlightNoteModel(){ HighlightId = highlight.Id }" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+                </ChildContent></ErrorHandlerComponent>
+                @foreach(var note in highlight.HighlightNotes)
+                {
+                <ErrorHandlerComponent ChildComponentName="Highlight Notes"><ChildContent>
+                            <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit" enableButtons="true"></NoteContainerComponent>
+                </ChildContent></ErrorHandlerComponent>
+                }
+            </div>
+        </div>
+    }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
+
+    [Parameter]
+    public IEnumerable<HighlightModel> Highlights { get; set; }
+
+    private bool userCanEdit;
+    private string displayHighlightStyle { get; set; }
+    List<KeyValuePair<int, string>> HighlightTexts = new();
+
+    public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
+    {
+        HighlightNoteModel newNote = (HighlightNoteModel)note;
+        newNote.BookAnalysisId = BookAnalysis.Id;
+        return newNote;
+    }
+
+    private async Task ShowManageTagsModal(HighlightModel highlight)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), highlight)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), highlightService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
+        await modal.Result;
+    }
+
+    public async Task GoToHighlight(HighlightModel highlight)
+    {
+        await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.Chapter });
+        navigation.NavigateTo("/reader");
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        foreach (var highlight in BookAnalysis.Highlights)
+        {
+            List<string> highlightTexts = new();
+            int nodeCount = highlight.LastNodeIndex - highlight.FirstNodeIndex + 1;
+
+            if (nodeCount == 1)
+            {
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                 highlight.LastNodeCharIndex));
+            }
+            else
+            {
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.FirstNodeIndex, highlight.FirstNodeCharIndex,
+                     null));
+
+                if (nodeCount > 2)
+                {
+                    for (int i = 1; i < nodeCount - 1; i++)
+                    {
+                        highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.FirstNodeIndex + i, null,
+                     null));
+                    }
+                }
+
+                highlightTexts.Add(await jsRuntime.InvokeAsync<string>("GetHighlightText", SummaryComponent.GetTextContainerId(highlight.Chapter), highlight.LastNodeIndex, null,
+                     highlight.LastNodeCharIndex));
+            }
+            HighlightTexts.Add(new KeyValuePair<int, string>(highlight.Id, string.Join("\n", highlightTexts)));
+        }
+
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
+    }
+}
