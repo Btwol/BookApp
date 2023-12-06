@@ -254,6 +254,21 @@
             }
         }
 
+        //gets scroll position of a textNode - navigation from summary paragraph note to text box
+        function getTextNodeScrollPosition(textboxId, textNodeIndex) {
+            var element = document.getElementById(textboxId);
+            var textNodes = getTextNodesInElement(element);
+            if (textNodeIndex < 0 || textNodeIndex >= textNodes.length) {
+                console.error("Invalid textNode index");
+                return;
+            }
+            var range = document.createRange();
+            range.setStart(textNodes[textNodeIndex].parentNode, 0);
+            range.setEnd(textNodes[textNodeIndex], 0);
+            var rect = range.getBoundingClientRect();
+            return (rect.top + window.scrollY).toString();
+        }
+
         //gets current scroll position - to set in reader
         function getScrollPosition() {
             return window.scrollY;

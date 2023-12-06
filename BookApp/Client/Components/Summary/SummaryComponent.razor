@@ -6,7 +6,7 @@
 
 <style>
     .summary {
-        width: 95%;
+        width: 99%;
         position: sticky;
         margin: 20px;
         margin-left: auto;
@@ -66,8 +66,6 @@ else
         </div>
     </div>
     <div class="summary">
-        <hr />
-
         <ErrorHandlerComponent ChildComponentName="Highlights Summary">
             <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.Highlights, includedTags), includedChapters)"></HighlightSummaryComponent></ChildContent>
         </ErrorHandlerComponent>
@@ -82,6 +80,12 @@ else
 
         <ErrorHandlerComponent ChildComponentName="Chapter Notes Summary">
             <ChildContent><ChapterNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ChapterNotes, includedTags), includedChapters)" userCanEdit="userCanEdit"></ChapterNoteSummaryComponent></ChildContent>
+        </ErrorHandlerComponent>
+
+        <hr />
+
+        <ErrorHandlerComponent ChildComponentName="Paragraph Notes Summary">
+            <ChildContent><ParagraphNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ParagraphNotes, includedTags), includedChapters)" userCanEdit="userCanEdit" Paragraphs="GetFilteredParagraphs()"></ParagraphNoteSummaryComponent></ChildContent>
         </ErrorHandlerComponent>
 
         <hr />
@@ -106,9 +110,10 @@ else
     EpubBook book;
     List<EpubTextFile> html;
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
-    private List<TagModel> filteredTags { get; set; } = new();
-    private List<TagModel> includedTags { get; set; } = new();
-    private List<int> includedChapters { get; set; } = new();
+    private List<TagModel> filteredTags = new();
+    private List<TagModel> includedTags = new();
+    private List<int> includedChapters = new();
+    private List<ParagraphContent> Paragraphs = new();
     private bool loading = true;
     private bool userCanEdit;
 
@@ -177,6 +182,18 @@ else
         StateHasChanged();
     }
 
+    private IEnumerable<ParagraphContent> GetFilteredParagraphs()
+    {
+        if(includedChapters.Count > 0)
+        {
+            return Paragraphs.Where(p => includedChapters.Contains(p.Chapter));
+        }
+        else
+        {
+            return Paragraphs;
+        }
+    }
+
     public async Task ReRender()
     {
         StateHasChanged();
@@ -199,6 +216,24 @@ else
         }
 
         await hubService.RegisterReaderHub(this);
+
+
+
+        foreach (var paragraphNote in BookAnalysis.ParagraphNotes)
+        {
+            var newParagraph = new ParagraphContent { Chapter = paragraphNote.Chapter, TextNode = paragraphNote.TextNodeNumber };
+            if(!Paragraphs.Any(p => p.Chapter == newParagraph.Chapter && p.TextNode == newParagraph.TextNode))
+            {
+                Paragraphs.Add(newParagraph);
+            }
+        }
+        foreach(var parahraph in Paragraphs)
+        {
+            parahraph.Content = await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(parahraph.Chapter),
+                parahraph.TextNode, null, null);
+        }
+
+        Paragraphs.OrderBy(p => p.Chapter);
 
         loading = false;
     }

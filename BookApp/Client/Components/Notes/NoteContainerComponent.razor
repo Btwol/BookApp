@@ -15,11 +15,11 @@
     }
 </style>
 
-<div style="margin:2px; height:100%">
+<div style="margin:2px; height:100%; border:2px solid black; border-radius:5px; padding:2px">
     @if (userCanEdit)
     {
         <div style="display:flex; flex-direction:row; height:100%">
-            <textarea maxlength="2000" style="" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
+            <textarea rows="5" maxlength="2000" style="" class="note-holder" @oninput="(ChangeEventArgs e) => EditNote(note, e)">@note.Content</textarea>
             @if (enableButtons)
             {
                 <div style="display:flex; flex-direction:column; flex:auto">
@@ -33,7 +33,12 @@
     {
         <div class="note-holder">@note.Content</div>
     }
-
+    @if(DisplayTags)
+    {
+        <div style="width: 99%">
+        <TagsDisplayComponent Tags="note.Tags" />
+        </div>
+    }
 </div>
 
 @code {
@@ -47,6 +52,8 @@
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
     [Parameter]
     public INoteClientService NoteClientService { get; set; }
+    [Parameter]
+    public bool DisplayTags { get; set; } = true;
 
     private async Task EditNote(INoteClientModel note, ChangeEventArgs e)
     {

@@ -20,7 +20,9 @@
     }
 </style>
 
+<div style="width:30%;">
 <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayHighlightStyle" SectionName="Highlights" />
+</div>
 <div style="@displayHighlightStyle">
     <div class="summary-section">
     @foreach (var highlight in Highlights)

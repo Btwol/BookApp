@@ -1,0 +1,87 @@
+﻿@inject IModalService Modal
+@inject IParagraphNoteClientService paragraphNoteService
+@inject NavigationManager navigation
+@inject IAppStorage appStorage
+
+<div style="width:30%;">
+<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayParagraphStyle" SectionName="Paragraph Notes" />
+</div>
+<div style="@displayParagraphStyle">
+    <div class="summary-section">
+        @foreach (var paragraph in Paragraphs)
+        {
+            <div class="summary-section-element">
+                <div style="flex:0.1; display:flex; flex-direction:row">
+                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToParagraph(paragraph)">Reader</button>
+                    <div style="height:inherit; width:fit-content; border:1px solid black; padding:1px; margin:2px; text-align: center; display: flex; align-items: center; justify-content: center; background-color:white">
+                        Ch[@paragraph.Chapter]
+                    </div>
+                </div>
+                <textarea readonly rows="" cols="40" class="highlight-textarea">
+                    @paragraph.Content
+                </textarea>
+                <div style="flex:0.2">
+                    @*<ErrorHandlerComponent ChildComponentName="Paragraph Note Adding">
+                        <ChildContent>
+                            <AddNoteComponent createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes="userCanEdit" newNote="new HighlightNoteModel(){ HighlightId = note.Id }" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+                        </ChildContent>
+                    </ErrorHandlerComponent>*@
+                    @foreach (var note in Notes.Where(n => n.Chapter == paragraph.Chapter && n.TextNodeNumber == paragraph.TextNode))
+                    {
+                        <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+                            <ChildContent>
+                                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="paragraphNoteService" userCanEdit="userCanEdit" enableButtons="true"></NoteContainerComponent>
+                            </ChildContent>
+                        </ErrorHandlerComponent>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public BookAnalysisDetailedModel BookAnalysis { get; set; }
+    [Parameter]
+    public IEnumerable<ParagraphNoteModel> Notes { get; set; }
+    [Parameter]
+    public IEnumerable<ParagraphContent> Paragraphs { get; set; }
+    [Parameter]
+    public bool userCanEdit { get; set; }
+
+    private string displayParagraphStyle { get; set; }
+
+    //public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
+    //{
+    //    if (lastClickedTextNodeIndex == -1)
+    //    {
+    //        return null;
+    //    }
+
+    //    ParagraphNoteModel newNote = (ParagraphNoteModel)note;
+    //    newNote.BookAnalysisId = BookAnalysis.Id;
+    //    newNote.TextNodeNumber = lastClickedTextNodeIndex;
+    //    newNote.Chapter = currentCount;
+    //    return newNote;
+    //}
+
+    public async Task GoToParagraph(ParagraphContent paragraph)
+    {
+        await appStorage.SetReaderPosition(new ReaderPosition { Page = paragraph.Chapter, TextNode = paragraph.TextNode });
+        navigation.NavigateTo("/reader");
+    }
+
+    private async Task ShowManageTagsModal(ParagraphNoteModel note)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
+        .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
+        .Add(nameof(ManageTagsComponent.taggedItem), note)
+        .Add(nameof(ManageTagsComponent.tagManagerClientService), paragraphNoteService);
+
+        var modal = Modal.Show<ManageTagsComponent>("Manage Paragraph Note Tags", parameters);
+        await modal.Result;
+    }
+}

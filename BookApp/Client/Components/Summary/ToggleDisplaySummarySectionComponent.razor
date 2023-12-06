@@ -1,6 +1,6 @@
-﻿<div style="display:flex; width:50%; justify-items:left">
-    <h3 style="flex:0.3">@SectionName</h3>
-    <button style="flex:0.1" class="button-action" @onclick="ToggleSection">@DisplayButtonText</button>
+﻿<div style="display:flex; width:100%; justify-items:left">
+    <h3 style="flex:0.8">@SectionName</h3>
+    <button style="flex:0.2" class="button-action" @onclick="ToggleSection">@DisplayButtonText</button>
 </div>
 
 @code {
@@ -10,6 +10,9 @@
     public EventCallback<string> DisplaySectionStyleChanged { get; set; }
     [Parameter]
     public string SectionName { get; set; }
+    [Parameter]
+    public string EnabledStyle { get; set; } = "block";
+
 
     private string DisplayButtonText = "";
     private bool displaySection = false;
@@ -25,7 +28,7 @@
         else
         {
             displaySection = true;
-            DisplaySectionStyle = "display:block";
+            DisplaySectionStyle = $"display:{EnabledStyle}";
             DisplayButtonText = "Hide";
         }
         await DisplaySectionStyleChanged.InvokeAsync(DisplaySectionStyle);

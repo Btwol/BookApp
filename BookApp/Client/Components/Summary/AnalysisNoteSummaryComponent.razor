@@ -1,7 +1,9 @@
 ﻿@inject IModalService Modal
 @inject IAnalysisNoteClientService analysisNoteService
 
+<div style="width:30%;">
 <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayAnalysisNotesStyle" SectionName="Analysis Notes"/>
+</div>
 <div style="@displayAnalysisNotesStyle" >
     <ErrorHandlerComponent ChildComponentName="Analysis Note Adding">
         <ChildContent>
@@ -18,7 +20,7 @@
                     <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
                         <TagsDisplayComponent Tags="note.Tags" />
                     </div>
-                <div style="height:85%;">
+                <div style="height:75%;">
             <ErrorHandlerComponent ChildComponentName="Analysis Notes">
                 <ChildContent>
                     <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit" enableButtons="false"></NoteContainerComponent>

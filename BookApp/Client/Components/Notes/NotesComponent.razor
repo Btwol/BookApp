@@ -1,5 +1,4 @@
-﻿@using BookApp.Client.Delegates
-@inject IAnalysisNoteClientService analysisNoteService
+﻿@inject IAnalysisNoteClientService analysisNoteService
 @inject IParagraphNoteClientService paragraphNoteService
 @inject IChapterNoteClientService chapterNoteService
 @inject IHighlightNoteClientService highlightNoteService
@@ -7,13 +6,13 @@
 <style>
     .vertical-bar-002,
     .vertical-bar {
-        
         background-color: #555555;
         color: #fff;
         overflow-y: auto;
         position: fixed;
-        top:40px;
-        width:20%;
+        top: 40px;
+        width: 20%;
+        margin-top:5px;
     }
 
     .vertical-bar {
@@ -28,49 +27,64 @@
         max-width: 20%;
     }
 
-            .notes-component-container {
-                width:100%;
-        }
+    .notes-component-container {
+        width: 100%;
+    }
 
-        .notes-title {
-            font-size:20px;
-            display:inline;
-        }
+    .notes-title {
+        font-size: 20px;
+        display: inline;
+    }
 </style>
 
 <div id="noteContainer" class="notes-component-container">
     <div class="vertical-bar">
-        <p class="notes-title">Analysis Notes</p>
-        <ErrorHandlerComponent ChildComponentName="Analysis Notes"><ChildContent>
-                <NotesListingComponent Notes="AnalysisNotes" BookAnalysis="BookAnalysis" newNote="new AnalysisNoteModel()" 
-                    NoteClientService="analysisNoteService" createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes=true />
-        </ChildContent></ErrorHandlerComponent>
+        <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayChapterNotesStyle" SectionName="Chapter Notes" />
+        <div style="@displayChapterNotesStyle">
+            <ErrorHandlerComponent ChildComponentName="Chapter Notes">
+                <ChildContent>
+                    <NotesListingComponent Notes="ChapterNotes.Where(n => n.Chapter == currentCount)" BookAnalysis="BookAnalysis"
+                                           newNote="new ChapterNoteModel()" NoteClientService="chapterNoteService" createNoteDelegate="CreateChapterNoteModel"
+                                           enableAddingNewNotes=true />
+                </ChildContent>
+            </ErrorHandlerComponent>
+        </div>
 
-        <p class="notes-title">Chapter Notes</p>
-        <ErrorHandlerComponent ChildComponentName="Chapter Notes"><ChildContent>
-                <NotesListingComponent Notes="ChapterNotes.Where(n => n.Chapter == currentCount)" BookAnalysis="BookAnalysis" 
-                    newNote="new ChapterNoteModel()" NoteClientService="chapterNoteService"createNoteDelegate="CreateChapterNoteModel" 
-                    enableAddingNewNotes=true />
-        </ChildContent></ErrorHandlerComponent>
+        <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayAnalysisNotesStyle" SectionName="Analysis Notes" EnabledStyle="block" />
+        <div style="@displayAnalysisNotesStyle;">
+            <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+                <ChildContent>
+                    <NotesListingComponent Notes="AnalysisNotes" BookAnalysis="BookAnalysis" newNote="new AnalysisNoteModel()"
+                                           NoteClientService="analysisNoteService" createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes=true />
+                </ChildContent>
+            </ErrorHandlerComponent>
+        </div>
     </div>
 
     <div class="vertical-bar-002">
-    @if(lastClickedTextNodeIndex > 0)
-    {
-        <p class="notes-title">Paragraph Notes</p>
-        <ErrorHandlerComponent ChildComponentName="Paragraph Notes"><ChildContent>
-                    <NotesListingComponent 
-                        Notes="ParagraphNotes.Where(n => n.Chapter == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)" 
-                        BookAnalysis="BookAnalysis" newNote="new ParagraphNoteModel()" NoteClientService="paragraphNoteService" 
-                        createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes=true />
-            </ChildContent></ErrorHandlerComponent>
-    }
+        @if (lastClickedTextNodeIndex > 0)
+        {
+            <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayParagraphNotesStyle" SectionName="Paragraph Notes" />
+            <div style="@displayParagraphNotesStyle">
+                <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
+                    <ChildContent>
+                        <NotesListingComponent Notes="ParagraphNotes.Where(n => n.Chapter == currentCount && n.TextNodeNumber == lastClickedTextNodeIndex)"
+                                           BookAnalysis="BookAnalysis" newNote="new ParagraphNoteModel()" NoteClientService="paragraphNoteService"
+                                           createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes=true />
+                    </ChildContent>
+                </ErrorHandlerComponent>
+            </div>
+        }
 
-        <p class="notes-title">Highlight Notes</p>
-        <ErrorHandlerComponent ChildComponentName="Highlight Notes"><ChildContent>
-                <NotesListingComponent Notes="HighlightNotes" BookAnalysis="BookAnalysis" newNote="new HighlightNoteModel()" 
-                    NoteClientService="highlightNoteService" createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes=true />
-        </ChildContent></ErrorHandlerComponent>
+        <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayHighlightsStyle" SectionName="Highlight Notes" />
+        <div style="@displayHighlightsStyle">
+            <ErrorHandlerComponent ChildComponentName="Highlight Notes">
+                <ChildContent>
+                    <NotesListingComponent Notes="HighlightNotes" BookAnalysis="BookAnalysis" newNote="new HighlightNoteModel()"
+                                           NoteClientService="highlightNoteService" createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes=true />
+                </ChildContent>
+            </ErrorHandlerComponent>
+        </div>
     </div>
 </div>
 
@@ -91,6 +105,11 @@
     public int currentCount { get; set; }
     [Parameter]
     public int lastClickedTextNodeIndex { get; set; }
+
+    public string displayAnalysisNotesStyle { get; set; }
+    public string displayChapterNotesStyle { get; set; }
+    public string displayHighlightsStyle { get; set; }
+    public string displayParagraphNotesStyle { get; set; }
 
     public INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
     {

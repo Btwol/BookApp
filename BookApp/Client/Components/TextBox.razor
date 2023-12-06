@@ -142,13 +142,17 @@
         var selectionRange = await jsRuntime.InvokeAsync<object>("getSelectedTextNodeIndex", textContainerRef);
         string items = selectionRange.ToString();
 
-        if (items != "-1")
+        if (!string.IsNullOrEmpty(items) && items != "-1" && !items.Contains("-1"))
         {
             if (editFlag)
             {
                 editFlag = false;
                 var newSelection = new HighlightModel(BookAnalysis.Id, currentCount, items);
                 var editedSelection = BookAnalysis.Highlights.FirstOrDefault(s => s.Id == currentHighlight.Id);
+                if(editedSelection is null)
+                {
+                    return;
+                }
                 editedSelection.Update(newSelection);
                 await _highlightClientService.UpdateHighlight(editedSelection);
             }
@@ -193,13 +197,14 @@
 
                 if(!string.IsNullOrEmpty(readerPosition.ElementIdToScrollTo))
                 {
-                    var scrollPoistion = await jsRuntime.InvokeAsync<string>("getElementScrollPosition", readerPosition.ElementIdToScrollTo);
-                    var scroll = scrollPoistion.Replace("px", "").Substring(0, scrollPoistion.Replace("px", "").IndexOf('.'));
-
-                    if(double.TryParse(scroll , out double _scrollPosition))
-                    {
-                        await jsRuntime.InvokeVoidAsync("scrollToPosition", _scrollPosition-200);
-                    }
+                    await ScrollToElementPosition(await jsRuntime.InvokeAsync<string>("getElementScrollPosition", readerPosition.ElementIdToScrollTo));
+                }
+                else if (readerPosition.TextNode is not null)
+                {
+                    await ScrollToElementPosition(await jsRuntime.InvokeAsync<string>
+                        ("getTextNodeScrollPosition", "textContainer", readerPosition.TextNode));
+                    lastClickedTextNodeIndex = (int)readerPosition.TextNode;
+                    await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex );
                 }
                 else
                 {
@@ -215,6 +220,16 @@
                     ScrollPosition = await jsRuntime.InvokeAsync<double>("getScrollPosition") 
                 });
         }
+    }
+
+    async Task ScrollToElementPosition(string scrollPoistion)
+    {
+        var scroll = scrollPoistion.Replace("px", "").Substring(0, scrollPoistion.Replace("px", "").IndexOf('.'));
+
+                            if(double.TryParse(scroll , out double _scrollPosition))
+                    {
+                        await jsRuntime.InvokeVoidAsync("scrollToPosition", _scrollPosition-200);
+                    }
     }
 
     async Task RenderHighlights()
