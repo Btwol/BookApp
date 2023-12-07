@@ -34,7 +34,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR();/*.AddAzureSignalR();*/
 
 configuration = builder.Configuration;
 
