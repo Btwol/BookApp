@@ -17,6 +17,18 @@ ServicesConfigurator.ConfigureServices(builder.Services);
 ServicesConfigurator.ConfigureIdentity(builder);
 ServicesConfigurator.ConfigureSwagger(builder);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("corspolicy",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:7111", "https://localhost:7111", "https://bookapp000client.azurewebsites.net")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped(sp => new HttpClient());
@@ -46,6 +58,7 @@ else
     app.UseHsts();
 }
 
+app.UseCors("corspolicy");
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
