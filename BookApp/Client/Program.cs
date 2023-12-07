@@ -41,8 +41,8 @@ builder.Services.AddSingleton<HubConnection>(sp =>
     var navigationManager = sp.GetRequiredService<NavigationManager>();
     return new HubConnectionBuilder()
       //.WithUrl(navigationManager.ToAbsoluteUri("/bookAnalysisHub"))
-      .WithUrl(navigationManager.ToAbsoluteUri("https://bookapp000api.azurewebsites.net/bookAnalysisHub"))
-      //(new Uri("https://bookapp000api.azurewebsites.net"))
+      //.WithUrl(navigationManager.ToAbsoluteUri("/bookAnalysisHub"))
+      .WithUrl(new Uri("https://bookapp000api.azurewebsites.net/bookAnalysisHub"))
       .WithAutomaticReconnect()
       .Build();
 });
