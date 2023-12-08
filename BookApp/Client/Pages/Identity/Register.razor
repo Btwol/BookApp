@@ -7,40 +7,40 @@
 @inject IAccountClientService accountService
 
 <div style="width:100%; height:50%; position:absolute; top:30%">
-<div class="login-box">
-<h3>Register</h3>
-@if (!registrationSuccessful)
-{
-    <div class="alert bg-danger text-white alert-dismissible" @onclick="() => registrationSuccessful = true">@registerRequestResponseMessage</div>
-}
+    <div class="login-box">
+        <h3>Register</h3>
+        @if (!registrationSuccessful)
+        {
+            <div class="alert bg-danger text-white alert-dismissible" @onclick="() => registrationSuccessful = true">@registerRequestResponseMessage</div>
+        }
 
-<EditForm Model="@newUser" OnValidSubmit="@RegisterUser" class="form" style="width:90%">
-    <DataAnnotationsValidator />
-    <ValidationSummary class="validation-summary" style="background-color:white" />
+        <EditForm Model="@newUser" OnValidSubmit="@RegisterUser" class="form" style="width:90%">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" style="background-color:white" />
 
-    <div class="form-group">
-        <label for="email">Email</label>
-        <InputText @bind-Value="newUser!.Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="userName">Username</label>
-        <InputText @bind-Value="newUser!.UserName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="password">Password</label>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <InputText @bind-Value="newUser!.Email" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="userName">Username</label>
+                <InputText @bind-Value="newUser!.UserName" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
                 <InputText type="password" @bind-Value="newUser!.Password" class="form-control" />
-    </div>
+            </div>
 
-    @if(awaitingResponse)
-    {
-        <p>Registering User...</p>
-    }
-    else
-    {
-        <button type="submit" class="button-action">Submit</button>
-    }
-</EditForm>
-</div>
+            @if (awaitingResponse)
+            {
+                <p>Registering User...</p>
+            }
+            else
+            {
+                <button type="submit" class="button-action">Submit</button>
+            }
+        </EditForm>
+    </div>
 </div>
 @code {
     public RegisterRequest newUser { get; set; } = new RegisterRequest { Email = "", UserName = "", Password = "" };

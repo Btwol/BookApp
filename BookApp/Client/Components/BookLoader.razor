@@ -5,76 +5,87 @@
 @inject IJSRuntime jsRuntime
 
 <style>
-    .class-test {
-        /*display:block;*/
+    .book-loader-box {
+        position: sticky;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+        border-radius: 5px;
+        height: fit-content;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+        align-items: left;
+        padding: 10px;
     }
 </style>
 
-<ErrorHandlerComponent ChildComponentName="Book Loader">
-    <ChildContent>
-            <div style="margin:15px">
-@if (checkingIfLoaded)
-{
-    <h3>Loading...</h3>
-}
-else
-{
+<div style="width:100%; height:50%; position:absolute; top:5%">
+    <div class="book-loader-box">
+        <ErrorHandlerComponent ChildComponentName="Book Loader">
+            <ChildContent>
 
+                @if (checkingIfLoaded)
+                {
+                    <h3>Loading...</h3>
+                }
+                else
+                {
+                    @if (loadedBookAnalysis is null)
+                    {
+                        @if (showErrorBox)
+                        {
+                            <div class="border p-4 text-danger">
+                                @errorContent
+                                <button @onclick="() => showErrorBox = false">X</button>
+                            </div>
+                        }
 
-@if (loadedBookAnalysis is null)
-{
-    @if (showErrorBox)
-    {
-        <div class="border p-4 text-danger">
-            @errorContent
-            <button @onclick="() => showErrorBox = false">X</button>
-        </div>
-    }
+                        @if (showLoadingAnalysis)
+                        {
+                            <p>Loading analysis...</p>
+                        }
 
-    @if (showLoadingAnalysis)
-    {
-        <p>Loading analysis...</p>
-    }
+                        @if (loadingFile)
+                        {
+                            <p>Loading file...</p>
+                        }
 
-    @if (loadingFile)
-    {
-        <p>Loading file...</p>
-    }
+                        <p>Select book...</p>
+                        <p>
+                            <label>
+                                <InputFile OnChange="@LoadFiles" />
+                            </label>
+                        </p>
 
-    <p>Select book...</p>
-    <p>
-        <label>
-            <InputFile OnChange="@LoadFiles" />
-        </label>
-    </p>
+                        @if (bookLoaded)
+                        {
+                            <button class="button-action" @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
 
-    @if (bookLoaded)
-    {
-        <button class="button-action" @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
+                            if (showCreateAnalysisForm)
+                            {
+                                <button class="button-action" @onclick="() => showCreateAnalysisForm = false">Hide create new analysis form</button>
+                                <ErrorHandlerComponent ChildComponentName="Create new analysys">
+                                    <ChildContent><CreateNewAnalysis loadedBookHash="@loadedBookHash" book="book" @bind-foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+                                </ErrorHandlerComponent>
+                            }
+                            else
+                            {
+                                <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
+                            }
 
-        if (showCreateAnalysisForm)
-        {
-            <button class="button-action" @onclick="() => showCreateAnalysisForm = false">Hide create new analysis form</button>
-            <ErrorHandlerComponent ChildComponentName="Create new analysys">
-                <ChildContent><CreateNewAnalysis loadedBookHash="@loadedBookHash" book="book" @bind-foundBookAnalyses="foundBookAnalyses" /></ChildContent>
-            </ErrorHandlerComponent>
-        }
-        else
-        {
-            <button class="button-action" @onclick="() => showCreateAnalysisForm = true">Create new analysis for this book</button>
-        }
-
-        <ErrorHandlerComponent ChildComponentName="Book Analyses Listing">
-            <ChildContent><FoundAnalysesListing @bind-selectedBookAnalysis="loadedBookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+                            <ErrorHandlerComponent ChildComponentName="Book Analyses Listing">
+                                <ChildContent><FoundAnalysesListing @bind-selectedBookAnalysis="loadedBookAnalysis" foundBookAnalyses="foundBookAnalyses" /></ChildContent>
+                            </ErrorHandlerComponent>
+                        }
+                    }
+                }
+            </ChildContent>
         </ErrorHandlerComponent>
-        }
-    }
-
-
-    }
-            </div>
-    </ChildContent>
-</ErrorHandlerComponent>
+    </div>
+</div>
 @code {
     private bool checkingIfLoaded = true;
     private bool awaitingResponse = false;
@@ -153,7 +164,7 @@ else
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             if (await appStorage.BookIsStored())
             {
