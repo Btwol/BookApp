@@ -4,7 +4,7 @@
 @inject IAppStorage appStorage
 
 <div style="width:30%;">
-<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayChapterNotesStyle" SectionName="Chapter Notes" />
+    <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayChapterNotesStyle" SectionName="Chapter Notes" />
 </div>
 <div style="@displayChapterNotesStyle">
     <div style="display:flex; flex-direction:row; -webkit-flex-align:baseline">
@@ -21,30 +21,24 @@
         </div>
     </div>
     <div class="summary-section">
-            @foreach (var note in Notes)
-            {   
-                <div class="summary-section-element" style="flex:0.9">
+        @foreach (var note in Notes)
+        {
+            <div class="summary-section-element" style="flex:0.9">
                 <div style="flex:0.1; display:flex; flex-direction:row">
                     <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await chapterNoteService.DeleteNote(note.Id, BookAnalysis.Id)">Delete</button>
                     <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
                     <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await GoToChapter(note.Chapter)">Chapter-@note.Chapter</button>
-                    @*<div style="height:inherit; border:1px solid black; padding:1px; margin:2px; text-align: center; display: flex; align-items: center; justify-content: center; background-color:white">
-                        Chapter: @note.Chapter
-                    </div>*@
                     <TagsDisplayComponent Tags="note.Tags" />
                 </div>
-                @*<div>
-                    
-                </div>*@
                 <div style="height:82%; overflow-y:clip">
                     <ErrorHandlerComponent ChildComponentName="Chapter Notes">
                         <ChildContent>
                             <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="chapterNoteService" userCanEdit="userCanEdit" enableButtons="false"></NoteContainerComponent>
                         </ChildContent>
                     </ErrorHandlerComponent>
-                    </div>
                 </div>
-            }
+            </div>
+        }
     </div>
 </div>
 
