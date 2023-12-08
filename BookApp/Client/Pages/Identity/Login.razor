@@ -2,7 +2,14 @@
 @inject NavigationManager Navigation
 @inject IAccountClientService accountService
 
-<EditForm Model="@loginRequest" OnValidSubmit="@LoginUser" class="form">
+<div style="width:100%; height:50%; position:absolute; top:30%">
+<div class="login-box">
+    <h3>Login</h3>
+        @if (!loginSuccessful)
+        {
+            <div class="alert bg-danger text-white alert-dismissible" @onclick="() => loginSuccessful = true">@loginRequestResponseMessage</div>
+        }
+    <EditForm Model="@loginRequest" OnValidSubmit="@LoginUser" class="form" style="width:90%">
     <DataAnnotationsValidator />
     <ValidationSummary class="validation-summary" />
 
@@ -12,7 +19,7 @@
     </div>
     <div class="form-group">
         <label for="loginPassword">Password</label>
-        <InputText @bind-Value="loginRequest!.Password" class="form-control" />
+                <InputText type="password" @bind-Value="loginRequest!.Password" class="form-control" />
     </div>
 
     @if(awaitingResponse)
@@ -24,17 +31,31 @@
         <button type="submit" class="button-action">Submit</button>
     }
 </EditForm>
-
+</div>
+</div>
 @code {
-    public LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "User3", Password = "@Aa12345" };
+    public LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "", Password = "" };
     bool awaitingResponse = false;
+    bool loginSuccessful = true;
+    string loginRequestResponseMessage = "";
 
     public async Task LoginUser()
     {
         awaitingResponse = true;
-        await accountService.Login(loginRequest);
-        awaitingResponse = false;
-
-        Navigation.NavigateTo("/redirect");
+        try
+        {
+            await accountService.Login(loginRequest);
+            Navigation.NavigateTo("/redirect");
+        }
+        catch (Exception ex)
+        {
+            loginRequestResponseMessage = ex.Message;
+            loginSuccessful = false;
+        }
+        finally
+        {
+            StateHasChanged();
+            awaitingResponse = false;
+        }
     }
 }

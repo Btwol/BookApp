@@ -1,6 +1,7 @@
 ﻿using BookApp.Client.Services.Interfaces;
 using BookApp.Shared.Models.Identity;
 using System.Net.Http.Json;
+using static System.Net.WebRequestMethods;
 
 namespace BookApp.Client.Services
 {
@@ -29,6 +30,12 @@ namespace BookApp.Client.Services
             await _appStorage.DeleteUserFromStorage();
             await _appStorage.DeleteAnalysisFromStorage();
             await _appStorage.DeleteBookFromStorage();
+        }
+
+        public async Task Register(RegisterRequest registerRequest)
+        {
+            var response = await _http.PostAsJsonAsync<RegisterRequest>($"Account/Register", registerRequest);
+            await HelperService.HandleResponse(response);
         }
     }
 }
