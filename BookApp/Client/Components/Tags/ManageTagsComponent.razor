@@ -1,76 +1,55 @@
 ﻿@inject ITagClientService _tagService
 @inject IAppStorage appStorage
 
+<input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
+
 <ErrorHandlerComponent ChildComponentName="Manage tags">
     <ChildContent>
-        <EditForm Model="@Tags" OnValidSubmit="@Submit" class="form">
-            <input type="text" @onchange="FilterTags" placeholder="Search Tags..." class="form-control" />
-                <h3>Current Tags:</h3>
-                @foreach (TagModel tag in filteredTags.Where(t => taggedItem.Tags.Any(_t => _t.Id == t.Id)))
-                {
-                <button class="tag-item" style=@buttonToggle @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-                }
-
-                <hr />
-
-            @if (userHasEditRights)
-            {
-                <h3>Add Tags</h3>
-                @foreach (TagModel tag in filteredTags)
-                {
-                    @if (!taggedItem.Tags.Any(t => t.Id == tag.Id))
-                    {
-                    <button class="tag-item" style=@buttonToggle @onclick="() => AddTag(tag.Id)">@tag.Name</button>
-                    }
-                }
-            }
-        </EditForm>
-
-        @if (userHasEditRights)
-        {
-            <hr />
-
-            <p>Create new tag:</p>
-            <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <InputText @bind-Value="NewTag!.Name" />
-                <button class="button-action" type="submit">Submit</button>
-            </EditForm>
-
-            <hr />
-
-            <p>Edit tag:</p>
-            @foreach (var tag in filteredTags)
-            {
-                <button class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</button>
-            }
-            @if (showEditTagForm)
-            {
-                <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                    <p>Tag name:</p>
-                    <InputText @bind-Value="TagToEdit!.Name" />
-                    <button class="button-action" type="submit">Submit</button>
-                </EditForm>
-            }
-
-            <hr />
-
-            <p>Delete tag:</p>
-            @foreach (var tag in filteredTags)
-            {
-                <button class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</button>
-            }
-        }
-        <hr />
-
-        <button class="button-action" @onclick="Close">Close</button>
+        <ManageItemTagsComponent TaggedItem="taggedItem" TagManagerClientService="TagManagerClientService" Tags="filteredTags" userHasEditRights="userHasEditRights" />
     </ChildContent>
 </ErrorHandlerComponent>
 
+@if (userHasEditRights)
+{
+    <hr />
 
+    <p>Create new tag:</p>
+    <EditForm Model="@NewTag" OnValidSubmit="@CreateNewTag">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <InputText @bind-Value="NewTag!.Name" />
+        <button class="button-action" type="submit">Submit</button>
+    </EditForm>
+
+    <hr />
+
+    <p>Edit tag:</p>
+    @foreach (var tag in filteredTags)
+    {
+        <button class="tag-item" style=@buttonToggle @onclick="() => { TagToEdit = new TagModel(tag); showEditTagForm = true; }">@tag.Name</button>
+    }
+    @if (showEditTagForm)
+    {
+        <EditForm Model="@TagToEdit" OnValidSubmit="EditTag">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <p>Tag name:</p>
+            <InputText @bind-Value="TagToEdit!.Name" />
+            <button class="button-action" type="submit">Submit</button>
+        </EditForm>
+    }
+
+    <hr />
+
+    <p>Delete tag:</p>
+    @foreach (var tag in filteredTags)
+    {
+        <button class="tag-item" style=@buttonToggle @onclick="() => DeleteTag(tag.Id)">@tag.Name</button>
+    }
+}
+<hr />
+
+<button class="button-action" @onclick="Close">Close</button>
 
 @code {
     [CascadingParameter]
@@ -86,14 +65,13 @@
     public ITagableItemModel taggedItem { get; set; }
 
     [Parameter]
-    public ITagManagerClientService tagManagerClientService { get; set; }
+    public ITagManagerClientService TagManagerClientService { get; set; }
 
-    public TagModel TagToEdit { get; set; }
-    public TagModel? NewTag { get; set; } = new();
-
+    private TagModel TagToEdit { get; set; }
+    private TagModel? NewTag { get; set; } = new();
     private string buttonToggle = "";
     private string disabledButtonStyle = "pointer-events: none; background-color: gray";
-    bool showEditTagForm = false;
+    private bool showEditTagForm = false;
     private List<int> tagsToAdd = new();
     private List<int> tagsToRemove = new();
     private int selectedTagId = 0;
@@ -106,9 +84,9 @@
 
     async Task CreateNewTag()
     {
-        ToggleButtons();
         try
         {
+            ToggleButtons();
             var newTag = await _tagService.CreateNewTag(NewTag, bookAnalysisId);
             NewTag = new();
         }
@@ -120,9 +98,9 @@
 
     async Task EditTag()
     {
-        ToggleButtons();
         try
         {
+            ToggleButtons();
             await _tagService.EditTag(TagToEdit);
             TagToEdit = new();
         }
@@ -135,9 +113,9 @@
 
     async Task DeleteTag(int tagId)
     {
-        ToggleButtons();
         try
         {
+            ToggleButtons();
             await _tagService.DeleteTag(tagId);
             Tags.FirstOrDefault(t => t.Id == tagId);
         }
@@ -145,39 +123,6 @@
         {
             ToggleButtons();
         }
-    }
-
-    async Task Submit()
-    {
-        ToggleButtons();
-        try
-        {
-            if(addTag)
-            {
-                await tagManagerClientService.AddTag(taggedItem.Id, selectedTagId);
-            }
-            else
-            {
-                await tagManagerClientService.RemoveTag(taggedItem.Id, selectedTagId);
-            }
-        }
-        finally
-        {
-            ToggleButtons();
-            selectedTagId = 0;
-        }
-    }
-
-    public async Task AddTag(int tagId)
-    {
-        selectedTagId = tagId;
-        addTag = true;
-    }
-
-    public async Task RemoveTag(int tagId)
-    {
-        selectedTagId = tagId;
-        addTag = false;
     }
 
     private void FilterTags(ChangeEventArgs e)

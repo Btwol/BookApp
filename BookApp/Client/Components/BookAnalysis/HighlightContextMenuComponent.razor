@@ -30,7 +30,7 @@
         .Add(nameof(ManageTagsComponent.bookAnalysisId), bookAnalysis.Id)
         .Add(nameof(ManageTagsComponent.Tags), bookAnalysis.Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), highlight)
-        .Add(nameof(ManageTagsComponent.tagManagerClientService), _highlightClientService);
+        .Add(nameof(ManageTagsComponent.TagManagerClientService), _highlightClientService);
 
         var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
         await modal.Result;

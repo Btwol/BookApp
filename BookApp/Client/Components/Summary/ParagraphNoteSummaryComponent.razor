@@ -79,7 +79,7 @@
         .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
         .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), note)
-        .Add(nameof(ManageTagsComponent.tagManagerClientService), paragraphNoteService);
+        .Add(nameof(ManageTagsComponent.TagManagerClientService), paragraphNoteService);
 
         var modal = Modal.Show<ManageTagsComponent>("Manage Paragraph Note Tags", parameters);
         await modal.Result;
