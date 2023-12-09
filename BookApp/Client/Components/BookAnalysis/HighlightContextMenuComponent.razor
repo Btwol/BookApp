@@ -4,23 +4,26 @@
 
 
 <div id="contextMenu" @ref="contextMenuRef" class="context-Menu">
-    <button class="button-action" @onclick="DeleteHighlight">Delete</button>
-    <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
-    <button class="button-action" @onclick="() => ShowManageTagsModal(currentHighlight)">Manage Tags</button>
+    @if (userCanEdit)
+    {
+        <button class="button-action" @onclick="DeleteHighlight">Delete</button>
+        <button class="button-action" @onclick="ReApplyHighlight">Reapply Highlight</button>
+        <button class="button-action" @onclick="() => ShowManageTagsModal(currentHighlight)">Manage Tags</button>
+    }
+    <TagsDisplayComponent Tags="currentHighlight.Tags" />
 </div>
 
 @code {
     [Parameter]
     public HighlightModel currentHighlight { get; set; }
-
     [Parameter]
     public BookAnalysisDetailedModel bookAnalysis { get; set; }
-
     [Parameter]
     public bool editFlag { get; set; }
-
     [Parameter]
     public EventCallback<bool> editFlagChanged { get; set; }
+    [Parameter]
+    public bool userCanEdit { get; set; }
 
     private ElementReference contextMenuRef;
 
@@ -48,8 +51,6 @@
         if (highlightToRemove is not null)
         {
             await _highlightClientService.DeleteHighlight(highlightToRemove.Id);
-            //await jsRuntime.InvokeVoidAsync("deletePernamentHighlight", currentHighlight.GetElementId(), highlightToRemove.NodeCount);
-            //bookAnalysis.Highlights.Remove(highlightToRemove);
         }
     }
 }

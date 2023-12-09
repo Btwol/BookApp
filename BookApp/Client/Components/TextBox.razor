@@ -86,7 +86,7 @@
             {
                 <ErrorHandlerComponent ChildComponentName="Highlight Context Menu">
                     <ChildContent>
-                        <HighlightContextMenuComponent bookAnalysis="BookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" />
+                        <HighlightContextMenuComponent bookAnalysis="BookAnalysis" currentHighlight="currentHighlight" @bind-editFlag="editFlag" userCanEdit="userHasEditRights" />
                     </ChildContent>
                 </ErrorHandlerComponent>
             }
