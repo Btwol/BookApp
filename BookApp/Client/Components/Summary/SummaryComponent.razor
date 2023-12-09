@@ -48,9 +48,9 @@ else
         </div>
         <div style="display:flex; flex-direction:row">
             <div>
-                <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="FilterTags" placeholder="Search Tags..." class="form-control" />
+                <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="(ChangeEventArgs e) => FilterTags(e)" placeholder="Search Tags..." class="form-control" />
             </div>
-            <div>
+            <div style="overflow-x:auto; display:flex; flex-direction:row">
                 @foreach (TagModel tag in filteredTags)
                 {
                     @if (!includedTags.Any(t => t.Id == tag.Id))
@@ -118,7 +118,7 @@ else
     private bool loading = true;
     private bool userCanEdit;
 
-    private string tagSearchKeyword = "";
+    private string? tagSearchKeyword;
 
     public static string GetTextContainerId(int i) => $"textContainer_{i}";
 
@@ -154,12 +154,23 @@ else
     private void FilterTags(ChangeEventArgs e)
     {
         tagSearchKeyword = e.Value.ToString();
-        Console.WriteLine("current: " + e.Value);
-        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword)
+        FilterTags();
+        StateHasChanged();
+    }
+
+    private void FilterTags()
+    {
+        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword) || string.IsNullOrEmpty(tagSearchKeyword)
             ? BookAnalysis.Tags
             : BookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
 
-        StateHasChanged();
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if(!firstRender)
+        {
+            FilterTags();
+        }
     }
 
     public static IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems, IEnumerable<TagModel> tags) where T : ITagableItemModel => tagableItems.Where(h => tags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
