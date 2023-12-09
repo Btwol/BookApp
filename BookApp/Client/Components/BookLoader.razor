@@ -62,6 +62,7 @@
 
                         @if (bookLoaded)
                         {
+                            <h3>Currently loaded book: @GetBookTitle()</h3>
                             <button class="button-action" @onclick="() => LoadAnalysesFromServer(loadedBookHash)">Load Analyses From Server</button>
 
                             if (showCreateAnalysisForm)
@@ -160,6 +161,11 @@
         byte[] hashValue = sha256.ComputeHash(loadedBookByteArray);
         string hashString = BitConverter.ToString(hashValue).Replace("-", "");
         loadedBookHash = hashString;
+    }
+
+    private string GetBookTitle()
+    {
+        return book.Title ?? "Unknown";
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
