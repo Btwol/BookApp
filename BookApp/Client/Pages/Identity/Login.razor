@@ -28,13 +28,14 @@
             }
             else
             {
-                <button type="submit" class="button-action">Submit</button>
+                <button type="submit" class="button-action" style="width:100%">Login</button>
             }
+            <button class="button-action" style="width:100%" @onclick='() => Navigation.NavigateTo("/register")'>Create new account here</button>
         </EditForm>
     </div>
 </div>
 @code {
-    public LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "", Password = "" };
+    LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "", Password = "" };
     bool awaitingResponse = false;
     bool loginSuccessful = true;
     string loginRequestResponseMessage = "";
