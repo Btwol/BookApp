@@ -99,9 +99,9 @@
     private string errorContent = "";
     private BookAnalysisDetailedModel loadedBookAnalysis;
     private EpubBook book = null;
-    private byte[]? loadedBookByteArray;
+    private byte[] loadedBookByteArray;
     private string loadedBookHash = string.Empty;
-    public List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
+    private List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
 
     private bool showCreateAnalysisForm = false;
     private BookAnalysisSummaryModel newAnalysis { get; set; } = new();
@@ -111,13 +111,19 @@
         try
         {
             loadingFile = true;
+
             Stream stream = e.File.OpenReadStream(maxAllowedSize: 51200000);
             loadedBookByteArray = await ReadFully(stream);
-            ReadBookHash();
+            loadedBookHash = ReadBookHash(loadedBookByteArray);
+
             await appStorage.StoreBook(loadedBookByteArray, loadedBookHash);
             book = EpubReader.Read(loadedBookByteArray);
+
+            await appStorage.DeleteAnalysisFromStorage();
+
             bookLoaded = true;
             loadingFile = false;
+
             await jsRuntime.InvokeVoidAsync("reRenderNavMenu");
             await LoadAnalysesFromServer(loadedBookHash);
         }
@@ -155,12 +161,12 @@
         }
     }
 
-    private void ReadBookHash()
+    private string ReadBookHash(byte[] bookByteArray)
     {
         SHA256 sha256 = SHA256.Create();
-        byte[] hashValue = sha256.ComputeHash(loadedBookByteArray);
+        byte[] hashValue = sha256.ComputeHash(bookByteArray);
         string hashString = BitConverter.ToString(hashValue).Replace("-", "");
-        loadedBookHash = hashString;
+        return hashString;
     }
 
     private string GetBookTitle()
