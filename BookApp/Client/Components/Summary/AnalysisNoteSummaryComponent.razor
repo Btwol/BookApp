@@ -20,10 +20,10 @@
                     <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
                         <TagsDisplayComponent Tags="note.Tags" />
                     </div>
-                <div style="height:75%;">
+                <div style="height:82%;">
             <ErrorHandlerComponent ChildComponentName="Analysis Notes">
                 <ChildContent>
-                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit" enableButtons="false"></NoteContainerComponent>
+                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit" enableButtons="false" DisplayTags="false"></NoteContainerComponent>
                 </ChildContent>
             </ErrorHandlerComponent>
                 </div>

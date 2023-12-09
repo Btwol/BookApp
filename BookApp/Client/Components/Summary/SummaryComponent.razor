@@ -66,12 +66,6 @@ else
         </div>
     </div>
     <div class="summary">
-        <ErrorHandlerComponent ChildComponentName="Highlights Summary">
-            <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.Highlights, includedTags), includedChapters)"></HighlightSummaryComponent></ChildContent>
-        </ErrorHandlerComponent>
-
-        <hr />
-
         <ErrorHandlerComponent ChildComponentName="Analysis Notes Summary">
             <ChildContent><AnalysisNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes, includedTags)" userCanEdit="userCanEdit"></AnalysisNoteSummaryComponent></ChildContent>
         </ErrorHandlerComponent>
@@ -89,6 +83,13 @@ else
         </ErrorHandlerComponent>
 
         <hr />
+
+        <ErrorHandlerComponent ChildComponentName="Highlights Summary">
+            <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.Highlights, includedTags), includedChapters)"></HighlightSummaryComponent></ChildContent>
+        </ErrorHandlerComponent>
+
+        <hr />
+
 
     </div>
 
