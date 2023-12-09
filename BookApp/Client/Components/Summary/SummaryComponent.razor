@@ -47,21 +47,21 @@ else
             <input type="text" @onchange="FilterChapters" placeholder="Filter By Chapter...(eg. 1, 3)" class="form-control" />
         </div>
         <div style="display:flex; flex-direction:row">
-        <div>
+            <div>
                 <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="FilterTags" placeholder="Search Tags..." class="form-control" />
             </div>
             <div>
-        @foreach (TagModel tag in filteredTags)
-        {
-            @if (!includedTags.Any(t => t.Id == tag.Id))
-            {
-                <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
-            }
-            else
-            {
-                <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-            }
-        }
+                @foreach (TagModel tag in filteredTags)
+                {
+                    @if (!includedTags.Any(t => t.Id == tag.Id))
+                    {
+                        <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+                    }
+                    else
+                    {
+                        <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+                    }
+                }
             </div>
         </div>
     </div>
@@ -132,9 +132,9 @@ else
         List<string> chapters = e.Value.ToString().Replace(" ", "").Split(",").ToList();
         List<int> _includedChapters = new();
         bool parseSuccesfull = true;
-        foreach(string chapter in chapters)
+        foreach (string chapter in chapters)
         {
-            if(int.TryParse(chapter, out int _chapter))
+            if (int.TryParse(chapter, out int _chapter))
             {
                 _includedChapters.Add(_chapter);
             }
@@ -184,14 +184,20 @@ else
 
     private IEnumerable<ParagraphContent> GetFilteredParagraphs()
     {
-        if(includedChapters.Count > 0)
+        var filteredParagraphs = Paragraphs;
+        if (includedChapters.Count > 0)
         {
-            return Paragraphs.Where(p => includedChapters.Contains(p.Chapter));
+            filteredParagraphs = filteredParagraphs.Where(p => includedChapters.Contains(p.Chapter)).ToList();
         }
-        else
+        if (includedTags.Count() > 0)
         {
-            return Paragraphs;
+            List<KeyValuePair<int, int>> filteredChapterParagraphPairs = GetFilteredByTag(BookAnalysis.ParagraphNotes, includedTags)
+                .Select(item => new KeyValuePair<int, int>(item.Chapter, item.TextNodeNumber)).Distinct()
+                .ToList();
+            filteredParagraphs = filteredParagraphs.Where(p => filteredChapterParagraphPairs
+                .Any(pc => pc.Key == p.Chapter && pc.Value == p.TextNode)).ToList();
         }
+        return filteredParagraphs;
     }
 
     public async Task ReRender()
@@ -217,17 +223,15 @@ else
 
         await hubService.RegisterReaderHub(this);
 
-
-
         foreach (var paragraphNote in BookAnalysis.ParagraphNotes)
         {
             var newParagraph = new ParagraphContent { Chapter = paragraphNote.Chapter, TextNode = paragraphNote.TextNodeNumber };
-            if(!Paragraphs.Any(p => p.Chapter == newParagraph.Chapter && p.TextNode == newParagraph.TextNode))
+            if (!Paragraphs.Any(p => p.Chapter == newParagraph.Chapter && p.TextNode == newParagraph.TextNode))
             {
                 Paragraphs.Add(newParagraph);
             }
         }
-        foreach(var parahraph in Paragraphs)
+        foreach (var parahraph in Paragraphs)
         {
             parahraph.Content = await jsRuntime.InvokeAsync<string>("GetHighlightText", GetTextContainerId(parahraph.Chapter),
                 parahraph.TextNode, null, null);

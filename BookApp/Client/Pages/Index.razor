@@ -1,11 +1,125 @@
 ﻿@page "/"
-@inject IJSRuntime jsRuntime
+@inject IAppStorage appStorage
+@inject NavigationManager navigation
 <PageTitle>Index</PageTitle>
 
+<style>
+    .index-element-container {
+        border: 5px solid black;
+        border-radius: 10px;
+        position: sticky;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+        border-radius: 5px;
+        height: fit-content;
+        width: 50%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+    }
+                    .index-element-container:hover {
+                background-color:White;
+                border: 5px groove black;
+                  cursor: default;
+            }
 
-@code {
+    .index-text-container {
+        display:flex;
+        flex-direction:column;
+        flex:0.7;
+          text-align: center;
+            vertical-align: middle;
+            font-size:120px;
+    }
+
+
+    .index-text-container h1 {
+            font-size:70px;
+    }
+    .index-text-container p {
+            font-size:20px;
+    }
+
+    .index-icon {
+          vertical-align: middle;
+          text-align: center;
+        flex:0.3;
+        font-size:150px;
+    }
+</style>
+
+<div style="width:100%; height:50%; position:absolute; top:10%">
+    <div style="display:flex; flex-direction:column;">
+        @if (userLoggedIn)
+        {
+            <div class="index-element-container" @onclick='() => navigation.NavigateTo("/bookLoader")'>
+                <span class="oi oi-bookmark index-icon" aria-hidden="true"></span>
+                <div class="index-text-container">
+                    <h1>Book Loader</h1>
+                    <p>Upload an EPUB and create an analysis</p>
+                </div>
+            </div>
+            @if (analysisLoaded)
+            {
+                <hr />
+                <div class="index-element-container" @onclick='() => navigation.NavigateTo("/reader")'>
+                    <span class="oi oi-book index-icon" aria-hidden="true"></span>
+                    <div class="index-text-container">
+                        <h1>Reader</h1>
+                        <p>Go to book reader</p>
+                    </div>
+                </div>
+                <hr />
+                <div class="index-element-container" @onclick='() => navigation.NavigateTo("/summary")'>
+                    <span class="oi oi-info index-icon" aria-hidden="true"></span>
+                    <div class="index-text-container">
+                        <h1>Summary</h1>
+                        <p>Go to analysis summary</p>
+                    </div>
+                </div>
+                <hr />
+                <div class="index-element-container" @onclick='() => navigation.NavigateTo("/analysisDetails")'>
+                    <span class="oi oi-clipboard index-icon" aria-hidden="true"></span>
+                    <div class="index-text-container">
+                        <h1>Details</h1>
+                        <p>Analysis details</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="index-element-container" @onclick='() => navigation.NavigateTo("/login")'>
+                <span class="oi oi-account-login index-icon" aria-hidden="true"></span>
+                <div class="index-text-container">
+                    <h1>Login</h1>
+                    <p>Go to login page</p>
+                </div>
+            </div>
+            <hr />
+            <div class="index-element-container" @onclick='() => navigation.NavigateTo("/register")'>
+                <span class="oi oi-plus index-icon" aria-hidden="true"></span>
+                <div class="index-text-container">
+                    <h1>Register</h1>
+                    <p>Create new account</p>
+                </div>
+            </div>
+            <hr />
+        }
+    </div>
+</div>
+
+@code
+{
+    bool userLoggedIn = false;
+    bool analysisLoaded = false;
     protected async override Task OnInitializedAsync()
     {
-        //await jsRuntime.InvokeVoidAsync("openNewWindow", "https://localhost:7111/swagger/index.html", "_blank");
+        userLoggedIn = await appStorage.UserIsStored();
+        analysisLoaded = await appStorage.AnalysisIsStored();
     }
 }

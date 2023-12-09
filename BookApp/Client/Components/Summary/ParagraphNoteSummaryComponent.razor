@@ -21,11 +21,11 @@
                     @paragraph.Content
                 </textarea>
                 <div style="flex:0.2">
-                    @*<ErrorHandlerComponent ChildComponentName="Paragraph Note Adding">
+                    <ErrorHandlerComponent ChildComponentName="Paragraph Note Adding">
                         <ChildContent>
-                            <AddNoteComponent createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes="userCanEdit" newNote="new HighlightNoteModel(){ HighlightId = note.Id }" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+                            <AddNoteComponent createNoteDelegate="CreateParagraphNoteModel" enableAddingNewNotes="userCanEdit" newNote="new ParagraphNoteModel(){ TextNodeNumber = paragraph.TextNode, BookAnalysisId = BookAnalysis.Id, Chapter = paragraph.Chapter }" NoteClientService="paragraphNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
                         </ChildContent>
-                    </ErrorHandlerComponent>*@
+                    </ErrorHandlerComponent>
                     @foreach (var note in Notes.Where(n => n.Chapter == paragraph.Chapter && n.TextNodeNumber == paragraph.TextNode))
                     {
                         <ErrorHandlerComponent ChildComponentName="Paragraph Notes">
@@ -53,19 +53,10 @@
 
     private string displayParagraphStyle { get; set; }
 
-    //public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
-    //{
-    //    if (lastClickedTextNodeIndex == -1)
-    //    {
-    //        return null;
-    //    }
-
-    //    ParagraphNoteModel newNote = (ParagraphNoteModel)note;
-    //    newNote.BookAnalysisId = BookAnalysis.Id;
-    //    newNote.TextNodeNumber = lastClickedTextNodeIndex;
-    //    newNote.Chapter = currentCount;
-    //    return newNote;
-    //}
+    public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
+    {
+        return note;
+    }
 
     public async Task GoToParagraph(ParagraphContent paragraph)
     {
