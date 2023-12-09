@@ -27,6 +27,7 @@ namespace BookApp.Client.Services
         public async Task Logout()
         {
             await _hubClientService.LeaveAnalysisEditGroup();
+            await _appStorage.DeleteReaderPosition();
             await _appStorage.DeleteUserFromStorage();
             await _appStorage.DeleteAnalysisFromStorage();
             await _appStorage.DeleteBookFromStorage();

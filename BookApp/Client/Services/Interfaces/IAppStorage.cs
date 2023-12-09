@@ -15,6 +15,7 @@ namespace BookApp.Client.Services.Interfaces
         public Task<byte[]> GetStoredBook();
         public Task<string> GetStoredBookHash();
         public Task StoreUser(LoginResponse loginResponse);
+        public Task DeleteReaderPosition();
         public Task DeleteBookFromStorage();
         public Task DeleteAnalysisFromStorage();
         public Task DeleteUserFromStorage();
