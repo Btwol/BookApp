@@ -16,55 +16,60 @@
         width: 100%;
         overflow-y: auto;
         resize: none;
-        min-height:75%;
+        min-height: 75%;
     }
 </style>
 
 <div style="width:30%;">
-<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayHighlightStyle" SectionName="Highlights" />
+    <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayHighlightStyle" SectionName="Highlights" />
 </div>
 <div style="@displayHighlightStyle">
     <div class="summary-section">
-    @foreach (var highlight in Highlights)
-    {
-        <div class="summary-section-element" >
-            <div style="flex:0.1; display:flex; flex-direction:row">
-                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(highlight.Id)">Delete</button>
-                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(highlight)">Tags</button>
-                <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Reader</button>
-                    <div style="height:inherit; width:fit-content; border:1px solid black; padding:1px; margin:2px; text-align: center; display: flex; align-items: center; justify-content: center; background-color:white">
-                        Ch[@highlight.Chapter]
-                    </div>
+        @foreach (var highlight in Highlights)
+        {
+            <div class="summary-section-element">
+                <div style="flex:0.1; display:flex; flex-direction:row">
+                    @if (userCanEdit)
+                    {
+                        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await highlightService.DeleteHighlight(highlight.Id)">Delete</button>
+                        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(highlight)">Tags</button>
+                    }
+                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Go To Chapter @highlight.Chapter</button>
                     <TagsDisplayComponent Tags="highlight.Tags" />
+                </div>
+                <textarea readonly rows="" cols="40" class="highlight-textarea">
+                    @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
+                    </textarea>
+                <div style="flex:0.2">
+                    <ErrorHandlerComponent ChildComponentName="Highlight Adding">
+                        <ChildContent>
+                            <AddNoteComponent createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="userCanEdit"
+                                          newNote="new HighlightNoteModel(){ HighlightId = highlight.Id, Tags = highlight.Tags, BookAnalysisId = highlight.BookAnalysisId }" NoteClientService="highlightNoteService"
+                                          userCanEdit="userCanEdit" />
+                        </ChildContent>
+                    </ErrorHandlerComponent>
+                    @foreach (var note in highlight.HighlightNotes)
+                    {
+                        <ErrorHandlerComponent ChildComponentName="Highlight Notes">
+                            <ChildContent>
+                                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"
+                                                enableButtons="true" />
+                            </ChildContent>
+                        </ErrorHandlerComponent>
+                    }
+                </div>
             </div>
-                @*<div>
-                    <TagsDisplayComponent Tags="highlight.Tags" />
-                </div>*@
-            <textarea readonly rows="" cols="40" class="highlight-textarea">
-                @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
-            </textarea>
-            <div style="flex:0.2">
-                <ErrorHandlerComponent ChildComponentName="Highlight Adding"><ChildContent>
-                        <AddNoteComponent createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="userCanEdit" newNote="new HighlightNoteModel(){ HighlightId = highlight.Id }" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
-                </ChildContent></ErrorHandlerComponent>
-                @foreach(var note in highlight.HighlightNotes)
-                {
-                <ErrorHandlerComponent ChildComponentName="Highlight Notes"><ChildContent>
-                            <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit" enableButtons="true"></NoteContainerComponent>
-                </ChildContent></ErrorHandlerComponent>
-                }
-            </div>
-        </div>
-    }
+        }
     </div>
 </div>
 
 @code {
     [Parameter]
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
-
     [Parameter]
     public IEnumerable<HighlightModel> Highlights { get; set; }
+    [Parameter]
+    public List<TagModel> IncludedTags { get; set; } = new();
 
     private bool userCanEdit;
     private string displayHighlightStyle { get; set; }
@@ -72,9 +77,7 @@
 
     public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
     {
-        HighlightNoteModel newNote = (HighlightNoteModel)note;
-        newNote.BookAnalysisId = BookAnalysis.Id;
-        return newNote;
+        return note;
     }
 
     private async Task ShowManageTagsModal(HighlightModel highlight)
@@ -83,7 +86,7 @@
         .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
         .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), highlight)
-        .Add(nameof(ManageTagsComponent.tagManagerClientService), highlightService);
+        .Add(nameof(ManageTagsComponent.TagManagerClientService), highlightService);
 
         var modal = Modal.Show<ManageTagsComponent>("Manage Highlight Tags", parameters);
         await modal.Result;

@@ -6,8 +6,8 @@
 
         public HighlightNoteServerService(IHighlightNoteMapper noteMapper, IBookAnalysisRepository bookAnalysisRepository,
             IHighlightNoteRepository noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService,
-            IHighlightRepository highlightRepository)
-            : base(noteMapper, bookAnalysisRepository, noteRepository, bookAnalysisServerService, hubServerService)
+            IHighlightRepository highlightRepository, ITagRepository tagRepository)
+            : base(noteMapper, bookAnalysisRepository, noteRepository, bookAnalysisServerService, hubServerService, tagRepository)
         {
             _highlightRepository = highlightRepository;
         }
@@ -34,6 +34,7 @@
         protected override async Task<ServiceResponse<HighlightNoteModel>> SaveNote(HighlightNoteModel noteModel)
         {
             var mappedNote = await _noteMapper.MapToDbModel(noteModel);
+            await IncludeTags(mappedNote);
             var savedNoteId = (await _noteRepository.Create(mappedNote)).Id;
             var createdNote = await _noteMapper.MapToClientModel(await _noteRepository.FindByConditionsFirstOrDefault(n => n.Id == savedNoteId));
 

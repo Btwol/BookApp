@@ -4,9 +4,8 @@
     <DataAnnotationsValidator />
     <ValidationSummary class="validation-summary" />
     <div>
-        <label for="AnalysisTitle">Book Analysis Title</label>
         <div style="display:flex">
-            <InputText style="width:30%" @bind-Value="newAnalysis!.AnalysisTitle" class="form-control" />
+            <InputText placeholder="Enter analysis title... " style="width:-webkit-fit-available; margin:1px;" @bind-Value="newAnalysis!.AnalysisTitle" class="form-control" />
 
             @if (awaitingResponse)
             {

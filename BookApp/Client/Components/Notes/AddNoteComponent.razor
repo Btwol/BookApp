@@ -1,14 +1,14 @@
 ﻿@if (userCanEdit && enableAddingNewNotes)
 {
     <div style="margin:5px;">
-    <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
-        <DataAnnotationsValidator />
-        <ValidationSummary class="validation-summary" />
-        <div style="display:flex">
-                <InputText style="flex:auto" @bind-Value="newNote!.Content" class="form-control" placeholder ="Add new note..."/>
-            <button style="flex:0.2; max-width:fit-content;" type="submit" class="button-action">Add</button>
-        </div>
-    </EditForm>
+        <EditForm Model="@newNote" OnValidSubmit="@AddNote" class="form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+            <div style="display:flex">
+                <InputText style="flex:auto" @bind-Value="newNote!.Content" class="form-control" placeholder="Add new note..." />
+                <button style="flex:0.2; max-width:fit-content;" type="submit" class="button-action">Add</button>
+            </div>
+        </EditForm>
     </div>
 }
 

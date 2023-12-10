@@ -94,14 +94,17 @@ namespace BookApp.Client.Services
 
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", UserCanEditLoadedAnalysis, userHasEditorRights.ToString());
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisIdKey, bookAnalysis.Id);
-
-            //await JoinAnalysisEditGroup(bookAnalysis.Id);
         }
 
         public async Task DeleteAnalysisFromStorage()
         {
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredAnalysisIdKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", UserCanEditLoadedAnalysis);
+        }
+
+        public async Task DeleteReaderPosition()
+        {
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", ReaderPoistionKey);
         }
 
         public async Task<bool> AnalysisIsStored()

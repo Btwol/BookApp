@@ -6,5 +6,6 @@ namespace BookApp.Client.Services.Interfaces
     {
         public Task Login(LoginRequest loginRequest);
         public Task Logout();
+        public Task Register(RegisterRequest registerRequest);
     }
 }

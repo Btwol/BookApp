@@ -47,7 +47,7 @@ namespace BookApp.Client.Services
             hubConnection.On("HighlightAdded", async (HighlightModel highlight) =>
             {
                 analysisComponent.BookAnalysis.Highlights.Add(highlight);
-                analysisComponent.ReRender();
+                await analysisComponent.ReRender();
             });
 
             hubConnection.On("HighlightUpdated", async (HighlightModel highlight) =>
@@ -57,7 +57,7 @@ namespace BookApp.Client.Services
                 {
                     analysisComponent.BookAnalysis.Highlights.Remove(highlightToEdit);
                     analysisComponent.BookAnalysis.Highlights.Add(highlight);
-                    analysisComponent.ReRender();
+                    await analysisComponent.ReRender();
                 }
             });
 
@@ -67,7 +67,7 @@ namespace BookApp.Client.Services
                 if (highlightToDelete is not null)
                 {
                     analysisComponent.BookAnalysis.Highlights.Remove(highlightToDelete);
-                    analysisComponent.ReRender();
+                    await analysisComponent.ReRender();
                 }
             });
 
@@ -146,7 +146,7 @@ namespace BookApp.Client.Services
             hubConnection.On("TagCreated", async (TagModel tagModel) =>
             {
                 analysisComponent.BookAnalysis.Tags.Add(tagModel);
-                analysisComponent.ReRender();
+                await analysisComponent.ReRender();
             });
 
             hubConnection.On("TagUpdated", async (TagModel tagModel) =>
@@ -156,7 +156,7 @@ namespace BookApp.Client.Services
                 {
                     analysisComponent.BookAnalysis.Tags.Remove(tagToUpdate);
                     analysisComponent.BookAnalysis.Tags.Add(tagModel);
-                    analysisComponent.ReRender();
+                    await analysisComponent.ReRender();
                 }
             });
 
@@ -166,7 +166,7 @@ namespace BookApp.Client.Services
                 if (tagToDelete is not null)
                 {
                     analysisComponent.BookAnalysis.Tags.Remove(tagToDelete);
-                    analysisComponent.ReRender();
+                    await analysisComponent.ReRender();
                 }
             });
 
