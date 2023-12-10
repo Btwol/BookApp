@@ -52,25 +52,34 @@ else
     </div>
     <div class="summary">
         <ErrorHandlerComponent ChildComponentName="Analysis Notes Summary">
-            <ChildContent><AnalysisNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes, includedTags)" userCanEdit="userCanEdit"></AnalysisNoteSummaryComponent></ChildContent>
+            <ChildContent><AnalysisNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByTag(BookAnalysis.AnalysisNotes, includedTags)" 
+                userCanEdit="userCanEdit" IncludedTags="includedTags"/></ChildContent>
         </ErrorHandlerComponent>
 
         <hr />
 
         <ErrorHandlerComponent ChildComponentName="Chapter Notes Summary">
-            <ChildContent><ChapterNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ChapterNotes, includedTags), includedChapters)" userCanEdit="userCanEdit" ChapterCount="html.Count"></ChapterNoteSummaryComponent></ChildContent>
+            <ChildContent><ChapterNoteSummaryComponent BookAnalysis="BookAnalysis" 
+                Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ChapterNotes, includedTags), includedChapters)"
+                                         userCanEdit="userCanEdit" ChapterCount="html.Count" IncludedTags="includedTags"/>
+            </ChildContent>
         </ErrorHandlerComponent>
 
         <hr />
 
         <ErrorHandlerComponent ChildComponentName="Paragraph Notes Summary">
-            <ChildContent><ParagraphNoteSummaryComponent BookAnalysis="BookAnalysis" Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ParagraphNotes, includedTags), includedChapters)" userCanEdit="userCanEdit" Paragraphs="GetFilteredParagraphs()"></ParagraphNoteSummaryComponent></ChildContent>
+            <ChildContent><ParagraphNoteSummaryComponent BookAnalysis="BookAnalysis" 
+                Notes="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.ParagraphNotes, includedTags), includedChapters)" 
+                userCanEdit="userCanEdit" Paragraphs="GetFilteredParagraphs()" IncludedTags="includedTags"/></ChildContent>
         </ErrorHandlerComponent>
 
         <hr />
 
         <ErrorHandlerComponent ChildComponentName="Highlights Summary">
-            <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis" Highlights="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.Highlights, includedTags), includedChapters)"></HighlightSummaryComponent></ChildContent>
+            <ChildContent><HighlightSummaryComponent BookAnalysis="BookAnalysis"
+                                       Highlights="GetFilteredByChapter(GetFilteredByTag(BookAnalysis.Highlights, includedTags), includedChapters)" 
+                                       IncludedTags="includedTags"/>
+            </ChildContent>
         </ErrorHandlerComponent>
 
         <hr />

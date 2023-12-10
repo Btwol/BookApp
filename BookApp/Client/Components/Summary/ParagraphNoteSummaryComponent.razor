@@ -47,11 +47,14 @@
     public IEnumerable<ParagraphContent> Paragraphs { get; set; }
     [Parameter]
     public bool userCanEdit { get; set; }
+    [Parameter]
+    public List<TagModel> IncludedTags { get; set; } = new();
 
     private string displayParagraphStyle { get; set; }
 
     public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
     {
+        note.Tags = IncludedTags;
         return note;
     }
 

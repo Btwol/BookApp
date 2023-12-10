@@ -37,23 +37,23 @@
                     <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToHighlight(highlight)">Go To Chapter @highlight.Chapter</button>
                     <TagsDisplayComponent Tags="highlight.Tags" />
                 </div>
-                @*<div>
-            <TagsDisplayComponent Tags="highlight.Tags" />
-            </div>*@
                 <textarea readonly rows="" cols="40" class="highlight-textarea">
                     @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
-                </textarea>
+                    </textarea>
                 <div style="flex:0.2">
                     <ErrorHandlerComponent ChildComponentName="Highlight Adding">
                         <ChildContent>
-                            <AddNoteComponent createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="userCanEdit" newNote="new HighlightNoteModel(){ HighlightId = highlight.Id }" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+                            <AddNoteComponent createNoteDelegate="CreateHighlightNoteModel" enableAddingNewNotes="userCanEdit"
+                                          newNote="new HighlightNoteModel(){ HighlightId = highlight.Id, Tags = highlight.Tags, BookAnalysisId = highlight.BookAnalysisId }" NoteClientService="highlightNoteService"
+                                          userCanEdit="userCanEdit" />
                         </ChildContent>
                     </ErrorHandlerComponent>
                     @foreach (var note in highlight.HighlightNotes)
                     {
                         <ErrorHandlerComponent ChildComponentName="Highlight Notes">
                             <ChildContent>
-                                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit" enableButtons="true"></NoteContainerComponent>
+                                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="highlightNoteService" userCanEdit="userCanEdit"
+                                                enableButtons="true" />
                             </ChildContent>
                         </ErrorHandlerComponent>
                     }
@@ -66,9 +66,10 @@
 @code {
     [Parameter]
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
-
     [Parameter]
     public IEnumerable<HighlightModel> Highlights { get; set; }
+    [Parameter]
+    public List<TagModel> IncludedTags { get; set; } = new();
 
     private bool userCanEdit;
     private string displayHighlightStyle { get; set; }
@@ -76,9 +77,11 @@
 
     public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
     {
-        HighlightNoteModel newNote = (HighlightNoteModel)note;
-        newNote.BookAnalysisId = BookAnalysis.Id;
-        return newNote;
+        return note;
+        //HighlightNoteModel newNote = (HighlightNoteModel)note;
+        //newNote.BookAnalysisId = BookAnalysis.Id;
+        //newNote.Tags = ;
+        //return newNote;
     }
 
     private async Task ShowManageTagsModal(HighlightModel highlight)

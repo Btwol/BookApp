@@ -7,11 +7,12 @@
 <div style="@displayAnalysisNotesStyle">
     <ErrorHandlerComponent ChildComponentName="Analysis Note Adding">
         <ChildContent>
-            <AddNoteComponent createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes="userCanEdit" newNote="new AnalysisNoteModel()" NoteClientService="analysisNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+            <AddNoteComponent createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes="userCanEdit" newNote="new AnalysisNoteModel()" 
+                NoteClientService="analysisNoteService" userCanEdit="userCanEdit"/>
         </ChildContent>
     </ErrorHandlerComponent>
-    <div class="summary-section">
 
+    <div class="summary-section">
         @foreach (var note in Notes)
         {
             <div class="summary-section-element">
@@ -32,8 +33,6 @@
                 </div>
             </div>
         }
-
-
     </div>
 </div>
 
@@ -45,6 +44,8 @@
     public IEnumerable<AnalysisNoteModel> Notes { get; set; }
     [Parameter]
     public bool userCanEdit { get; set; }
+    [Parameter]
+    public List<TagModel> IncludedTags { get; set; } = new();
 
     private string displayAnalysisNotesStyle { get; set; }
 
@@ -52,6 +53,7 @@
     {
         AnalysisNoteModel newNote = (AnalysisNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
+        newNote.Tags = IncludedTags;
         return newNote;
     }
 

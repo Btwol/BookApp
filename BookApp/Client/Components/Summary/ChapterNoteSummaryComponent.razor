@@ -58,6 +58,8 @@
     public bool userCanEdit { get; set; }
     [Parameter]
     public int ChapterCount { get; set; }
+    [Parameter]
+    public List<TagModel> IncludedTags { get; set; } = new();
 
     private string displayChapterNotesStyle { get; set; }
 
@@ -73,6 +75,7 @@
         ChapterNoteModel newNote = (ChapterNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
         newNote.Chapter = chapterToAddTo;
+        newNote.Tags = IncludedTags;
         return newNote;
     }
 
