@@ -44,21 +44,11 @@ else
         <div style="width:20%; border:1px solid black; border-radius:5px;">
             <input type="text" @onchange="FilterChapters" placeholder="Filter By Chapter...(eg. 1, 3)" class="form-control" />
         </div>
-        <div style="display:flex; flex-direction:row">
-            <div>
-                <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="(ChangeEventArgs e) => FilterTags(e)" placeholder="Search Tags..." class="form-control" />
-            </div>
-            <div style="overflow-x:auto; display:flex; flex-direction:row">
-                @foreach (TagModel tag in includedTags)
-                {
-                    <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-                }
-                @foreach (TagModel tag in filteredTags.Where(t => !includedTags.Contains(t)))
-                {
-                    <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
-                }
-            </div>
-        </div>
+
+        <ErrorHandlerComponent ChildComponentName="Tag Filtering">
+            <ChildContent><TagFilteringComponent @bind-includedTags="includedTags" Tags="BookAnalysis.Tags"/></ChildContent>
+        </ErrorHandlerComponent>
+
     </div>
     <div class="summary">
         <ErrorHandlerComponent ChildComponentName="Analysis Notes Summary">
@@ -103,17 +93,14 @@ else
 </div>
 
 @code {
-    EpubBook book;
-    List<EpubTextFile> html;
     public BookAnalysisDetailedModel BookAnalysis { get; set; }
-    private List<TagModel> filteredTags = new();
+    private EpubBook book;
+    private List<EpubTextFile> html;
     private List<TagModel> includedTags = new();
     private List<int> includedChapters = new();
     private List<ParagraphContent> Paragraphs = new();
     private bool loading = true;
     private bool userCanEdit;
-
-    private string? tagSearchKeyword;
 
     public static string GetTextContainerId(int i) => $"textContainer_{i}";
 
@@ -146,49 +133,11 @@ else
         }
     }
 
-    private void FilterTags(ChangeEventArgs e)
-    {
-        tagSearchKeyword = e.Value.ToString();
-        FilterTags();
-        StateHasChanged();
-    }
+    public static IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems, IEnumerable<TagModel> tags) where T : ITagableItemModel 
+        => tagableItems.Where(h => tags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
 
-    private void FilterTags()
-    {
-        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword) || string.IsNullOrEmpty(tagSearchKeyword)
-            ? BookAnalysis.Tags.OrderBy(t => t.Name).ToList()
-            : BookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).OrderBy(t => t.Name).ToList();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if(!firstRender)
-        {
-            FilterTags();
-        }
-    }
-
-    public static IEnumerable<T> GetFilteredByTag<T>(IEnumerable<T> tagableItems, IEnumerable<TagModel> tags) where T : ITagableItemModel => tagableItems.Where(h => tags.All(t => h.Tags.Any(ht => ht.Id == t.Id)));
-    public static IEnumerable<T> GetFilteredByChapter<T>(IEnumerable<T> itemsBoundToChapter, IEnumerable<int> chapters) where T : IBoundToChapter => (chapters.Count() > 0) ? itemsBoundToChapter.Where(h => chapters.Any(c => c == h.Chapter)) : itemsBoundToChapter;
-
-    public async Task AddTag(int tagId)
-    {
-        if (!includedTags.Any(t => t.Id == tagId))
-        {
-            includedTags.Add(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
-            includedTags.OrderBy(t => t.Name);
-        }
-        StateHasChanged();
-    }
-
-    public async Task RemoveTag(int tagId)
-    {
-        if (includedTags.Any(t => t.Id == tagId))
-        {
-            includedTags.Remove(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
-        }
-        StateHasChanged();
-    }
+    public static IEnumerable<T> GetFilteredByChapter<T>(IEnumerable<T> itemsBoundToChapter, IEnumerable<int> chapters) where T : IBoundToChapter 
+        => (chapters.Count() > 0) ? itemsBoundToChapter.Where(h => chapters.Any(c => c == h.Chapter)) : itemsBoundToChapter;
 
     private IEnumerable<ParagraphContent> GetFilteredParagraphs()
     {
@@ -216,7 +165,6 @@ else
     protected async override Task OnInitializedAsync()
     {
         BookAnalysis = await appStorage.GetStoredBookAnalysis();
-        filteredTags = BookAnalysis.Tags;
 
         userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
 
