@@ -6,7 +6,7 @@
 
 <style>
     .summary {
-        width: 99%;
+        width: 95%;
         position: sticky;
         margin: 20px;
         margin-left: auto;
@@ -24,9 +24,7 @@
     .summary-section-element {
         width: 100%;
         text-align: justify;
-        /*margin:5px;*/
         height: 35vh;
-        /*max-height: fit-content;*/
         justify-content: center;
         border: 1px solid black;
         border-radius: 5px;
@@ -51,16 +49,13 @@ else
                 <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="(ChangeEventArgs e) => FilterTags(e)" placeholder="Search Tags..." class="form-control" />
             </div>
             <div style="overflow-x:auto; display:flex; flex-direction:row">
-                @foreach (TagModel tag in filteredTags)
+                @foreach (TagModel tag in includedTags)
                 {
-                    @if (!includedTags.Any(t => t.Id == tag.Id))
-                    {
-                        <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
-                    }
-                    else
-                    {
-                        <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
-                    }
+                    <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+                }
+                @foreach (TagModel tag in filteredTags.Where(t => !includedTags.Contains(t)))
+                {
+                    <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
                 }
             </div>
         </div>
@@ -161,8 +156,8 @@ else
     private void FilterTags()
     {
         filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword) || string.IsNullOrEmpty(tagSearchKeyword)
-            ? BookAnalysis.Tags
-            : BookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).ToList();
+            ? BookAnalysis.Tags.OrderBy(t => t.Name).ToList()
+            : BookAnalysis.Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).OrderBy(t => t.Name).ToList();
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -181,6 +176,7 @@ else
         if (!includedTags.Any(t => t.Id == tagId))
         {
             includedTags.Add(BookAnalysis.Tags.FirstOrDefault(t => t.Id == tagId));
+            includedTags.OrderBy(t => t.Name);
         }
         StateHasChanged();
     }
