@@ -7,8 +7,10 @@
     <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayChapterNotesStyle" SectionName="Chapter Notes" />
 </div>
 <div style="@displayChapterNotesStyle">
-    <div style="display:flex; flex-direction:row; -webkit-flex-align:baseline">
-        <div style="flex:0.95">
+    @if (userCanEdit)
+    {
+        <div style="display:flex; flex-direction:row; -webkit-flex-align:baseline">
+            <div style="flex:0.95">
             <ErrorHandlerComponent ChildComponentName="Chapter Note Adding">
                 <ChildContent>
                     <AddNoteComponent createNoteDelegate="CreateChapterNoteModel" enableAddingNewNotes="userCanEdit" newNote="new ChapterNoteModel()" NoteClientService="chapterNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
@@ -20,14 +22,18 @@
             <input style="flex:0.6 height:inherit; margin:5px; text-align:center" type="text" class="number-input" @bind="chapterToAddTo">
         </div>
     </div>
+    }
     <div class="summary-section">
         @foreach (var note in Notes)
         {
             <div class="summary-section-element" style="flex:0.9">
                 <div style="flex:0.1; display:flex; flex-direction:row">
-                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await chapterNoteService.DeleteNote(note.Id, BookAnalysis.Id)">Delete</button>
-                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
-                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await GoToChapter(note.Chapter)">Chapter-@note.Chapter</button>
+                    @if (userCanEdit)
+                    {
+                        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await chapterNoteService.DeleteNote(note.Id, BookAnalysis.Id)">Delete</button>
+                        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+                    }
+                    <button style="flex:auto; max-width:fit-content;" class="button-action" @onclick="async () => await GoToChapter(note.Chapter)">Go To Chapter @note.Chapter</button>
                     <TagsDisplayComponent Tags="note.Tags" />
                 </div>
                 <div style="height:82%; overflow-y:clip">

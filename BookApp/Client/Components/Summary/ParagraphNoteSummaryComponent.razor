@@ -12,10 +12,7 @@
         {
             <div class="summary-section-element">
                 <div style="flex:0.1; display:flex; flex-direction:row">
-                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToParagraph(paragraph)">Reader</button>
-                    <div style="height:inherit; width:fit-content; border:1px solid black; padding:1px; margin:2px; text-align: center; display: flex; align-items: center; justify-content: center; background-color:white">
-                        Ch[@paragraph.Chapter]
-                    </div>
+                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => GoToParagraph(paragraph)">Go To Chapter @paragraph.Chapter</button>
                 </div>
                 <textarea readonly rows="" cols="40" class="highlight-textarea">
                     @paragraph.Content
