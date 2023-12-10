@@ -1,4 +1,5 @@
 ﻿using BookApp.Shared.Enums;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace BookApp.Server.Services.Notes
 {
@@ -8,16 +9,18 @@ namespace BookApp.Server.Services.Notes
         protected readonly IBookAnalysisRepository _bookAnalysisRepository;
         protected readonly IBookAnalysisServerService _bookAnalysisServerService;
         protected readonly INoteMapper<D, C> _noteMapper;
+        private readonly ITagRepository _tagRepository;
         private readonly IHubServerService _hubServerService;
 
         protected NoteServerService(INoteMapper<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService)
+            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService, ITagRepository tagRepository)
         {
             _noteMapper = noteMapper;
             _bookAnalysisRepository = bookAnalysisRepository;
             _noteRepository = noteRepository;
             _bookAnalysisServerService = bookAnalysisServerService;
             _hubServerService = hubServerService;
+            _tagRepository = tagRepository;
         }
 
         public async Task<ServiceResponse> AddNote(C noteModel, int bookAnalysisId)
@@ -103,10 +106,28 @@ namespace BookApp.Server.Services.Notes
         protected virtual async Task<ServiceResponse<C>> SaveNote(C noteModel)
         {
             var mappedNote = await _noteMapper.MapToDbModel(noteModel);
+            await IncludeTags(mappedNote);
             var savedNote = await _noteRepository.Create(mappedNote);
             var createdNote = await _noteMapper.MapToClientModel(savedNote);
 
             return ServiceResponse<C>.Success(createdNote, "Note added.");
+        }
+
+        protected virtual async Task IncludeTags(D mappedNote)
+        {
+            if (mappedNote.Tags.Count() > 0)
+            {
+                var tagsToAdd = new List<Tag>();
+                foreach (var tag in mappedNote.Tags)
+                {
+                    var tagToAdd = await _tagRepository.FindByConditionsFirstOrDefault(t => t.Id == tag.Id);
+                    if (tagToAdd is not null)
+                    {
+                        tagsToAdd.Add(tagToAdd);
+                    }
+                }
+                mappedNote.Tags = tagsToAdd;
+            }
         }
     }
 }

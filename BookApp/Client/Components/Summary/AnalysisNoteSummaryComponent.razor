@@ -2,35 +2,37 @@
 @inject IAnalysisNoteClientService analysisNoteService
 
 <div style="width:30%;">
-<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayAnalysisNotesStyle" SectionName="Analysis Notes"/>
+    <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayAnalysisNotesStyle" SectionName="Analysis Notes" />
 </div>
-<div style="@displayAnalysisNotesStyle" >
+<div style="@displayAnalysisNotesStyle">
     <ErrorHandlerComponent ChildComponentName="Analysis Note Adding">
         <ChildContent>
-            <AddNoteComponent createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes="userCanEdit" newNote="new AnalysisNoteModel()" NoteClientService="analysisNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+            <AddNoteComponent createNoteDelegate="CreateAnalysisNoteModel" enableAddingNewNotes="userCanEdit" newNote="new AnalysisNoteModel()" 
+                NoteClientService="analysisNoteService" userCanEdit="userCanEdit"/>
         </ChildContent>
     </ErrorHandlerComponent>
+
     <div class="summary-section">
-        
         @foreach (var note in Notes)
         {
-                <div class="summary-section-element">
-                    <div style="display:flex; flex-direction:row">
-                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await analysisNoteService.DeleteNote(note.Id, BookAnalysis.Id)">Delete</button>
-                    <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
-                        <TagsDisplayComponent Tags="note.Tags" />
-                    </div>
-                <div style="height:75%;">
-            <ErrorHandlerComponent ChildComponentName="Analysis Notes">
-                <ChildContent>
-                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit" enableButtons="false"></NoteContainerComponent>
-                </ChildContent>
-            </ErrorHandlerComponent>
+            <div class="summary-section-element">
+                <div style="display:flex; flex-direction:row">
+                    @if (userCanEdit)
+                    {
+                        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="async () => await analysisNoteService.DeleteNote(note.Id, BookAnalysis.Id)">Delete</button>
+                        <button style="flex:auto; max-width:fit-content" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+                    }
+                    <TagsDisplayComponent Tags="note.Tags" />
                 </div>
+                <div style="height:82%;">
+                    <ErrorHandlerComponent ChildComponentName="Analysis Notes">
+                        <ChildContent>
+                            <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" NoteClientService="analysisNoteService" userCanEdit="userCanEdit" enableButtons="false" DisplayTags="false"></NoteContainerComponent>
+                        </ChildContent>
+                    </ErrorHandlerComponent>
                 </div>
+            </div>
         }
-            
-    
     </div>
 </div>
 
@@ -42,6 +44,8 @@
     public IEnumerable<AnalysisNoteModel> Notes { get; set; }
     [Parameter]
     public bool userCanEdit { get; set; }
+    [Parameter]
+    public List<TagModel> IncludedTags { get; set; } = new();
 
     private string displayAnalysisNotesStyle { get; set; }
 
@@ -49,6 +53,7 @@
     {
         AnalysisNoteModel newNote = (AnalysisNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
+        newNote.Tags = IncludedTags;
         return newNote;
     }
 
@@ -58,7 +63,7 @@
         .Add(nameof(ManageTagsComponent.bookAnalysisId), BookAnalysis.Id)
         .Add(nameof(ManageTagsComponent.Tags), BookAnalysis.Tags)
         .Add(nameof(ManageTagsComponent.taggedItem), note)
-        .Add(nameof(ManageTagsComponent.tagManagerClientService), analysisNoteService);
+        .Add(nameof(ManageTagsComponent.TagManagerClientService), analysisNoteService);
 
         var modal = Modal.Show<ManageTagsComponent>("Manage Analysis Note Tags", parameters);
         await modal.Result;

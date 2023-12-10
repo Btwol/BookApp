@@ -15,6 +15,7 @@ global using BookApp.Server.Services.Interfaces.Identity;
 global using BookApp.Server.Services.Interfaces.MapperServices;
 global using BookApp.Server.Services.Interfaces.Notes;
 global using BookApp.Server.Services.MapperServices;
+global using BookApp.Shared.Enums;
 global using BookApp.Shared.Interfaces.Model;
 global using BookApp.Shared.Models.ClientModels;
 global using BookApp.Shared.Models.ClientModels.Notes;

@@ -274,6 +274,14 @@
             return window.scrollY;
         }
 
+        //scrolls to top of the page
+        function scrollToPageTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'instant'
+            });
+        }
+
         //scrolls to set reader position
         function scrollToPosition(scrollPosition) {
             window.scrollTo({

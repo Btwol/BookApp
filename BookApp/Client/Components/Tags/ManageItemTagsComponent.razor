@@ -1,0 +1,72 @@
+﻿
+<h3>Current Tags:</h3>
+@foreach (TagModel tag in Tags.Where(t => TaggedItem.Tags.Any(_t => _t.Id == t.Id)))
+{
+    <button class="tag-item" style=@buttonToggle @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+}
+
+<hr />
+
+@if (userHasEditRights)
+{
+    <h3>Add Tags</h3>
+    @foreach (TagModel tag in Tags)
+    {
+        @if (!TaggedItem.Tags.Any(t => t.Id == tag.Id))
+        {
+            <button class="tag-item" style=@buttonToggle @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public bool userHasEditRights { get; set; }
+    [Parameter]
+    public IEnumerable<TagModel> Tags { get; set; }
+    [Parameter]
+    public ITagableItemModel TaggedItem { get; set; }
+    [Parameter]
+    public ITagManagerClientService TagManagerClientService { get; set; }
+
+    private string buttonToggle = "";
+    private string disabledButtonStyle = "pointer-events: none; background-color: gray";
+
+    public async Task AddTag(int tagId)
+    {
+        try
+        {
+            ToggleButtons();
+            await TagManagerClientService.AddTag(TaggedItem.Id, tagId);
+        }
+        finally
+        {
+            ToggleButtons();
+        }
+    }
+
+    public async Task RemoveTag(int tagId)
+    {
+        try
+        {
+            ToggleButtons();
+            await TagManagerClientService.RemoveTag(TaggedItem.Id, tagId);
+        }
+        finally
+        {
+            ToggleButtons();
+        }
+    }
+
+    private void ToggleButtons()
+    {
+        if (buttonToggle == disabledButtonStyle)
+        {
+            buttonToggle = "";
+        }
+        else
+        {
+            buttonToggle = disabledButtonStyle;
+        }
+    }
+}

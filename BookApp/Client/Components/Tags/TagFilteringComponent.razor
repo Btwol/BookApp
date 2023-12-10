@@ -1,0 +1,68 @@
+﻿<div style="display:flex; flex-direction:row">
+    <div>
+        <input style="width:100%; border:1px solid black; border-radius:5px;" type="text" @oninput="(ChangeEventArgs e) => FilterTags(e)" placeholder="Search Tags..." class="form-control" />
+    </div>
+    <div style="overflow-x:auto; display:flex; flex-direction:row">
+        @foreach (TagModel tag in includedTags)
+        {
+            <button class="tag-item" style="background-color:white; color:black" @onclick="() => RemoveTag(tag.Id)">@tag.Name</button>
+        }
+        @foreach (TagModel tag in filteredTags.Where(t => !includedTags.Contains(t)))
+        {
+            <button class="tag-item" @onclick="() => AddTag(tag.Id)">@tag.Name</button>
+        }
+    </div>
+</div>
+
+@code {
+    
+    private List<TagModel> filteredTags = new();
+    [Parameter]
+    public List<TagModel> includedTags { get; set; } = new();
+    [Parameter]
+    public EventCallback<List<TagModel>> includedTagsChanged { get; set; } = new();
+    [Parameter]
+    public List<TagModel> Tags { get; set; } = new();
+
+    private string? tagSearchKeyword;
+
+    private void FilterTags(ChangeEventArgs e)
+    {
+        tagSearchKeyword = e.Value.ToString();
+        FilterTags();
+        StateHasChanged();
+    }
+
+    private void FilterTags()
+    {
+        filteredTags = string.IsNullOrWhiteSpace(tagSearchKeyword) || string.IsNullOrEmpty(tagSearchKeyword)
+            ? Tags.OrderBy(t => t.Name).ToList()
+            : Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).OrderBy(t => t.Name).ToList();
+    }
+
+    public async Task AddTag(int tagId)
+    {
+        if (!includedTags.Any(t => t.Id == tagId))
+        {
+            includedTags.Add(Tags.FirstOrDefault(t => t.Id == tagId));
+            includedTags.OrderBy(t => t.Name);
+            await includedTagsChanged.InvokeAsync(includedTags);
+        }
+        StateHasChanged();
+    }
+
+    public async Task RemoveTag(int tagId)
+    {
+        if (includedTags.Any(t => t.Id == tagId))
+        {
+            includedTags.Remove(Tags.FirstOrDefault(t => t.Id == tagId));
+            await includedTagsChanged.InvokeAsync(includedTags);
+        }
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        filteredTags = Tags;
+    }
+}
