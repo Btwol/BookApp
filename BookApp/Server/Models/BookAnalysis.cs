@@ -16,11 +16,11 @@
         [MaxLength(500)]
         public string Authors { get; set; }
 
-        public virtual List<Tag>? Tags { get; set; }
-        public virtual List<Highlight>? Highlights { get; set; }
+        public virtual List<Tag>? Tags { get; set; } = new();
+        public virtual List<Highlight>? Highlights { get; set; } = new();
         public virtual List<AppUser> Users { get; set; } = new();
-        public virtual List<ParagraphNote>? ParagraphNotes { get; set; }
-        public virtual List<AnalysisNote>? AnalysisNotes { get; set; }
-        public virtual List<ChapterNote>? ChapterNotes { get; set; }
+        public virtual List<ParagraphNote>? ParagraphNotes { get; set; } = new();
+        public virtual List<AnalysisNote>? AnalysisNotes { get; set; } = new();
+        public virtual List<ChapterNote>? ChapterNotes { get; set; } = new();
     }
 }

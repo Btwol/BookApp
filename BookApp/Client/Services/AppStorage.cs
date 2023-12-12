@@ -36,13 +36,9 @@ namespace BookApp.Client.Services
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookHashKey);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", ReaderPoistionKey);
 
-            StringBuilder bytesString = new StringBuilder();
-            foreach (var bt in bookArray)
-            {
-                bytesString.Append(bt.ToString() + " ");
-            }
+            string base64String = Convert.ToBase64String(bookArray);
 
-            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredBookKey, bytesString.ToString());
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredBookKey, base64String);
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredBookHashKey, bookHash);
         }
 
@@ -53,17 +49,14 @@ namespace BookApp.Client.Services
 
         public async Task<byte[]> GetStoredBook()
         {
-            var book = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookKey);
+            var base64String = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredBookKey);
 
-            var reArray = book.ToString().Split(new string[] { " " }, StringSplitOptions.None).ToList();
-            reArray.Remove("");
-            byte[] reByte = new byte[reArray.Count];
-            for (int i = 0; i < reArray.Count - 1; i++)
+            if (string.IsNullOrEmpty(base64String))
             {
-                reByte[i] = byte.Parse(reArray[i]);
+                throw new Exception("Book not loaded.");
             }
 
-            return reByte;
+            return Convert.FromBase64String(base64String);
         }
 
         public async Task DeleteBookFromStorage()

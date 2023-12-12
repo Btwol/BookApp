@@ -188,12 +188,12 @@
     {
         if (!initializingComponent)
         {
+            await RenderHighlights();
+
             if (firstComponentRender)
             {
                 firstComponentRender = false;
                 await jsRuntime.InvokeVoidAsync("setupEvent", "textContainer", dotNetRef);
-
-                await RenderHighlights();
 
                 readerPosition = await appStorage.GetLastReaderPosition();
 
@@ -213,8 +213,6 @@
                     await jsRuntime.InvokeVoidAsync("scrollToPosition", readerPosition.ScrollPosition);
                 }
             }
-
-            await RenderHighlights();
 
             await appStorage.SetReaderPosition(new ReaderPosition 
                 { 
@@ -245,15 +243,16 @@
                 await jsRuntime.InvokeVoidAsync("renderParagraphHighlight", lastClickedTextNodeIndex);
             }
 
-            foreach (HighlightModel highlight in BookAnalysis.Highlights)
+            foreach (HighlightModel highlight in BookAnalysis.Highlights.Where(h => h.Chapter == currentCount))
             {
-                if (highlight.Chapter == currentCount && !await jsRuntime.InvokeAsync<bool>("doesHighlightExist", highlight.GetElementId()))
-                {
-                    await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, highlight.LastNodeCharIndex, dotNetRef, highlight.GetElementId());
-                }
+                await jsRuntime.InvokeVoidAsync("createHighlight2", "textContainer", highlight.FirstNodeIndex, highlight.FirstNodeCharIndex, highlight.LastNodeIndex, 
+                    highlight.LastNodeCharIndex, highlight.GetElementId());
             }
         }
-        catch { }
+        catch (Exception ex)
+        { 
+            Console.WriteLine(ex.Message);
+        }
     }
 
     protected override async Task OnInitializedAsync()

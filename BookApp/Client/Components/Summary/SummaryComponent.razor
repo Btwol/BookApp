@@ -83,8 +83,6 @@ else
         </ErrorHandlerComponent>
 
         <hr />
-
-
     </div>
 
     <div style="height:100px; width:100%"></div>
@@ -173,18 +171,16 @@ else
 
     protected async override Task OnInitializedAsync()
     {
-        BookAnalysis = await appStorage.GetStoredBookAnalysis();
-
-        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
-
         var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        BookAnalysis = await appStorage.GetStoredBookAnalysis();
         if (book is not null)
         {
             html = book.Resources.Html.ToList();
             StateHasChanged();
         }
+
+        BookAnalysis = await appStorage.GetStoredBookAnalysis();
+        userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
 
         await hubService.RegisterReaderHub(this);
 
