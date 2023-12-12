@@ -318,159 +318,67 @@
             return selectedText;
         }
 
+        // Position the highlight element on top of the specified text
+        function setHighlightPositionAndSize(highlight, rect) {
+            highlight.style.left = rect.left + "px";
+            highlight.style.top = rect.top + "px";
+            highlight.style.width = rect.width + "px";
+            highlight.style.height = rect.height + "px";
+        }
+
+        // Create a span element to represent the highlight
+        function getNewHighlight(highlightNmeAppendix, highlightId) {
+            var highlight = document.createElement("div");
+            highlight.className = "highlight";
+            highlight.id = highlightId + highlightNmeAppendix;
+            highlight.onclick = function () { { dotNet.invokeMethodAsync("onPernamentHighlightClick", highlightId); } };
+            return highlight;
+        }
+
+        // Get the position and dimensions of the specified text within the element
+        function getRect(textNode, startOffset, endOffset) {
+            var range = document.createRange();
+            range.setStart(textNode, startOffset);
+            range.setEnd(textNode, endOffset);
+            return range.getBoundingClientRect();
+        }
+
         //FirstNodeIndex, FirstNodeCharIndex, LastNodeIndex, LastNodeCharIndex, RawArray
-        function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, dotNetHelper, highlightId) {
+        function createHighlight2(elementId, firstNodeIndex, firstNodeCharIndex, lastNodeIndex, lastNodeCharIndex, highlightId) {
 
             var nodeCount = lastNodeIndex - firstNodeIndex + 1;
 
             //SINGLE NODE
             if (nodeCount == 1) {
-                var element = document.getElementById(elementId);
-                var textNode = getTextNodes(element)[firstNodeIndex];
-                var text = textNode.textContent;
-
-                startOffset = firstNodeCharIndex;
-                endOffset = lastNodeCharIndex;
-
-                // Find the specific text using the location values
-                var selectedText = text.substring(startOffset, endOffset);
-
-                // Create a span element to represent the highlight
-                var highlight = document.createElement("div");
-                highlight.className = "highlight";
-                highlight.id = highlightId + '_s';
-                highlight.onclick = function () { { dotNetHelper.invokeMethodAsync("onPernamentHighlightClick", highlightId); } };
-
-                // Get the position and dimensions of the specified text within the element
-                var range = document.createRange();
-                range.setStart(textNode, startOffset);
-                range.setEnd(textNode, endOffset);
-                var rect = range.getBoundingClientRect();
-                
-
-                // Position the highlight element on top of the specified text
-                highlight.style.left = rect.left + "px";
-                highlight.style.top = rect.top + "px";
-                highlight.style.width = rect.width + "px";
-                highlight.style.height = rect.height + "px";
-
-                // Append the highlight element to the highlight container
-                var highlightContainer = document.getElementById("highlightContainer");
-                highlightContainer.appendChild(highlight);
-
+                var highlight = getNewHighlight('_s', highlightId);
+                setHighlightPositionAndSize(highlight, getRect(getTextNodes(document.getElementById(elementId))[firstNodeIndex], firstNodeCharIndex, lastNodeCharIndex));
+                document.getElementById("highlightContainer").appendChild(highlight);   // Append the highlight element to the highlight container
                 return;
             }
 
             //FIRST NODE
-            var element = document.getElementById(elementId);
-            var textNode = getTextNodes(element)[firstNodeIndex]; // Get the first text node within the element
-            var text = textNode.textContent;
-
-            startOffset = firstNodeCharIndex;
-            endOffset = text.length
-
-            // Find the specific text using the location values
-            var selectedText = text.substring(startOffset, endOffset);
-
-            // Create a span element to represent the highlight
-            var highlight = document.createElement("div");
-            highlight.className = "highlight";
-            highlight.id = highlightId + '_f';
-            highlight.onclick = function () { { dotNetHelper.invokeMethodAsync("onPernamentHighlightClick", highlightId); } };
-
-            // Get the position and dimensions of the specified text within the element
-            var range = document.createRange();
-            range.setStart(textNode, startOffset);
-            range.setEnd(textNode, endOffset);
-            var rect = range.getBoundingClientRect();
-
-            // Position the highlight element on top of the specified text
-            highlight.style.left = rect.left + "px";
-            highlight.style.top = rect.top + "px";
-            highlight.style.width = rect.width + "px";
-            highlight.style.height = rect.height + "px";
-
-            // Append the highlight element to the highlight container
-            var highlightContainer = document.getElementById("highlightContainer");
-            highlightContainer.appendChild(highlight);
+            var highlightF = getNewHighlight('_f', highlightId);
+            var textNode = getTextNodes(document.getElementById(elementId))[firstNodeIndex];
+            setHighlightPositionAndSize(highlightF, getRect(textNode, firstNodeCharIndex, textNode.textContent.length));
+            document.getElementById("highlightContainer").appendChild(highlightF);
 
             //NODES IN BETWEEN
             for (let i = 1; i < nodeCount - 1; i++) {
-                var element = document.getElementById(elementId);
-                var textNode = getTextNodes(element)[firstNodeIndex + i]; // Get the first text node within the element
-                var text = textNode.textContent;
-
-                startOffset = 0;
-                endOffset = text.length
-
-                // Find the specific text using the location values
-                var selectedText = text.substring(startOffset, endOffset);
-
-                // Create a span element to represent the highlight
-                var highlight = document.createElement("div");
-                highlight.className = "highlight";
-                highlight.id = highlightId + '_' + i;
-                highlight.onclick = function () { { dotNetHelper.invokeMethodAsync("onPernamentHighlightClick", highlightId); } };
-
-                // Get the position and dimensions of the specified text within the element
-                var range = document.createRange();
-                range.setStart(textNode, startOffset);
-                range.setEnd(textNode, endOffset);
-                var rect = range.getBoundingClientRect();
-
-                // Position the highlight element on top of the specified text
-                highlight.style.left = rect.left + "px";
-                highlight.style.top = rect.top + "px";
-                highlight.style.width = rect.width + "px";
-                highlight.style.height = rect.height + "px";
-
-                // Append the highlight element to the highlight container
-                var highlightContainer = document.getElementById("highlightContainer");
-                highlightContainer.appendChild(highlight);
+                var highlightI = getNewHighlight('_' + i, highlightId);
+                var textNode = getTextNodes(document.getElementById(elementId))[firstNodeIndex + i];
+                setHighlightPositionAndSize(highlightI, getRect(textNode, 0, textNode.textContent.length));
+                document.getElementById("highlightContainer").appendChild(highlightI);
             }
 
             //LAST NODE
-            var element = document.getElementById(elementId);
-            var textNode = getTextNodes(element)[lastNodeIndex]; // Get the first text node within the element
-            var text = textNode.textContent;
-
-            startOffset = 0;
-            endOffset = lastNodeCharIndex
-
-            // Find the specific text using the location values
-            var selectedText = text.substring(startOffset, endOffset);
-
-            // Create a span element to represent the highlight
-            var highlight = document.createElement("div");
-            highlight.className = "highlight";
-            highlight.id = highlightId + '_l';
-            highlight.onclick = function () { { dotNetHelper.invokeMethodAsync("onPernamentHighlightClick", highlightId); } };
-
-            // Get the position and dimensions of the specified text within the element
-            var range = document.createRange();
-            range.setStart(textNode, startOffset);
-            range.setEnd(textNode, endOffset);
-            var rect = range.getBoundingClientRect();
-
-            // Position the highlight element on top of the specified text
-            highlight.style.left = rect.left + "px";
-            highlight.style.top = rect.top + "px";
-            highlight.style.width = rect.width + "px";
-            highlight.style.height = rect.height + "px";
-
-            // Append the highlight element to the highlight container
-            var highlightContainer = document.getElementById("highlightContainer");
-            highlightContainer.appendChild(highlight);
+            var highlightL = getNewHighlight('_l', highlightId);
+            setHighlightPositionAndSize(highlightL, getRect(getTextNodes(document.getElementById(elementId))[lastNodeIndex], 0, lastNodeCharIndex));
+            document.getElementById("highlightContainer").appendChild(highlightL);
         }
 
         //Clears highlight child divs after changing page
         function clearDiv(elementId) {
-            const div = document.getElementById(elementId);
-
-            // Remove all child elements from the div
-            while (div.firstChild) {
-                div.removeChild(div.firstChild);
-            }
+            document.getElementById(elementId).innerHTML = "";
         }
 
         //check if pernament highlight already rendered
@@ -549,27 +457,19 @@
 
         //renders a box around last selected paragraph
         function renderParagraphHighlight(lastSelectedNodeIndex) {
-            //enables a box around the paragraph
-            var element = document.getElementById('textContainer');
-            var textNode = getTextNodes(element)[lastSelectedNodeIndex];
-
-            var paragraphSelection = document.getElementById('paragraphSelectionId');
-            while (paragraphSelection.firstChild) {
-                paragraphSelection.removeChild(paragraphSelection.firstChild);
-            }
             var newSelection = document.createElement("div");
             newSelection.className = "paragraphSelection";
 
             const nodeRange = document.createRange();
-            nodeRange.selectNodeContents(textNode);
+            nodeRange.selectNodeContents(getTextNodes(document.getElementById('textContainer'))[lastSelectedNodeIndex]);
 
             var ParagraphRect = nodeRange.getBoundingClientRect();
-            // Position the highlight element on top of the specified text
             newSelection.style.left = ParagraphRect.left + "px";
             newSelection.style.top = ParagraphRect.top + "px";
             newSelection.style.width = ParagraphRect.width + "px";
             newSelection.style.height = ParagraphRect.height + "px";
-            paragraphSelection.appendChild(newSelection);
+
+            document.getElementById('paragraphSelectionId').innerHTML = newSelection.outerHTML;
         }
 
         // Attach event listener to the parent div
