@@ -2,7 +2,7 @@ name: Build and deploy .NET Core application to Web App BookApp000Api
 on:
   push:
     branches:
-    - Deploy
+    - Deploy2
 env:
   AZURE_WEBAPP_NAME: BookApp000Api
   AZURE_WEBAPP_PACKAGE_PATH: BookApp\Server\publish
