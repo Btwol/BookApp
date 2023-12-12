@@ -76,27 +76,18 @@ namespace BookApp.Server.Repositories
                  .Include(b => b.Users)
                  .FirstOrDefaultAsync(b => b.Id == bookAnalysisId);
 
-            var tags = await _context.Set<Tag>()
+            if(analysis is not null)
+            {
+                analysis.Tags = await _context.Set<Tag>()
                 .Include(t => t.AnalysisNotes)
                 .Include(t => t.ChapterNotes)
                 .Include(t => t.ParagraphNotes)
                 .Include(t => t.Highlights)
                 .Include(t => t.HighlightNotes)
                 .Where(t => t.BookAnalysisId == bookAnalysisId).ToListAsync();
-
-            analysis.Tags = tags;
-
+            }
+            
             return analysis;
-
-            //.Include(b => b.Tags)
-            //    .ThenInclude(t => t.Highlights)
-            // .Include(b => b.Tags)
-            //    .ThenInclude(t => t.AnalysisNotes)
-            //.Include(b => b.Tags)
-            //    .ThenInclude(t => t.ParagraphNotes)
-            //.Include(b => b.Tags)
-            //    .ThenInclude(t => t.ChapterNotes)
-
         }
     }
 }
