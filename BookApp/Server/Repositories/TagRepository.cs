@@ -1,4 +1,6 @@
-﻿namespace BookApp.Server.Repositories
+﻿using System.Linq.Expressions;
+
+namespace BookApp.Server.Repositories
 {
     public class TagRepository : BaseRepository<Tag>, ITagRepository
     {
@@ -29,5 +31,16 @@
                 .Include(t => t.Highlights)
                 .Include(t => t.HighlightNotes);
         }
+
+        //public virtual async Task<IEnumerable<int>> ItemsWithTag<T>(Expression<Func<Tag, bool>> expresion) where T : ITaggable
+        //{
+        //    IEnumerable<int> itemIdsWithAssignedTag;
+        //    switch(typeof(T).Name)
+        //    {
+        //        case "AnalysisNote":
+        //            itemIdsWithAssignedTag = _context.Set<Tag>().Include(t => t.AnalysisNotes).FirstOrDefault(expresion).AnalysisNotes.Select(t => t.Id);
+        //            break;
+        //    }
+        //}
     }
 }

@@ -29,6 +29,7 @@ builder.Services.AddScoped(typeof(IAnalysisMembershipClientService), typeof(Anal
 builder.Services.AddScoped(typeof(IAppUserClientService), typeof(AppUserClientService));
 builder.Services.AddScoped(typeof(IAccountClientService), typeof(AccountClientService));
 builder.Services.AddScoped(typeof(IHubClientService), typeof(HubClientService));
+builder.Services.AddScoped(typeof(IAnalysisUpdaterClientService), typeof(AnalysisUpdaterClientService));
 builder.Services.AddScoped<IAppStorage, AppStorage>();
 
 

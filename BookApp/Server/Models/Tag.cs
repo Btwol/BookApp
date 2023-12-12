@@ -10,11 +10,16 @@
 
         public int BookAnalysisId { get; set; }
         public virtual BookAnalysis BookAnalysis { get; set; }
-
         public virtual List<Highlight>? Highlights { get; set; }
         public virtual List<AnalysisNote>? AnalysisNotes { get; set; }
         public virtual List<ParagraphNote>? ParagraphNotes { get; set; }
         public virtual List<ChapterNote>? ChapterNotes { get; set; }
         public virtual List<HighlightNote>? HighlightNotes { get; set; } = new();
+
+        public virtual List<int> HighlightIds { get; set; } = new();
+        public virtual List<int> AnalysisNotesIds { get; set; } = new();
+        public virtual List<int> ParagraphNotesIds { get; set; } = new();
+        public virtual List<int> ChapterNotesIds { get; set; } = new();
+        public virtual List<int> HighlightNotesIds { get; set; } = new();
     }
 }

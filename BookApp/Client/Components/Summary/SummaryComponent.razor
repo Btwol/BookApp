@@ -3,6 +3,7 @@
 @inject IJSRuntime jsRuntime
 @inject NavigationManager navigation
 @inject IHubClientService hubService
+@inject IAnalysisUpdaterClientService analysisUpdaterService
 
 <style>
     .summary {
@@ -173,13 +174,15 @@ else
 
     protected async override Task OnInitializedAsync()
     {
-        BookAnalysis = await appStorage.GetStoredBookAnalysis();
+        //BookAnalysis = await appStorage.GetStoredBookAnalysis();
 
         userCanEdit = await appStorage.UserHasStoredAnalysisEditorialRights();
 
         var loadedBookByteArray = await appStorage.GetStoredBook();
         book = EpubReader.Read(loadedBookByteArray);
-        BookAnalysis = await appStorage.GetStoredBookAnalysis();
+        BookAnalysis = await appStorage.GetStoredBookAnalysis(0);
+        await analysisUpdaterService.UpdateAnalysisModel(this);
+
         if (book is not null)
         {
             html = book.Resources.Html.ToList();

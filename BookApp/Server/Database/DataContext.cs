@@ -1,4 +1,9 @@
-﻿namespace BookApp.Server.Database
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Diagnostics.Metrics;
+
+namespace BookApp.Server.Database
 {
     public class DataContext : IdentityDbContext<AppUser, AppRole, int>
     {
@@ -16,6 +21,7 @@
         public DbSet<ParagraphNote> ParagraphNotes { get; set; }
         public DbSet<AnalysisNote> AnalysisNotes { get; set; }
         public DbSet<ChapterNote> ChapterNotes { get; set; }
+        public DbSet<AnalysisVersion> AnalysisVersions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -54,6 +60,10 @@
             ////Database Configuration
 
             modelBuilder.Entity<BookAnalysis>().HasKey(b => b.Id);
+
+            modelBuilder.Entity<BookAnalysis>()
+                .HasOne(b => b.AnalysisVersion)
+                .WithOne(u => u.BookAnalysis);
 
             modelBuilder.Entity<BookAnalysis>()
                 .HasMany(b => b.Users)
@@ -112,7 +122,24 @@
                .IsRequired(false)
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<AnalysisVersion>().HasKey(v => v.Id);
+
             modelBuilder.Entity<Tag>().HasKey(b => b.Id);
+
+            modelBuilder.Entity<Tag>()
+                .Ignore(b => b.AnalysisNotesIds);
+
+            modelBuilder.Entity<Tag>()
+                .Ignore(b => b.ChapterNotesIds);
+
+            modelBuilder.Entity<Tag>()
+                .Ignore(b => b.ParagraphNotesIds);
+
+            modelBuilder.Entity<Tag>()
+                .Ignore(b => b.HighlightIds);
+
+            modelBuilder.Entity<Tag>()
+                .Ignore(b => b.HighlightNotesIds);
 
             modelBuilder.Entity<AnalysisNote>()
                 .HasMany(h => h.Tags)
@@ -152,7 +179,96 @@
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
+            foreach (EntityEntry<BookAnalysis> bookAnalysis in ChangeTracker.Entries<BookAnalysis>())
+            {
+                switch (bookAnalysis.State)
+                {
+                    case EntityState.Modified:
+                        //IncrementVersion(bookAnalysis.Entity.AnalysisVersion.AnalysisSummaryVersion);
+                        bookAnalysis.Entity.AnalysisVersion.AnalysisSummaryVersion++;
+                        break;
+                }
+            }
+
+            foreach (EntityEntry<Tag> tag in ChangeTracker.Entries<Tag>())
+            {
+                switch (tag.State)
+                {
+                    case EntityState.Modified:
+                    case EntityState.Added:
+                    case EntityState.Deleted:
+                        IncrementVersion(tag.Entity.BookAnalysis.AnalysisVersion.TagsVersion);
+                        break;
+                }
+            }
+
+            foreach (EntityEntry<Highlight> highlight in ChangeTracker.Entries<Highlight>())
+            {
+                switch (highlight.State)
+                {
+                    //case EntityState.Modified:
+                    //case EntityState.Added:
+                    //case EntityState.Deleted:
+                    //    IncrementVersion(highlight.Entity.BookAnalysis.AnalysisVersion.HighlightVersion);
+                    //    break;
+                }
+            }
+
+            foreach (EntityEntry<AnalysisNote> analysisNote in ChangeTracker.Entries<AnalysisNote>())
+            {
+                switch (analysisNote.State)
+                {
+                    case EntityState.Modified:
+                    case EntityState.Added:
+                    case EntityState.Deleted:
+                        IncrementVersion(analysisNote.Entity.BookAnalysis.AnalysisVersion.AnalysisNotesVersion);
+                        break;
+                }
+            }
+
+            foreach (EntityEntry<ChapterNote> chapterNote in ChangeTracker.Entries<ChapterNote>())
+            {
+                switch (chapterNote.State)
+                {
+                    case EntityState.Modified:
+                    case EntityState.Added:
+                    case EntityState.Deleted:
+                        IncrementVersion(chapterNote.Entity.BookAnalysis.AnalysisVersion.ChapterNotesVersion);
+                        break;
+                }
+            }
+
+            foreach (EntityEntry<ParagraphNote> paragraphNote in ChangeTracker.Entries<ParagraphNote>())
+            {
+                switch (paragraphNote.State)
+                {
+                    case EntityState.Modified:
+                    case EntityState.Added:
+                    case EntityState.Deleted:
+                        IncrementVersion(paragraphNote.Entity.BookAnalysis.AnalysisVersion.ParagraphNotesVersion);
+                        break;
+                }
+            }
+
+            foreach (EntityEntry<HighlightNote> highlightNote in ChangeTracker.Entries<HighlightNote>())
+            {
+                switch (highlightNote.State)
+                {
+                    case EntityState.Modified:
+                    case EntityState.Added:
+                    case EntityState.Deleted:
+                        
+                        IncrementVersion(highlightNote.Entity.Highlight.BookAnalysis.AnalysisVersion.HighlightNotesVersion);
+                        break;
+                }
+            }
+
             return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        static void IncrementVersion(int version)
+        {
+            Interlocked.Increment(ref version);
         }
     }
 }

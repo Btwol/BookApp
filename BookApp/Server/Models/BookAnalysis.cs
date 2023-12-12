@@ -22,5 +22,8 @@
         public virtual List<ParagraphNote>? ParagraphNotes { get; set; }
         public virtual List<AnalysisNote>? AnalysisNotes { get; set; }
         public virtual List<ChapterNote>? ChapterNotes { get; set; }
+        
+        public int AnalysisVersionId { get; set; }
+        public virtual AnalysisVersion AnalysisVersion { get; set; } = new();
     }
 }

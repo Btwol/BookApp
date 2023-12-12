@@ -9,6 +9,7 @@ namespace BookApp.Shared.Models.ClientModels
         public List<AnalysisNoteModel> AnalysisNotes { get; set; } = new();
         public List<ChapterNoteModel> ChapterNotes { get; set; } = new();
         public List<ParagraphNoteModel> ParagraphNotes { get; set; } = new();
+        public AnalysisVersionModel AnalysisVersion { get; set; } = new();
 
         public BookAnalysisDetailedModel()
         {

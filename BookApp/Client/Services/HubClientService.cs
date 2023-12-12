@@ -35,7 +35,7 @@ namespace BookApp.Client.Services
                 var bookAnalysisId = await _appStorage.GetStoredBookAnalysisId();
                 if (!string.IsNullOrEmpty(bookAnalysisId))
                 {
-                    await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
+                    await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId); 
                 }
             }
         }
@@ -47,6 +47,7 @@ namespace BookApp.Client.Services
             hubConnection.On("HighlightAdded", async (HighlightModel highlight) =>
             {
                 analysisComponent.BookAnalysis.Highlights.Add(highlight);
+                await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
                 await analysisComponent.ReRender();
             });
 
@@ -57,6 +58,7 @@ namespace BookApp.Client.Services
                 {
                     analysisComponent.BookAnalysis.Highlights.Remove(highlightToEdit);
                     analysisComponent.BookAnalysis.Highlights.Add(highlight);
+                    await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
                     await analysisComponent.ReRender();
                 }
             });
@@ -67,23 +69,24 @@ namespace BookApp.Client.Services
                 if (highlightToDelete is not null)
                 {
                     analysisComponent.BookAnalysis.Highlights.Remove(highlightToDelete);
+                    await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
                     await analysisComponent.ReRender();
                 }
             });
 
             hubConnection.On("AnalysisNoteCreated", async (AnalysisNoteModel noteModel) =>
             {
-                AddNote(analysisComponent.BookAnalysis.AnalysisNotes, noteModel, analysisComponent);
+                await AddNote(analysisComponent.BookAnalysis.AnalysisNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ChapterNoteCreated", async (ChapterNoteModel noteModel) =>
             {
-                AddNote(analysisComponent.BookAnalysis.ChapterNotes, noteModel, analysisComponent);
+                await AddNote(analysisComponent.BookAnalysis.ChapterNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ParagraphNoteCreated", async (ParagraphNoteModel noteModel) =>
             {
-                AddNote(analysisComponent.BookAnalysis.ParagraphNotes, noteModel, analysisComponent);
+                await AddNote(analysisComponent.BookAnalysis.ParagraphNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("HighlightNoteCreated", async (HighlightNoteModel noteModel) =>
@@ -91,23 +94,23 @@ namespace BookApp.Client.Services
                 var highlight = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
                 if (highlight is not null)
                 {
-                    AddNote(highlight.HighlightNotes, noteModel, analysisComponent);
+                    await AddNote(highlight.HighlightNotes, noteModel, analysisComponent);
                 }
             });
 
             hubConnection.On("AnalysisNoteUpdated", async (AnalysisNoteModel noteModel) =>
             {
-                UpdateNote(analysisComponent.BookAnalysis.AnalysisNotes, noteModel, analysisComponent);
+                await UpdateNote(analysisComponent.BookAnalysis.AnalysisNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ChapterNoteUpdated", async (ChapterNoteModel noteModel) =>
             {
-                UpdateNote(analysisComponent.BookAnalysis.ChapterNotes, noteModel, analysisComponent);
+                await UpdateNote(analysisComponent.BookAnalysis.ChapterNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("ParagraphNoteUpdated", async (ParagraphNoteModel noteModel) =>
             {
-                UpdateNote(analysisComponent.BookAnalysis.ParagraphNotes, noteModel, analysisComponent);
+                await UpdateNote(analysisComponent.BookAnalysis.ParagraphNotes, noteModel, analysisComponent);
             });
 
             hubConnection.On("HighlightNoteUpdated", async (HighlightNoteModel noteModel) =>
@@ -115,23 +118,23 @@ namespace BookApp.Client.Services
                 var highlight = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.Id == noteModel.HighlightId);
                 if (highlight is not null)
                 {
-                    UpdateNote(highlight.HighlightNotes, noteModel, analysisComponent);
+                    await UpdateNote(highlight.HighlightNotes, noteModel, analysisComponent);
                 }
             });
 
             hubConnection.On("AnalysisNoteDeleted", async (int noteId) =>
             {
-                DeleteNote(analysisComponent.BookAnalysis.AnalysisNotes, noteId, analysisComponent);
+                await DeleteNote(analysisComponent.BookAnalysis.AnalysisNotes, noteId, analysisComponent);
             });
 
             hubConnection.On("ChapterNoteDeleted", async (int noteId) =>
             {
-                DeleteNote(analysisComponent.BookAnalysis.ChapterNotes, noteId, analysisComponent);
+                await DeleteNote(analysisComponent.BookAnalysis.ChapterNotes, noteId, analysisComponent);
             });
 
             hubConnection.On("ParagraphNoteDeleted", async (int noteId) =>
             {
-                DeleteNote(analysisComponent.BookAnalysis.ParagraphNotes, noteId, analysisComponent);
+                await DeleteNote(analysisComponent.BookAnalysis.ParagraphNotes, noteId, analysisComponent);
             });
 
             hubConnection.On("HighlightNoteDeleted", async (int noteId) =>
@@ -139,13 +142,14 @@ namespace BookApp.Client.Services
                 var highlight = analysisComponent.BookAnalysis.Highlights.FirstOrDefault(h => h.HighlightNotes.Any(n => n.Id == noteId));
                 if (highlight is not null)
                 {
-                    DeleteNote(highlight.HighlightNotes, noteId, analysisComponent);
+                    await DeleteNote(highlight.HighlightNotes, noteId, analysisComponent);
                 }
             });
 
             hubConnection.On("TagCreated", async (TagModel tagModel) =>
             {
                 analysisComponent.BookAnalysis.Tags.Add(tagModel);
+                await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
                 await analysisComponent.ReRender();
             });
 
@@ -156,6 +160,7 @@ namespace BookApp.Client.Services
                 {
                     analysisComponent.BookAnalysis.Tags.Remove(tagToUpdate);
                     analysisComponent.BookAnalysis.Tags.Add(tagModel);
+                    await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
                     await analysisComponent.ReRender();
                 }
             });
@@ -166,6 +171,7 @@ namespace BookApp.Client.Services
                 if (tagToDelete is not null)
                 {
                     analysisComponent.BookAnalysis.Tags.Remove(tagToDelete);
+                    await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
                     await analysisComponent.ReRender();
                 }
             });
@@ -178,7 +184,7 @@ namespace BookApp.Client.Services
 
                 if (taggedItem is not null && tag is not null)
                 {
-                    AddTag(taggedItem, tag, analysisComponent);
+                    await AddTag(taggedItem, tag, analysisComponent);
                 }
             });
 
@@ -190,7 +196,7 @@ namespace BookApp.Client.Services
 
                 if (taggedItem is not null && tag is not null)
                 {
-                    RemoveTag(taggedItem, tag, analysisComponent);
+                    await RemoveTag(taggedItem, tag, analysisComponent);
                 }
             });
         }
@@ -222,46 +228,51 @@ namespace BookApp.Client.Services
         }
 
 
-        private void AddTag<T>(T taggedItem, TagModel tag, IAnalysisComponent analysisComponent) where T : ITagableItemModel
+        private async Task AddTag<T>(T taggedItem, TagModel tag, IAnalysisComponent analysisComponent) where T : ITagableItemModel
         {
             Console.WriteLine("1");
             taggedItem.Tags.Add(tag);
-            analysisComponent.ReRender();
+            await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
+            await analysisComponent.ReRender();
         }
 
-        private void RemoveTag<T>(T taggedItem, TagModel tag, IAnalysisComponent analysisComponent) where T : ITagableItemModel
+        private async Task RemoveTag<T>(T taggedItem, TagModel tag, IAnalysisComponent analysisComponent) where T : ITagableItemModel
         {
             var tagToRemove = taggedItem.Tags.FirstOrDefault(t => t.Id == tag.Id);
             if (tagToRemove is not null)
             {
                 taggedItem.Tags.Remove(tagToRemove);
-                analysisComponent.ReRender();
+                await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
+                await analysisComponent.ReRender();
             }
         }
 
-        private void AddNote<T>(List<T> notes, T note, IAnalysisComponent analysisComponent) where T : INoteClientModel
+        private async Task AddNote<T>(List<T> notes, T note, IAnalysisComponent analysisComponent) where T : INoteClientModel
         {
             notes.Add(note);
-            analysisComponent.ReRender();
+            await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
+            await analysisComponent.ReRender();
         }
 
-        private void UpdateNote<T>(List<T> notes, T note, IAnalysisComponent analysisComponent) where T : INoteClientModel
+        private async Task UpdateNote<T>(List<T> notes, T note, IAnalysisComponent analysisComponent) where T : INoteClientModel
         {
             var noteToUpdate = notes.FirstOrDefault(n => n.Id == note.Id);
             if (noteToUpdate is not null)
             {
                 noteToUpdate.Content = note.Content;
-                analysisComponent.ReRender();
+                await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
+                await analysisComponent.ReRender();
             }
         }
 
-        private void DeleteNote<T>(List<T> notes, int noteId, IAnalysisComponent analysisComponent) where T : INoteClientModel
+        private async Task DeleteNote<T>(List<T> notes, int noteId, IAnalysisComponent analysisComponent) where T : INoteClientModel
         {
             var noteToDelete = notes.FirstOrDefault(n => n.Id == noteId);
             if (noteToDelete is not null)
             {
                 notes.Remove(noteToDelete);
-                analysisComponent.ReRender();
+                await _appStorage.UpdateStoredBookAnalysis(analysisComponent.BookAnalysis);
+                await analysisComponent.ReRender();
             }
         }
     }

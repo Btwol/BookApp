@@ -11,7 +11,8 @@ namespace BookApp.Client.Services
 {
     public class AppStorage : IAppStorage
     {
-        public const string StoredAnalysisIdKey = "storedBookAnalysis";
+        public const string StoredAnalysisIdKey = "storedBookAnalysisId";
+        //public const string StoredAnalysisKey = "storedBookAnalysis";
         public const string StoredBookKey = "storedBook";
         public const string StoredBookHashKey = "storedBookHash";
         public const string CurrentUserTokenKey = "currentUserToken";
@@ -29,6 +30,8 @@ namespace BookApp.Client.Services
             _jSRuntime = jSRuntime;
             _bookAnalysisClientService = bookAnalysisClientService;
         }
+
+        private string GetStoredBookAnalysisKey() => "storedBookAnalysis";//_" + bookAnalysisId;
 
         public async Task StoreBook(byte[] bookArray, string bookHash)
         {
@@ -72,20 +75,30 @@ namespace BookApp.Client.Services
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.removeItem", StoredBookHashKey);
         }
 
-        public async Task<BookAnalysisDetailedModel> GetStoredBookAnalysis()
+        public async Task<BookAnalysisDetailedModel?> GetStoredBookAnalysis(int bookAnalysisId)
         {
-            var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
-            if (bookAnalysisId is null)
-            {
-                throw new Exception("Book analysis not loaded.");
-            }
+            //var bookAnalysisId = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
+            //if (bookAnalysisId is null)
+            //{
+            //    throw new Exception("Book analysis not loaded.");
+            //}
 
-            return await _bookAnalysisClientService.GetAnalysisById(int.Parse(bookAnalysisId));
+            var jsonString = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", GetStoredBookAnalysisKey());
+            if (jsonString is null) return null;
+            return JsonConvert.DeserializeObject<BookAnalysisDetailedModel>(jsonString);
+
+            //return await _bookAnalysisClientService.GetAnalysisById(int.Parse(bookAnalysisId));
         }
 
         public async Task<string> GetStoredBookAnalysisId()
         {
             return await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", StoredAnalysisIdKey);
+        }
+
+        public async Task UpdateStoredBookAnalysis(BookAnalysisDetailedModel bookAnalysis)
+        {
+            string jsonString = JsonConvert.SerializeObject(bookAnalysis);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", GetStoredBookAnalysisKey(), jsonString);
         }
 
         public async Task StoreBookAnalysis(BookAnalysisDetailedModel bookAnalysis, bool userHasEditorRights)
@@ -94,6 +107,9 @@ namespace BookApp.Client.Services
 
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", UserCanEditLoadedAnalysis, userHasEditorRights.ToString());
             await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", StoredAnalysisIdKey, bookAnalysis.Id);
+
+            string jsonString = JsonConvert.SerializeObject(bookAnalysis);
+            await _jSRuntime.InvokeVoidAsync("localStorageFunctions.setItem", GetStoredBookAnalysisKey(), jsonString);
         }
 
         public async Task DeleteAnalysisFromStorage()
@@ -183,6 +199,12 @@ namespace BookApp.Client.Services
             {
                 return new ReaderPosition();
             }
+        }
+
+        public async Task<AnalysisVersionModel> GetAnalysisVersion()
+        {
+            var jsonString = await _jSRuntime.InvokeAsync<string>("localStorageFunctions.getItem", GetStoredBookAnalysisKey());
+            return JsonConvert.DeserializeObject<BookAnalysisDetailedModel>(jsonString).AnalysisVersion;
         }
     }
 }
