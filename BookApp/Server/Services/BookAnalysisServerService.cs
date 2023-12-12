@@ -58,7 +58,7 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> GetAnalysesByHash(string bookHash)
         {
-            var foundAnalyses = await _bookAnalysisRepository.FindByConditions(b => b.BookHash == bookHash);
+            var foundAnalyses = await _bookAnalysisRepository.GetAnalysisSummariesByHash(bookHash);
             List<BookAnalysisSummaryModel> mappedAnalyses = new();
             foreach (var analysis in foundAnalyses)
             {
@@ -70,7 +70,7 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> GetAnalysisById(int analysisId)
         {
-            var analysis = await _bookAnalysisRepository.FindByConditionsFirstOrDefault(b => b.Id == analysisId);
+            var analysis = await _bookAnalysisRepository.RetrieveDetailedAnalysisById(analysisId);
             if (analysis is null)
             {
                 return ServiceResponse.Error("Analysis not found", HttpStatusCode.NotFound);
