@@ -25,7 +25,7 @@ namespace BookApp.Client.Services
                 await hubConnection.StartAsync();
             }
             bookAnalysisId = string.IsNullOrEmpty(bookAnalysisId) ? await _appStorage.GetStoredBookAnalysisId() : bookAnalysisId;
-            await hubConnection.SendAsync("JoinAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
+            await hubConnection.SendAsync("JoinAnalysisEditGroup", bookAnalysisId);
         }
 
         public async Task LeaveAnalysisEditGroup()
@@ -35,7 +35,7 @@ namespace BookApp.Client.Services
                 var bookAnalysisId = await _appStorage.GetStoredBookAnalysisId();
                 if (!string.IsNullOrEmpty(bookAnalysisId))
                 {
-                    await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId); //sends message back to server hub
+                    await hubConnection.SendAsync("LeaveAnalysisEditGroup", bookAnalysisId);
                 }
             }
         }
