@@ -38,8 +38,6 @@
             return await _highlightService.DeleteHighlight(highlightId);
         }
 
-
-
         [HttpDelete("RemoveTag/{highlightId}/{tagId}")]
         public async Task<ServiceResponse> RemoveTag(int highlightId, int tagId)
         {

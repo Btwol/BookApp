@@ -5,12 +5,9 @@ namespace BookApp.Server.Hubs
     public class BookAnalysisHub : Hub
     {
         private const string EditAnalysisRoomPrefix = "analysisEditRoom_";
-        public async Task BookAnalysisSummaryUpdated(BookAnalysisSummaryModel updatedTask)  //recievs messages from client
-        {
-            // Update the task in the database (Entity Framework) or any other storage.
-            // For simplicity, we'll omit the database update here.
 
-            // Notify all connected clients about the updated task.
+        public async Task BookAnalysisSummaryUpdated(BookAnalysisSummaryModel updatedTask)
+        {
             await Clients.All.SendAsync("BookAnalysisSummaryUpdated", updatedTask);
         }
 
@@ -24,12 +21,12 @@ namespace BookApp.Server.Hubs
             return EditAnalysisRoomPrefix + bookAnalysisId;
         }
 
-        public async Task JoinAnalysisEditGroup(string bookAnalysisId)  //recievs messages from client
+        public async Task JoinAnalysisEditGroup(string bookAnalysisId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, GetAnalysisEditRoomName(bookAnalysisId));
         }
 
-        public async Task LeaveAnalysisEditGroup(string bookAnalysisId)  //recievs messages from client
+        public async Task LeaveAnalysisEditGroup(string bookAnalysisId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetAnalysisEditRoomName(bookAnalysisId));
         }

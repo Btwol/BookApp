@@ -32,7 +32,6 @@
             return await _chapterNoteService.EditNote(chapterNoteModel, chapterNoteModel.BookAnalysisId);
         }
 
-
         [HttpPost("AddTag/{noteId}/{tagId}")]
         public async Task<ServiceResponse> AddTag(int noteId, int tagId)
         {

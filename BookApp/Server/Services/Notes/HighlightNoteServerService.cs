@@ -21,13 +21,7 @@
                     return ServiceResponse.Error("Highlight does not exist.");
                 }
             }
-            if (noteModel is HighlightNote highlightNote)
-            {
-                if (!await _highlightRepository.CheckIfExists(h => h.Id == highlightNote.HighlightId))
-                {
-                    return ServiceResponse.Error("Highlight does not exist.");
-                }
-            }
+
             return await base.ValidateNoteRequest(bookAnalysisId, noteModel);
         }
 

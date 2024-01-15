@@ -6,7 +6,9 @@
         private readonly IAppUserMapperService _appUserMapperService;
         private readonly ITagMapper _tagMapper;
 
-        public BookAnalysisMapper(IMapper mapper, IBookAnalysisUserRepository bookAnalysisUserRepository, IAppUserMapperService appUserMapperService, ITagMapper tagMapper) : base(mapper)
+        public BookAnalysisMapper(IMapper mapper, IBookAnalysisUserRepository bookAnalysisUserRepository, IAppUserMapperService appUserMapperService,
+            ITagMapper tagMapper)
+            : base(mapper)
         {
             _bookAnalysisUserRepository = bookAnalysisUserRepository;
             _appUserMapperService = appUserMapperService;

@@ -10,7 +10,8 @@
         private readonly IHubServerService _hubServerService;
 
         protected NoteServerService(INoteMapper<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService, ITagRepository tagRepository)
+            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService,
+            ITagRepository tagRepository)
         {
             _noteMapper = noteMapper;
             _bookAnalysisRepository = bookAnalysisRepository;

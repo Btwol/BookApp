@@ -98,8 +98,6 @@ namespace BookApp.Server.Services
 
             services.AddScoped(typeof(INoteRepository<>), typeof(NoteRepository<>));
 
-            services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
-
             services.AddScoped(typeof(IAppUserService), typeof(AppUserService));
             services.AddScoped(typeof(IAppUserMapperService), typeof(AppUserMapperService));
             services.AddScoped(typeof(IAppUserGetterService), typeof(AppUserGetterService));
