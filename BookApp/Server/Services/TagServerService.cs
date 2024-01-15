@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Enums;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class TagServerService : ITagServerService
     {

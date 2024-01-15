@@ -1,7 +1,4 @@
-﻿using BookApp.Shared.Enums;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-
-namespace BookApp.Server.Services.Notes
+﻿namespace BookApp.Server.Services.Notes
 {
     public abstract class NoteServerService<D, C> : INoteServerService<D, C> where D : INoteDBModel where C : INoteClientModel
     {
