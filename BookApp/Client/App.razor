@@ -1,5 +1,5 @@
 ﻿<Blazored.Modal.CascadingBlazoredModal DisableBackgroundCancel="true">
-<style>
+    <style>
         .login-box {
             position: sticky;
             margin-left: auto;
@@ -20,7 +20,7 @@
         .highlight {
             position: fixed;
             background-color: rgba(1, 1, 255, 0.3);
-            border-radius:5px;
+            border-radius: 5px;
             z-index: 99;
         }
 
@@ -33,7 +33,6 @@
 
 
         .text-box {
-            /*position: absolute;*/
             height: 100%;
             width: 100%;
             padding: 30px;
@@ -48,14 +47,14 @@
 
         .button-action {
             margin: 2px;
-            border-radius:3px;
-            font-size:15px;
+            border-radius: 3px;
+            font-size: 15px;
             color: #fff;
             background-color: #111111;
             border-color: #000000;
         }
 
-        
+
 
 
 
@@ -71,7 +70,7 @@
             text-align: center;
             border: 2px solid black;
             /*transform: translateX(-50%);
-            z-index: 100; /* Ensure it's above other content */*/
+                    z-index: 100; /* Ensure it's above other content */ */
         }
 
             /* Adjust the styling as needed */
@@ -100,7 +99,7 @@
             bottom: 0px;
             right: 0px;
             width: 20%; /* 20% width of the entire page width */
-            height:auto;
+            height: auto;
             align-items: center; /* Vertical alignment */
             justify-content: center; /* Horizontal alignment */
         }
@@ -125,7 +124,7 @@
             padding: 5px 10px;
             background-color: #444444;
             color: white;
-            border:groove;
+            border: groove;
             border-radius: 5px;
             cursor: pointer;
         }
@@ -160,28 +159,28 @@
             color: #fff;
         }
 
-        
+
 
         .paragraphSelection {
-                        position: fixed;
-                                border: 1px solid #000;
-                    border-radius: 5px;
+            position: fixed;
+            border: 1px solid #000;
+            border-radius: 5px;
             background-color: rgba(1, 1, 255, 0.1);
-                    z-index: 99;
-                    pointer-events: none; 
+            z-index: 99;
+            pointer-events: none;
         }
-</style>
+    </style>
 
-<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
 </Blazored.Modal.CascadingBlazoredModal>  

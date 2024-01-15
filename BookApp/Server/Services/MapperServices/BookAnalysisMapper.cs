@@ -66,7 +66,7 @@
         {
             foreach (var member in bookAnalysis.Users)
             {
-                mapped.Members.Add(new KeyValuePair<Shared.Models.Identity.AppUserModel, MemberType>
+                mapped.Members.Add(new Tuple<Shared.Models.Identity.AppUserModel, MemberType>
                 (
                     await _appUserMapperService.MapGetApiUserResponseDto(member),
                     (await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == member.Id && au.BookAnalysisId == bookAnalysis.Id)).MemberType)

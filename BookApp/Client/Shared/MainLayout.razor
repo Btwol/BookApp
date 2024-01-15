@@ -4,27 +4,14 @@
 <link rel="stylesheet" type="text/css" href="css/styles.css?version=0.1" />
 
 <div>
-@*<div style="display:flex; flex-direction:column">*@
-    
     <div style="position:sticky; z-index:9999; top:0; height:10%;">
-    <NavMenu />
+        <NavMenu />
     </div>
-    @*<div style="display:fixed; height:10%; width:100%; top:0"></div>*@
-    @*<main>*@
-        @*<div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>*@
-
-        @*<article class="content px-4">*@
-            <ErrorHandlerComponent ChildComponentName="Page">
-                <ChildContent>
-                    <div style="">
-                    @Body
-                    </div>
-                </ChildContent>
-            </ErrorHandlerComponent>
-        @*</article>*@
-    @*</main>*@
-@*</div>*@
-
+    <ErrorHandlerComponent ChildComponentName="Page">
+        <ChildContent>
+            <div style="">
+                @Body
+            </div>
+        </ChildContent>
+    </ErrorHandlerComponent>
 </div>

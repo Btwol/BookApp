@@ -24,13 +24,9 @@
         <hr />
       
         <b>Admin:</b>
-        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
+        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Item2 == MemberType.Administrator).Item1.Email</p>
         <hr />
 
-        @*@if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator, MemberType.Editor, MemberType.Viewer))
-        {
-            <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
-        }*@
         <button class="button-action" @onclick="() => ViewAnalysisDetails(bookAnalysis.Id)">Details</button>
     </div>
 }

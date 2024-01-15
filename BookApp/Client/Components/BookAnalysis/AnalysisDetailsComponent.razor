@@ -71,85 +71,85 @@
                     <hr />
                 }
 
-                @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Administrator))
+                @if (bookAnalysis.Members.Any(u => u.Item2 == MemberType.Administrator))
                 {
                     <b>Admin:</b>
-                    <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
+                    <p>@bookAnalysis.Members.FirstOrDefault(u => u.Item2 == MemberType.Administrator).Item1.Email</p>
                     <hr />
                 }
 
-                @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Moderator))
+                @if (bookAnalysis.Members.Any(u => u.Item2 == MemberType.Moderator))
                 {
                     <b>Moderators:</b>
-                    @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Moderator))
+                    @foreach (var member in bookAnalysis.Members.Where(u => u.Item2 == MemberType.Moderator))
                     {
-                        <p>@member.Key.Email</p>
+                        <p>@member.Item1.Email</p>
                         @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
                         {
                             <select @bind="memberType">
-                                @foreach (var item in memberTypeOptions.Where(o => o != member.Value))
+                                @foreach (var item in memberTypeOptions.Where(o => o != member.Item2))
                                 {
                                     <option value="@item">@item.ToString()</option>
                                 }
                             </select>
-                            <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Key.Id)">Change member type</button>
-                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Kick</button>
+                            <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Item1.Id)">Change member type</button>
+                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Item1.Id)">Kick</button>
                         }
                     }
                     <hr />
                 }
 
-                @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Editor))
+                @if (bookAnalysis.Members.Any(u => u.Item2 == MemberType.Editor))
                 {
                     <b>Editors:</b>
-                    @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Editor))
+                    @foreach (var member in bookAnalysis.Members.Where(u => u.Item2 == MemberType.Editor))
                     {
-                        <p>@member.Key.Email</p>
+                        <p>@member.Item1.Email</p>
                         @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
                         {
                             <select @bind="memberType">
-                                @foreach (var item in memberTypeOptions.Where(o => o != member.Value))
+                                @foreach (var item in memberTypeOptions.Where(o => o != member.Item2))
                                 {
                                     <option value="@item">@item.ToString()</option>
                                 }
                             </select>
-                            <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Key.Id)">Change member type</button>
-                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Kick</button>
+                            <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Item1.Id)">Change member type</button>
+                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Item1.Id)">Kick</button>
                         }
                     }
                     <hr />
                 }
 
-                @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Viewer))
+                @if (bookAnalysis.Members.Any(u => u.Item2 == MemberType.Viewer))
                 {
                     <b>Viewers:</b>
-                    @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Viewer))
+                    @foreach (var member in bookAnalysis.Members.Where(u => u.Item2 == MemberType.Viewer))
                     {
-                        <p>@member.Key.Email</p>
+                        <p>@member.Item1.Email</p>
                         @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
                         {
                             <select @bind="memberType">
-                                @foreach (var item in memberTypeOptions.Where(o => o != member.Value))
+                                @foreach (var item in memberTypeOptions.Where(o => o != member.Item2))
                                 {
                                     <option value="@item">@item.ToString()</option>
                                 }
                             </select>
-                            <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Key.Id)">Change member type</button>
-                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Kick</button>
+                            <button class="button-action" @onclick="() => ChangeMemberType(bookAnalysis.Id, member.Item1.Id)">Change member type</button>
+                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Item1.Id)">Kick</button>
                         }
                     }
                     <hr />
                 }
 
-                @if (bookAnalysis.Members.Any(u => u.Value == MemberType.Invited))
+                @if (bookAnalysis.Members.Any(u => u.Item2 == MemberType.Invited))
                 {
                     <b>Invited:</b>
-                    @foreach (var member in bookAnalysis.Members.Where(u => u.Value == MemberType.Invited))
+                    @foreach (var member in bookAnalysis.Members.Where(u => u.Item2 == MemberType.Invited))
                     {
-                        <p>@member.Key.Email</p>
+                        <p>@member.Item1.Email</p>
                         @if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator))
                         {
-                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Key.Id)">Uninvite</button>
+                            <button class="button-action" @onclick="() => KickUser(bookAnalysis.Id, member.Item1.Id)">Uninvite</button>
                         }
                     }
                     <hr />
@@ -258,12 +258,12 @@
 
     private bool CurrentUserIsOfMemberType(BookAnalysisSummaryModel bookAnalysis, params MemberType[] memberTypes)
     {
-        return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Value) && m.Key.Id == currentUser.Id);
+        return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Item2) && m.Item1.Id == currentUser.Id);
     }
 
     private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
     {
-        var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Key.Id == currentUser.Id).Value;
+        var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Item1.Id == currentUser.Id).Item2;
         bool editorialRights = (userMembershipType == MemberType.Administrator
         || userMembershipType == MemberType.Moderator
         || userMembershipType == MemberType.Editor) ? true : false;
@@ -293,27 +293,27 @@
 
             if (newUser is not null)
             {
-                bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(newUser, MemberType.Invited));
+                bookAnalysis.Members.Add(new Tuple<AppUserModel, MemberType>(newUser, MemberType.Invited));
                 StateHasChanged();
             }
         });
 
         hubService.hubConnection.On("AnalysisMemberModified", async (int userId, MemberType memberType) =>
         {
-            if (bookAnalysis.Members.Any(m => m.Key.Id == userId))
+            if (bookAnalysis.Members.Any(m => m.Item1.Id == userId))
             {
-                var updatedUser = bookAnalysis.Members.FirstOrDefault(m => m.Key.Id == userId);
+                var updatedUser = bookAnalysis.Members.FirstOrDefault(m => m.Item1.Id == userId);
                 bookAnalysis.Members.Remove(updatedUser);
-                bookAnalysis.Members.Add(new KeyValuePair<AppUserModel, MemberType>(updatedUser.Key, memberType));
+                bookAnalysis.Members.Add(new Tuple<AppUserModel, MemberType>(updatedUser.Item1, memberType));
                 StateHasChanged();
             }
         });
 
         hubService.hubConnection.On("AnalysisMemberRemoved", async (int userId) =>
         {
-            if (bookAnalysis.Members.Any(m => m.Key.Id == userId))
+            if (bookAnalysis.Members.Any(m => m.Item1.Id == userId))
             {
-                var removedUser = bookAnalysis.Members.FirstOrDefault(m => m.Key.Id == userId);
+                var removedUser = bookAnalysis.Members.FirstOrDefault(m => m.Item1.Id == userId);
                 bookAnalysis.Members.Remove(removedUser);
                 StateHasChanged();
             }
