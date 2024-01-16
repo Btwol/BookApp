@@ -22,7 +22,7 @@
         <b>Analysis Title: </b>
         <p>@bookAnalysis.AnalysisTitle</p>
         <hr />
-      
+
         <b>Admin:</b>
         <p>@bookAnalysis.Members.FirstOrDefault(u => u.Item2 == MemberType.Administrator).Item1.Email</p>
         <hr />
@@ -41,7 +41,7 @@
     [Parameter]
     public EventCallback<BookAnalysisDetailedModel> selectedBookAnalysisChanged { get; set; }
 
-    public AppUserModel currentUser = new();
+    private AppUserModel currentUser = new();
 
     private void ViewAnalysisDetails(int bookAnalysisId)
     {
@@ -50,7 +50,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        if(!await appStorage.UserIsStored())
+        if (!await appStorage.UserIsStored())
         {
             throw new Exception("User is not logged in.");
         }

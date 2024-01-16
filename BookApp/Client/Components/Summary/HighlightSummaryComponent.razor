@@ -39,7 +39,7 @@
                 </div>
                 <textarea readonly rows="" cols="40" class="highlight-textarea">
                     @HighlightTexts.FirstOrDefault(ht => ht.Key == highlight.Id).Value
-                    </textarea>
+                            </textarea>
                 <div style="flex:0.2">
                     <ErrorHandlerComponent ChildComponentName="Highlight Adding">
                         <ChildContent>
@@ -73,9 +73,9 @@
 
     private bool userCanEdit;
     private string displayHighlightStyle { get; set; }
-    List<KeyValuePair<int, string>> HighlightTexts = new();
+    private List<KeyValuePair<int, string>> HighlightTexts = new();
 
-    public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
+    private INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
     {
         return note;
     }
@@ -92,7 +92,7 @@
         await modal.Result;
     }
 
-    public async Task GoToHighlight(HighlightModel highlight)
+    private async Task GoToHighlight(HighlightModel highlight)
     {
         await appStorage.SetReaderPosition(new ReaderPosition { ElementIdToScrollTo = highlight.GetElementId(), Page = highlight.Chapter });
         navigation.NavigateTo("/reader");

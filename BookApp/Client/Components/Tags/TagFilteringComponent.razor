@@ -15,8 +15,6 @@
 </div>
 
 @code {
-    
-    private List<TagModel> filteredTags = new();
     [Parameter]
     public List<TagModel> includedTags { get; set; } = new();
     [Parameter]
@@ -25,6 +23,7 @@
     public List<TagModel> Tags { get; set; } = new();
 
     private string? tagSearchKeyword;
+    private List<TagModel> filteredTags = new();
 
     private void FilterTags(ChangeEventArgs e)
     {
@@ -40,7 +39,7 @@
             : Tags.Where(t => t.Name.Contains(tagSearchKeyword, StringComparison.OrdinalIgnoreCase)).OrderBy(t => t.Name).ToList();
     }
 
-    public async Task AddTag(int tagId)
+    private async Task AddTag(int tagId)
     {
         if (!includedTags.Any(t => t.Id == tagId))
         {
@@ -51,7 +50,7 @@
         StateHasChanged();
     }
 
-    public async Task RemoveTag(int tagId)
+    private async Task RemoveTag(int tagId)
     {
         if (includedTags.Any(t => t.Id == tagId))
         {

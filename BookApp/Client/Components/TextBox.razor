@@ -134,7 +134,7 @@
         StateHasChanged();
     }
 
-    async Task GetSelectedText(MouseEventArgs e)
+    private async Task GetSelectedText(MouseEventArgs e)
     {
         if (!userHasEditRights)
         {
@@ -222,7 +222,7 @@
         }
     }
 
-    async Task ScrollToElementPosition(string scrollPoistion)
+    private async Task ScrollToElementPosition(string scrollPoistion)
     {
         var scroll = scrollPoistion.Replace("px", "").Substring(0, scrollPoistion.Replace("px", "").IndexOf('.'));
 
@@ -232,7 +232,7 @@
                     }
     }
 
-    async Task RenderHighlights()
+    private async Task RenderHighlights()
     {
         try
         {

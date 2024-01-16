@@ -12,7 +12,7 @@
         position: fixed;
         top: 40px;
         width: 20%;
-        margin-top:5px;
+        margin-top: 5px;
     }
 
     .vertical-bar {
@@ -106,19 +106,19 @@
     [Parameter]
     public int lastClickedTextNodeIndex { get; set; }
 
-    public string displayAnalysisNotesStyle { get; set; }
-    public string displayChapterNotesStyle { get; set; }
-    public string displayHighlightsStyle { get; set; }
-    public string displayParagraphNotesStyle { get; set; }
+    private string displayAnalysisNotesStyle;
+    private string displayChapterNotesStyle;
+    private string displayHighlightsStyle;
+    private string displayParagraphNotesStyle;
 
-    public INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
+    private INoteClientModel CreateAnalysisNoteModel(INoteClientModel note)
     {
         AnalysisNoteModel newNote = (AnalysisNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
         return newNote;
     }
 
-    public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
+    private INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
     {
         if (lastClickedTextNodeIndex == -1)
         {
@@ -132,7 +132,7 @@
         return newNote;
     }
 
-    public INoteClientModel CreateChapterNoteModel(INoteClientModel note)
+    private INoteClientModel CreateChapterNoteModel(INoteClientModel note)
     {
         ChapterNoteModel newNote = (ChapterNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;
@@ -140,7 +140,7 @@
         return newNote;
     }
 
-    public INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
+    private INoteClientModel CreateHighlightNoteModel(INoteClientModel note)
     {
         HighlightNoteModel newNote = (HighlightNoteModel)note;
         newNote.BookAnalysisId = BookAnalysis.Id;

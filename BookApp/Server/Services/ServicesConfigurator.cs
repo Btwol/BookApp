@@ -68,7 +68,7 @@ namespace BookApp.Server.Services
 
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            //services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
             services.AddScoped(typeof(IBookAnalysisServerService), typeof(BookAnalysisServerService));
             services.AddScoped(typeof(IBookAnalysisMapperService), typeof(BookAnalysisMapper));

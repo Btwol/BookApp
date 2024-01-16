@@ -13,7 +13,6 @@
     [Parameter]
     public string EnabledStyle { get; set; } = "block";
 
-
     private string DisplayButtonText = "";
     private bool displaySection = false;
 
@@ -32,7 +31,7 @@
             DisplayButtonText = "Hide";
         }
         await DisplaySectionStyleChanged.InvokeAsync(DisplaySectionStyle);
-        StateHasChanged(); 
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()

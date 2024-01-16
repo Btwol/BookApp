@@ -24,8 +24,8 @@
             {
                 <div style="display:flex; flex-direction:column; flex:auto">
                     <button style="flex:0.5; max-width:fit-content" class="button-action" @onclick="() => DeleteAnalysisNote(note.Id)">Delete</button>
-                <button style="flex:0.5; max-width:inherit" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
-            </div>
+                    <button style="flex:0.5; max-width:inherit" class="button-action" @onclick="() => ShowManageTagsModal(note)">Tags</button>
+                </div>
             }
         </div>
     }
@@ -34,10 +34,10 @@
         <textarea readonly rows="5" class="note-holder">@note.Content</textarea>
 
     }
-    @if(DisplayTags)
+    @if (DisplayTags)
     {
         <div style="width: 99%">
-        <TagsDisplayComponent Tags="note.Tags" />
+            <TagsDisplayComponent Tags="note.Tags" />
         </div>
     }
 </div>

@@ -4,7 +4,7 @@
 @inject IAppStorage appStorage
 
 <div style="width:30%;">
-<ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayParagraphStyle" SectionName="Paragraph Notes" />
+    <ToggleDisplaySummarySectionComponent @bind-DisplaySectionStyle="displayParagraphStyle" SectionName="Paragraph Notes" />
 </div>
 <div style="@displayParagraphStyle">
     <div class="summary-section">
@@ -16,7 +16,7 @@
                 </div>
                 <textarea readonly rows="" cols="40" class="highlight-textarea">
                     @paragraph.Content
-                </textarea>
+                        </textarea>
                 <div style="flex:0.2">
                     <ErrorHandlerComponent ChildComponentName="Paragraph Note Adding">
                         <ChildContent>
@@ -52,13 +52,13 @@
 
     private string displayParagraphStyle { get; set; }
 
-    public INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
+    private INoteClientModel CreateParagraphNoteModel(INoteClientModel note)
     {
         note.Tags = IncludedTags;
         return note;
     }
 
-    public async Task GoToParagraph(ParagraphContent paragraph)
+    private async Task GoToParagraph(ParagraphContent paragraph)
     {
         await appStorage.SetReaderPosition(new ReaderPosition { Page = paragraph.Chapter, TextNode = paragraph.TextNode });
         navigation.NavigateTo("/reader");

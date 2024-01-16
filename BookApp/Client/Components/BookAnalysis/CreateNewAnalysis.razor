@@ -33,10 +33,9 @@
     public EventCallback<List<BookAnalysisSummaryModel>> foundBookAnalysesChanged { get; set; }
 
     private bool awaitingResponse = false;
-
     private BookAnalysisSummaryModel newAnalysis { get; set; } = new();
 
-    public async Task CreateAnalysis()
+    private async Task CreateAnalysis()
     {
         awaitingResponse = true;
         try

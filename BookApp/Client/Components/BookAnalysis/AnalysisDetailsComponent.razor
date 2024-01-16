@@ -195,7 +195,6 @@
     private string searchErrorMessage;
     private bool deletingAnalysis = false;
     private string deletedAnalysisTitle = "";
-
     private bool DeleteAnalysisNameMatch(ChangeEventArgs e) => (e.Value.ToString() == bookAnalysis.AnalysisTitle) ? true : false;
 
     private async Task SearchUserByEmail(ChangeEventArgs e)
@@ -274,7 +273,7 @@
         Navigation.NavigateTo("redirect?reader");
     }
 
-    async Task RegisterHub()
+    private async Task RegisterHub()
     {
         hubService.hubConnection.On("AnalysisSummaryUpdated", async (BookAnalysisSummaryModel updatedTask) =>
         {

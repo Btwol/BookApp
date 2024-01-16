@@ -101,10 +101,9 @@
     private EpubBook book = null;
     private byte[] loadedBookByteArray;
     private string loadedBookHash = string.Empty;
-    private List<BookAnalysisSummaryModel> foundBookAnalyses { get; set; } = new();
-
+    private List<BookAnalysisSummaryModel> foundBookAnalyses = new();
     private bool showCreateAnalysisForm = false;
-    private BookAnalysisSummaryModel newAnalysis { get; set; } = new();
+    private BookAnalysisSummaryModel newAnalysis = new();
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {

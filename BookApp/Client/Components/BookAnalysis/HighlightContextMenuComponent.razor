@@ -39,13 +39,13 @@
         await modal.Result;
     }
 
-    async Task ReApplyHighlight()
+    private async Task ReApplyHighlight()
     {
         editFlag = true;
         await editFlagChanged.InvokeAsync(editFlag);
     }
 
-    async Task DeleteHighlight()
+    private async Task DeleteHighlight()
     {
         var highlightToRemove = bookAnalysis.Highlights.FirstOrDefault(s => s.GetElementId() == currentHighlight.GetElementId());
         if (highlightToRemove is not null)

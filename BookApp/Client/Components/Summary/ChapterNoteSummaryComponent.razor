@@ -11,17 +11,17 @@
     {
         <div style="display:flex; flex-direction:row; -webkit-flex-align:baseline">
             <div style="flex:0.95">
-            <ErrorHandlerComponent ChildComponentName="Chapter Note Adding">
-                <ChildContent>
-                    <AddNoteComponent createNoteDelegate="CreateChapterNoteModel" enableAddingNewNotes="userCanEdit" newNote="new ChapterNoteModel()" NoteClientService="chapterNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
-                </ChildContent>
-            </ErrorHandlerComponent>
+                <ErrorHandlerComponent ChildComponentName="Chapter Note Adding">
+                    <ChildContent>
+                        <AddNoteComponent createNoteDelegate="CreateChapterNoteModel" enableAddingNewNotes="userCanEdit" newNote="new ChapterNoteModel()" NoteClientService="chapterNoteService" userCanEdit="userCanEdit"></AddNoteComponent>
+                    </ChildContent>
+                </ErrorHandlerComponent>
+            </div>
+            <div stlye="display:flex; flex:auto; flex-direction:column">
+                <div style="text-align:center">Enter chapter number</div>
+                <input style="flex:0.6 height:inherit; margin:5px; text-align:center" type="text" class="number-input" @bind="chapterToAddTo">
+            </div>
         </div>
-        <div stlye="display:flex; flex:auto; flex-direction:column">
-            <div style="text-align:center">Enter chapter number</div>
-            <input style="flex:0.6 height:inherit; margin:5px; text-align:center" type="text" class="number-input" @bind="chapterToAddTo">
-        </div>
-    </div>
     }
     <div class="summary-section">
         @foreach (var note in Notes)
@@ -62,10 +62,9 @@
     public List<TagModel> IncludedTags { get; set; } = new();
 
     private string displayChapterNotesStyle { get; set; }
-
     private int chapterToAddTo { get; set; } = 0;
 
-    public INoteClientModel? CreateChapterNoteModel(INoteClientModel note)
+    private INoteClientModel? CreateChapterNoteModel(INoteClientModel note)
     {
         if (chapterToAddTo > ChapterCount || chapterToAddTo < 0)
         {
@@ -91,7 +90,7 @@
         await modal.Result;
     }
 
-    public async Task GoToChapter(int chapter)
+    private async Task GoToChapter(int chapter)
     {
         await appStorage.SetReaderPosition(new ReaderPosition { Page = chapter });
         navigation.NavigateTo("/reader");

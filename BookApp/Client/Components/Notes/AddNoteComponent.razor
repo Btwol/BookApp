@@ -24,7 +24,7 @@
     [Parameter]
     public CreateNoteDelegate createNoteDelegate { get; set; }
 
-    public async Task AddNote()
+    private async Task AddNote()
     {
         newNote = createNoteDelegate(newNote);
         if (newNote != null)

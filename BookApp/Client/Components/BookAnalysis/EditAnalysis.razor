@@ -1,43 +1,42 @@
 ﻿@inject IBookAnalysisClientService _bookAnalysisClientService
 
 <ErrorHandlerComponent ChildComponentName="Edit analysys">
-<ChildContent>
-<EditForm Model="@analysisFormModel" OnValidSubmit="@EditAnalysisSubmit" class="form">
-    <DataAnnotationsValidator />
-    <ValidationSummary class="validation-summary" />
+    <ChildContent>
+        <EditForm Model="@analysisFormModel" OnValidSubmit="@EditAnalysisSubmit" class="form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
 
-    <div class="form-group">
-        <label for="AnalysisTitle">Book Analysis Title</label>
-        <InputText @bind-Value="analysisFormModel!.AnalysisTitle" class="form-control" />
-    </div>
+            <div class="form-group">
+                <label for="AnalysisTitle">Book Analysis Title</label>
+                <InputText @bind-Value="analysisFormModel!.AnalysisTitle" class="form-control" />
+            </div>
 
-    @if (awaitingResponse)
-    {
-        <p>Editing Analysis...</p>
-    }
-    else
-    {
-        <button type="submit" class="button-action">Submit</button>
-    }
-</EditForm>
-</ChildContent>
+            @if (awaitingResponse)
+            {
+                <p>Editing Analysis...</p>
+            }
+            else
+            {
+                <button type="submit" class="button-action">Submit</button>
+            }
+        </EditForm>
+    </ChildContent>
 </ErrorHandlerComponent>
 
 <button class="button-action" @onclick="Close">Close</button>
 
 @code {
-    [CascadingParameter] 
+    [CascadingParameter]
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
-    [Parameter] 
+    [Parameter]
     public BookAnalysisSummaryModel analysisToEdit { get; set; }
-    public BookAnalysisSummaryModel analysisFormModel { get; set; }
 
+    private BookAnalysisSummaryModel analysisFormModel;
     private bool awaitingResponse = false;
-
     private async Task Close() => await BlazoredModal.CloseAsync();
 
-    public async Task EditAnalysisSubmit()
+    private async Task EditAnalysisSubmit()
     {
         awaitingResponse = true;
         try
