@@ -1,7 +1,4 @@
-﻿using BookApp.Shared.Enums;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-
-namespace BookApp.Server.Services.Notes
+﻿namespace BookApp.Server.Services.Notes
 {
     public abstract class NoteServerService<D, C> : INoteServerService<D, C> where D : INoteDBModel where C : INoteClientModel
     {
@@ -13,7 +10,8 @@ namespace BookApp.Server.Services.Notes
         private readonly IHubServerService _hubServerService;
 
         protected NoteServerService(INoteMapper<D, C> noteMapper, IBookAnalysisRepository bookAnalysisRepository,
-            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService, ITagRepository tagRepository)
+            INoteRepository<D> noteRepository, IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService,
+            ITagRepository tagRepository)
         {
             _noteMapper = noteMapper;
             _bookAnalysisRepository = bookAnalysisRepository;

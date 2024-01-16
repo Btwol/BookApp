@@ -35,12 +35,12 @@
     </div>
 </div>
 @code {
-    LoginRequest loginRequest { get; set; } = new LoginRequest { UserName = "", Password = "" };
-    bool awaitingResponse = false;
-    bool loginSuccessful = true;
-    string loginRequestResponseMessage = "";
+    private LoginRequest loginRequest = new LoginRequest { UserName = "", Password = "" };
+    private bool awaitingResponse = false;
+    private bool loginSuccessful = true;
+    private string loginRequestResponseMessage = "";
 
-    public async Task LoginUser()
+    private async Task LoginUser()
     {
         awaitingResponse = true;
         try

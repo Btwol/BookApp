@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Enums;
-
-namespace BookApp.Server.Controllers
+﻿namespace BookApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]

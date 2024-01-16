@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace BookApp.Server.Repositories
+﻿namespace BookApp.Server.Repositories
 {
     public class BookAnalysisRepository : BaseRepository<BookAnalysis>, IBookAnalysisRepository
     {
@@ -76,7 +74,7 @@ namespace BookApp.Server.Repositories
                  .Include(b => b.Users)
                  .FirstOrDefaultAsync(b => b.Id == bookAnalysisId);
 
-            if(analysis is not null)
+            if (analysis is not null)
             {
                 analysis.Tags = await _context.Set<Tag>()
                 .Include(t => t.AnalysisNotes)
@@ -86,7 +84,7 @@ namespace BookApp.Server.Repositories
                 .Include(t => t.HighlightNotes)
                 .Where(t => t.BookAnalysisId == bookAnalysisId).ToListAsync();
             }
-            
+
             return analysis;
         }
     }

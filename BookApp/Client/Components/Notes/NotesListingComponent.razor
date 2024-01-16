@@ -4,23 +4,26 @@
 
 <style>
     .note-container-component {
-        
     }
 </style>
 
 <div style="border-width:2px; border-style: solid; border-color: black;">
-    <ErrorHandlerComponent ChildComponentName="Add Note"><ChildContent>
-        <AddNoteComponent createNoteDelegate="createNoteDelegate" enableAddingNewNotes="enableAddingNewNotes" newNote="newNote" NoteClientService="NoteClientService" userCanEdit="userCanEdit"></AddNoteComponent>
-    </ChildContent></ErrorHandlerComponent>
+    <ErrorHandlerComponent ChildComponentName="Add Note">
+        <ChildContent>
+            <AddNoteComponent createNoteDelegate="createNoteDelegate" enableAddingNewNotes="enableAddingNewNotes" newNote="newNote" NoteClientService="NoteClientService" userCanEdit="userCanEdit"></AddNoteComponent>
+        </ChildContent>
+    </ErrorHandlerComponent>
 
     <hr style="margin:3px; border:2px solid white;" />
 
     @foreach (NoteModel note in Notes)
     {
         <div class="note-container-component">
-        <ErrorHandlerComponent ChildComponentName="NoteContainer"><ChildContent>
-                <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" userCanEdit="userCanEdit" NoteClientService="NoteClientService" enableButtons="true"></NoteContainerComponent>
-        </ChildContent></ErrorHandlerComponent>
+            <ErrorHandlerComponent ChildComponentName="NoteContainer">
+                <ChildContent>
+                    <NoteContainerComponent BookAnalysis="BookAnalysis" note="note" userCanEdit="userCanEdit" NoteClientService="NoteClientService" enableButtons="true"></NoteContainerComponent>
+                </ChildContent>
+            </ErrorHandlerComponent>
         </div>
         <hr style="margin:3px; border:2px solid white;" />
     }

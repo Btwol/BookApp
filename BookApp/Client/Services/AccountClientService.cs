@@ -10,6 +10,7 @@ namespace BookApp.Client.Services
         private readonly HttpClient _http;
         private readonly IAppStorage _appStorage;
         private readonly IHubClientService _hubClientService;
+
         public AccountClientService(HttpClient http, IAppStorage appStorage, IHubClientService hubClientService)
         {
             _http = http;

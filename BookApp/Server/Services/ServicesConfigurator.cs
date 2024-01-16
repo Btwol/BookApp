@@ -68,7 +68,7 @@ namespace BookApp.Server.Services
 
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            //services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
             services.AddScoped(typeof(IBookAnalysisServerService), typeof(BookAnalysisServerService));
             services.AddScoped(typeof(IBookAnalysisMapperService), typeof(BookAnalysisMapper));
@@ -97,8 +97,6 @@ namespace BookApp.Server.Services
             services.AddScoped(typeof(IChapterNoteMapper), typeof(ChapterNoteMapper));
 
             services.AddScoped(typeof(INoteRepository<>), typeof(NoteRepository<>));
-
-            services.AddTransient(typeof(IJsonKeyValueGetter), typeof(JsonKeyValueGetter));
 
             services.AddScoped(typeof(IAppUserService), typeof(AppUserService));
             services.AddScoped(typeof(IAppUserMapperService), typeof(AppUserMapperService));

@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Enums;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class AnalysisMembershipServerService : IAnalysisMembershipServerService
     {
@@ -22,7 +20,9 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> ChangeMemberStatus(int bookAnalysisId, int memberUserId, MemberType newMemberType)
         {
-            var modifiedUserMembership = await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == memberUserId && au.BookAnalysisId == bookAnalysisId);
+            var modifiedUserMembership = await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au => au.UsersId == memberUserId && au.BookAnalysisId == bookAnalysisId);
+
             if (modifiedUserMembership is null)
             {
                 return ServiceResponse.Error("User not a member of analysis.");
@@ -39,7 +39,9 @@ namespace BookApp.Server.Services
                 return ServiceResponse.Error("You cannot change your own membership type.");
             }
 
-            var requestorMemberType = (await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == requestorUserId && au.BookAnalysisId == bookAnalysisId)).MemberType;
+            var requestorMemberType = (await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au => au.UsersId == requestorUserId && au.BookAnalysisId == bookAnalysisId)).MemberType;
+
             if (!(requestorMemberType == MemberType.Moderator || requestorMemberType == MemberType.Administrator))
             {
                 return ServiceResponse.Error("Only the administrator or moderators can change a members type.");
@@ -94,7 +96,8 @@ namespace BookApp.Server.Services
             else
             {
                 await _bookAnalysisUserRepository.Edit(modifiedUserMembership);
-                await _hubServerService.AnalysisMemberModified(modifiedUserMembership.BookAnalysisId, modifiedUserMembership.UsersId, modifiedUserMembership.MemberType);
+                await _hubServerService.AnalysisMemberModified(modifiedUserMembership.BookAnalysisId, modifiedUserMembership.UsersId,
+                    modifiedUserMembership.MemberType);
                 return ServiceResponse.Success(responseMessage);
             }
         }
@@ -124,7 +127,8 @@ namespace BookApp.Server.Services
                 return ServiceResponse.Error("You cannot change your own membership type.");
             }
 
-            var requestorMemberType = (await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == requestorUserId && au.BookAnalysisId == bookAnalysisId)).MemberType;
+            var requestorMemberType = (await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au => au.UsersId == requestorUserId && au.BookAnalysisId == bookAnalysisId)).MemberType;
             if (!(requestorMemberType == MemberType.Moderator || requestorMemberType == MemberType.Administrator))
             {
                 return ServiceResponse.Error("Only the administrator or moderators can send invitations.");
@@ -139,14 +143,16 @@ namespace BookApp.Server.Services
 
         public async Task<ServiceResponse> RemoveUser(int bookAnalysisId, int removedUserId)
         {
-            var modifiedUserMembership = await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == removedUserId && au.BookAnalysisId == bookAnalysisId);
+            var modifiedUserMembership = await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au => au.UsersId == removedUserId && au.BookAnalysisId == bookAnalysisId);
             if (modifiedUserMembership is null)
             {
                 return ServiceResponse.Error("User not a member of analysis.");
             }
 
             var requestorUserId = _appUserService.GetCurrentUserId();
-            var requestorMemberType = (await _bookAnalysisUserRepository.FindByConditionsFirstOrDefault(au => au.UsersId == requestorUserId && au.BookAnalysisId == bookAnalysisId)).MemberType;
+            var requestorMemberType = (await _bookAnalysisUserRepository
+                .FindByConditionsFirstOrDefault(au => au.UsersId == requestorUserId && au.BookAnalysisId == bookAnalysisId)).MemberType;
 
             if (requestorUserId == removedUserId)
             {

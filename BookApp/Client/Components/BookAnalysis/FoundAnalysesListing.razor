@@ -22,15 +22,11 @@
         <b>Analysis Title: </b>
         <p>@bookAnalysis.AnalysisTitle</p>
         <hr />
-      
+
         <b>Admin:</b>
-        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Value == MemberType.Administrator).Key.Email</p>
+        <p>@bookAnalysis.Members.FirstOrDefault(u => u.Item2 == MemberType.Administrator).Item1.Email</p>
         <hr />
 
-        @*@if (CurrentUserIsOfMemberType(bookAnalysis, MemberType.Administrator, MemberType.Moderator, MemberType.Editor, MemberType.Viewer))
-        {
-            <button class="button-action" @onclick="() => LoadAnalysis(bookAnalysis)">Load analysis</button>
-        }*@
         <button class="button-action" @onclick="() => ViewAnalysisDetails(bookAnalysis.Id)">Details</button>
     </div>
 }
@@ -45,36 +41,16 @@
     [Parameter]
     public EventCallback<BookAnalysisDetailedModel> selectedBookAnalysisChanged { get; set; }
 
-    public AppUserModel currentUser = new();
-
-    //private async Task LoadAnalysis(BookAnalysisSummaryModel selectedBookAnalysis)
-    //{
-    //    this.selectedBookAnalysis = await _bookAnalysisClientService.GetAnalysisById(selectedBookAnalysis.Id);
-
-    //    var userMembershipType = selectedBookAnalysis.Members.FirstOrDefault(m => m.Key.Id == currentUser.Id).Value;
-    //    bool editorialRights = (userMembershipType == MemberType.Administrator
-    //    || userMembershipType == MemberType.Moderator
-    //    || userMembershipType == MemberType.Editor) ? true : false;
-
-    //    await appStorage.StoreBookAnalysis(this.selectedBookAnalysis, editorialRights);
-    //    await selectedBookAnalysisChanged.InvokeAsync(this.selectedBookAnalysis);
-
-    //    Navigation.NavigateTo("redirect?reader");
-    //}
+    private AppUserModel currentUser = new();
 
     private void ViewAnalysisDetails(int bookAnalysisId)
     {
         Navigation.NavigateTo($"analysisDetails?{bookAnalysisId}");
     }
 
-    //private bool CurrentUserIsOfMemberType(BookAnalysisSummaryModel bookAnalysis, params MemberType[] memberTypes)
-    //{
-    //    return bookAnalysis.Members.Any(m => memberTypes.Contains(m.Value) && m.Key.Id == currentUser.Id);
-    //}
-
     protected async override Task OnInitializedAsync()
     {
-        if(!await appStorage.UserIsStored())
+        if (!await appStorage.UserIsStored())
         {
             throw new Exception("User is not logged in.");
         }

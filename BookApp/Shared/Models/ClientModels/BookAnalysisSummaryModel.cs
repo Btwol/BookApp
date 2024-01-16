@@ -15,7 +15,7 @@ namespace BookApp.Shared.Models.ClientModels
         public string BookHash { get; set; }
         public string BookTitle { get; set; }
         public List<string> Authors { get; set; } = new();
-        public List<KeyValuePair<AppUserModel, MemberType>> Members { get; set; } = new();
+        public List<Tuple<AppUserModel, MemberType>> Members { get; set; } = new();
 
         public BookAnalysisSummaryModel()
         {

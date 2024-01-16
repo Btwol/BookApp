@@ -57,13 +57,10 @@
 
     [Parameter]
     public List<TagModel> Tags { get; set; }
-
     [Parameter]
     public int bookAnalysisId { get; set; }
-
     [Parameter]
     public ITagableItemModel taggedItem { get; set; }
-
     [Parameter]
     public ITagManagerClientService TagManagerClientService { get; set; }
 
@@ -82,7 +79,7 @@
 
     private async Task Close() => await BlazoredModal.CloseAsync();
 
-    async Task CreateNewTag()
+    private async Task CreateNewTag()
     {
         try
         {
@@ -96,7 +93,7 @@
         }
     }
 
-    async Task EditTag()
+    private async Task EditTag()
     {
         try
         {
@@ -111,7 +108,7 @@
         }
     }
 
-    async Task DeleteTag(int tagId)
+    private async Task DeleteTag(int tagId)
     {
         try
         {

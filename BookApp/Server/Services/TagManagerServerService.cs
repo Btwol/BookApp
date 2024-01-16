@@ -1,6 +1,4 @@
-﻿using BookApp.Shared.Enums;
-
-namespace BookApp.Server.Services
+﻿namespace BookApp.Server.Services
 {
     public class TagManagerServerService<T> : ITagManagerServerService<T> where T : ITaggable
     {
@@ -9,8 +7,8 @@ namespace BookApp.Server.Services
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
         private readonly IHubServerService _hubServerService;
 
-        public TagManagerServerService(ITaggableRepository<T> taggedRepository, ITagRepository tagRepository, IBookAnalysisServerService bookAnalysisServerService,
-            IHubServerService hubServerService)
+        public TagManagerServerService(ITaggableRepository<T> taggedRepository, ITagRepository tagRepository,
+            IBookAnalysisServerService bookAnalysisServerService, IHubServerService hubServerService)
         {
             _taggedRepository = taggedRepository;
             _tagRepository = tagRepository;

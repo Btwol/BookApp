@@ -1,5 +1,4 @@
-﻿using BookApp.Shared.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookApp.Server.Models
 {

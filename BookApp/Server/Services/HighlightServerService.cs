@@ -7,7 +7,7 @@
         private readonly IHubServerService _hubServerService;
         private readonly IBookAnalysisServerService _bookAnalysisServerService;
 
-        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapper highlightMapperService, 
+        public HighlightServerService(IHighlightRepository highlightRepository, IHighlightMapper highlightMapperService,
             IHubServerService hubServerService, IBookAnalysisServerService bookAnalysisServerService)
         {
             _highlightRepository = highlightRepository;
@@ -55,7 +55,7 @@
         public async Task<ServiceResponse> UpdateHighlight(HighlightModel updatedHighlight)
         {
             var requestValidation = await ValidateHighlightRequest(updatedHighlight.BookAnalysisId);
-            if(!requestValidation.SuccessStatus)
+            if (!requestValidation.SuccessStatus)
             {
                 return ServiceResponse.Error(requestValidation.Message, requestValidation.StatusCode);
             }

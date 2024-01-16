@@ -43,12 +43,12 @@
     </div>
 </div>
 @code {
-    public RegisterRequest newUser { get; set; } = new RegisterRequest { Email = "", UserName = "", Password = "" };
-    bool registrationSuccessful = true;
-    string registerRequestResponseMessage = "";
-    bool awaitingResponse = false;
+    private RegisterRequest newUser = new RegisterRequest { Email = "", UserName = "", Password = "" };
+    private bool registrationSuccessful = true;
+    private string registerRequestResponseMessage = "";
+    private bool awaitingResponse = false;
 
-    public async Task RegisterUser()
+    private async Task RegisterUser()
     {
         awaitingResponse = true;
         try

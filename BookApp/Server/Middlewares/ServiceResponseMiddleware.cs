@@ -3,13 +3,11 @@
     public class ServiceResponseMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IJsonKeyValueGetter _jsonKeyValueGetter;
         private const string StatusCodeName = "statusCode";
 
-        public ServiceResponseMiddleware(RequestDelegate next, IJsonKeyValueGetter jsonKeyValueGetter)
+        public ServiceResponseMiddleware(RequestDelegate next)
         {
             _next = next;
-            _jsonKeyValueGetter = jsonKeyValueGetter;
         }
 
         public async Task Invoke(HttpContext context)
@@ -33,7 +31,8 @@
 
                 if (responseBody.Contains(StatusCodeName))
                 {
-                    string statusCode = _jsonKeyValueGetter.GetValueByKey(responseBody, StatusCodeName);
+                    var json = (JObject)JsonConvert.DeserializeObject(responseBody);
+                    string statusCode = json[StatusCodeName].Value<string>();
                     context.Response.StatusCode = int.Parse(statusCode);
                 }
 
